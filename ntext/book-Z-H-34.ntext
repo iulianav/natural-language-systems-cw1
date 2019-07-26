@@ -1,0 +1,195 @@
+in section five point one we saw how to transform simple scheme programs into descriptions of register machines
+we will now perform this transformation on a more complex program the metacircular evaluator of sections four point one point one 4.1.4 which shows how the behavior of a scheme interpreter can be described in terms of the procedures eval and apply
+the explicit control evaluator that we develop in this section shows how the underlying procedure calling and argument passing mechanisms used in the evaluation process can be described in terms of operations on registers and stacks
+in addition the explicit control evaluator can serve as an implementation of a scheme interpreter written in a language that is very similar to the native machine language of conventional computers
+the evaluator can be executed by the register machine simulator of section five point two
+alternatively it can be used as a starting point for building a machine language implementation of a scheme evaluator or even a special purpose machine for evaluating scheme expressions
+figure five point sixteen shows such a hardware implementation a silicon chip that acts as an evaluator for scheme
+the chip designers started with the data path and controller specifications for a register machine similar to the evaluator described in this section and used design automation programs to construct the integrated circuit layout
+in designing the explicit control evaluator we must specify the operations to be used in our register machine
+we described the metacircular evaluator in terms of abstract syntax using procedures such as quoted and make procedure
+in implementing the register machine we could expand these procedures into sequences of elementary list structure memory operations and implement these operations on our register machine
+however this would make our evaluator very long obscuring the basic structure with details
+to clarify the presentation we will include as primitive operations of the register machine the syntax procedures given in section four point one point two and the procedures for representing environments and other run time data given in sections four point one point three and four point one point four
+in order to completely specify an evaluator that could be programmed in a low level machine language or implemented in hardware we would replace these operations by more elementary operations using the list structure implementation we described in section five point three
+our scheme evaluator register machine includes a stack and seven registers exp env val continue proc argl and unev
+exp is used to hold the expression to be evaluated and env contains the environment in which the evaluation is to be performed
+at the end of an evaluation val contains the value obtained by evaluating the expression in the designated environment
+the continue register is used to implement recursion as explained in section five point one point four
+the registers proc argl and unev are used in evaluating combinations
+we will not provide a data path diagram to show how the registers and operations of the evaluator are connected nor will we give the complete list of machine operations
+these are implicit in the evaluator's controller which will be presented in detail
+the central element in the evaluator is the sequence of instructions beginning at eval dispatch
+this corresponds to the eval procedure of the metacircular evaluator described in section four point one point one
+when the controller starts at eval dispatch it evaluates the expression specified by exp in the environment specified by env
+when evaluation is complete the controller will go to the entry point stored in continue and the val register will hold the value of the expression
+as with the metacircular eval the structure of eval dispatch is a case analysis on the syntactic type of the expression to be evaluated
+numbers and strings variables quotations and lambda expressions have no subexpressions to be evaluated
+for these the evaluator simply places the correct value in the val register and continues execution at the entry point specified by continue
+evaluation of simple expressions is performed by the following controller code
+observe how ev lambda uses the unev and exp registers to hold the parameters and body of the lambda expression so that they can be passed to the make procedure operation along with the environment in env
+a procedure application is specified by a combination containing an operator and operands
+the operator is a subexpression whose value is a procedure and the operands are subexpressions whose values are the arguments to which the procedure should be applied
+the metacircular eval handles applications by calling itself recursively to evaluate each element of the combination and then passing the results to apply which performs the actual procedure application
+the explicit control evaluator does the same thing these recursive calls are implemented by goto instructions together with use of the stack to save registers that will be restored after the recursive call returns
+before each call we will be careful to identify which registers must be saved
+we begin the evaluation of an application by evaluating the operator to produce a procedure which will later be applied to the evaluated operands
+to evaluate the operator we move it to the exp register and go to eval dispatch
+the environment in the env register is already the correct one in which to evaluate the operator
+however we save env because we will need it later to evaluate the operands
+we also extract the operands into unev and save this on the stack
+we set up continue so that eval dispatch will resume at ev appl did operator after the operator has been evaluated
+first however we save the old value of continue which tells the controller where to continue after the application
+upon returning from evaluating the operator subexpression we proceed to evaluate the operands of the combination and to accumulate the resulting arguments in a list held in argl
+first we restore the unevaluated operands and the environment
+we initialize argl to an empty list
+then we assign to the proc register the procedure that was produced by evaluating the operator
+if there are no operands we go directly to apply dispatch
+otherwise we save proc on the stack and start the argument evaluation loop
+each cycle of the argument evaluation loop evaluates an operand from the list in unev and accumulates the result into argl
+to evaluate an operand we place it in the exp register and go to eval dispatch after setting continue so that execution will resume with the argument accumulation phase
+but first we save the arguments accumulated so far the environment and the remaining operands to be evaluated
+a special case is made for the evaluation of the last operand which is handled at ev appl last arg
+when an operand has been evaluated the value is accumulated into the list held in argl
+the operand is then removed from the list of unevaluated operands in unev and the argument evaluation continues
+evaluation of the last argument is handled differently
+there is no need to save the environment or the list of unevaluated operands before going to eval dispatch since they will not be required after the last operand is evaluated
+thus we return from the evaluation to a special entry point ev appl accum last arg which restores the argument list accumulates the new argument restores the saved procedure and goes off to perform the application
+the details of the argument evaluation loop determine the order in which the interpreter evaluates the operands of a combination
+this order is not determined by the metacircular evaluator which inherits its control structure from the underlying scheme in which it is implemented
+because the first operand selector is implemented as car and the rest operands selector is implemented as cdr the explicit control evaluator will evaluate the operands of a combination in left to right order
+the entry point apply dispatch corresponds to the apply procedure of the metacircular evaluator
+by the time we get to apply dispatch the proc register contains the procedure to apply and argl contains the list of evaluated arguments to which it must be applied
+the saved value of continue which tells where to return with the result of the procedure application is on the stack
+when the application is complete the controller transfers to the entry point specified by the saved continue with the result of the application in val
+as with the metacircular apply there are two cases to consider
+either the procedure to be applied is a primitive or it is a compound procedure
+we assume that each primitive is implemented so as to obtain its arguments from argl and place its result in val
+to specify how the machine handles primitives we would have to provide a sequence of controller instructions to implement each primitive and arrange for primitive apply to dispatch to the instructions for the primitive identified by the contents of proc
+since we are interested in the structure of the evaluation process rather than the details of the primitives we will instead just use an apply primitive procedure operation that applies the procedure in proc to the arguments in argl
+for the purpose of simulating the evaluator with the simulator of section five point two we use the procedure apply primitive procedure which calls on the underlying scheme system to perform the application just as we did for the metacircular evaluator in section four point one point four
+after computing the value of the primitive application we restore continue and go to the designated entry point
+to apply a compound procedure we proceed just as with the metacircular evaluator
+we construct a frame that binds the procedure's parameters to the arguments use this frame to extend the environment carried by the procedure and evaluate in this extended environment the sequence of expressions that forms the body of the procedure
+ev sequence described below in section five point four point two handles the evaluation of the sequence
+compound apply is the only place in the interpreter where the env register is ever assigned a new value
+just as in the metacircular evaluator the new environment is constructed from the environment carried by the procedure together with the argument list and the corresponding list of variables to be bound
+the portion of the explicit control evaluator at ev sequence is analogous to the metacircular evaluator's eval sequence procedure
+it handles sequences of expressions in procedure bodies or in explicit begin expressions
+explicit begin expressions are evaluated by placing the sequence of expressions to be evaluated in unev saving continue on the stack and jumping to ev sequence
+the implicit sequences in procedure bodies are handled by jumping to ev sequence from compound apply at which point continue is already on the stack having been saved at ev application
+the entries at ev sequence and ev sequence continue form a loop that successively evaluates each expression in a sequence
+the list of unevaluated expressions is kept in unev
+before evaluating each expression we check to see if there are additional expressions to be evaluated in the sequence
+if so we save the rest of the unevaluated expressions and the environment in which these must be evaluated and call eval dispatch to evaluate the expression
+the two saved registers are restored upon the return from this evaluation at ev sequence continue
+the final expression in the sequence is handled differently at the entry point ev sequence last exp
+since there are no more expressions to be evaluated after this one we need not save unev or env before going to eval dispatch
+the value of the whole sequence is the value of the last expression so after the evaluation of the last expression there is nothing left to do except continue at the entry point currently held on the stack rather than setting up continue to arrange for eval dispatch to return here and then restoring continue from the stack and continuing at that entry point we restore continue from the stack before going to eval dispatch so that eval dispatch will continue at that entry point after evaluating the expression
+in chapter one we said that the process described by a procedure such as
+is an iterative process
+even though the procedure is syntactically recursive it is not logically necessary for an evaluator to save information in passing from one call to sqrt iter to the next
+an evaluator that can execute a procedure such as sqrt iter without requiring increasing storage as the procedure continues to call itself is called a tail recursive evaluator
+the metacircular implementation of the evaluator in chapter four does not specify whether the evaluator is tail recursive because that evaluator inherits its mechanism for saving state from the underlying scheme
+with the explicit control evaluator however we can trace through the evaluation process to see when procedure calls cause a net accumulation of information on the stack
+our evaluator is tail recursive because in order to evaluate the final expression of a sequence we transfer directly to eval dispatch without saving any information on the stack
+hence evaluating the final expression in a sequence even if it is a procedure call will not cause any information to be accumulated on the stack
+if we did not think to take advantage of the fact that it was unnecessary to save information in this case we might have implemented eval sequence by treating all the expressions in a sequence in the same way saving the registers evaluating the expression returning to restore the registers and repeating this until all the expressions have been evaluated
+this may seem like a minor change to our previous code for evaluation of a sequence the only difference is that we go through the save restore cycle for the last expression in a sequence as well as for the others
+the interpreter will still give the same value for any expression
+but this change is fatal to the tail recursive implementation because we must now return after evaluating the final expression in a sequence in order to undo the ( useless ) register saves
+these extra saves will accumulate during a nest of procedure calls
+consequently processes such as sqrt iter will require space proportional to the number of iterations rather than requiring constant space
+this difference can be significant
+for example with tail recursion an infinite loop can be expressed using only the procedure call mechanism
+without tail recursion such a procedure would eventually run out of stack space and expressing a true iteration would require some control mechanism other than procedure call
+as with the metacircular evaluator special forms are handled by selectively evaluating fragments of the expression
+for an if expression we must evaluate the predicate and decide based on the value of predicate whether to evaluate the consequent or the alternative
+before evaluating the predicate we save the if expression itself so that we can later extract the consequent or alternative
+we also save the environment which we will need later in order to evaluate the consequent or the alternative and we save continue which we will need later in order to return to the evaluation of the expression that is waiting for the value of the if
+when we return from evaluating the predicate we test whether it was true or false and depending on the result place either the consequent or the alternative in exp before going to eval dispatch
+notice that restoring env and continue here sets up eval dispatch to have the correct environment and to continue at the right place to receive the value of the if expression
+assignments are handled by ev assignment which is reached from eval dispatch with the assignment expression in exp
+the code at ev assignment first evaluates the value part of the expression and then installs the new value in the environment
+set variable value is assumed to be available as a machine operation
+definitions are handled in a similar way
+extend the evaluator to handle derived expressions such as cond let and so on
+you may cheat and assume that the syntax transformers such as cond if> are available as machine operations
+implement cond as a new basic special form without reducing it to if
+you will have to construct a loop that tests the predicates of successive cond clauses until you find one that is true and then use ev sequence to evaluate the actions of the clause
+modify the evaluator so that it uses normal order evaluation based on the lazy evaluator of section four point two
+with the implementation of the explicit control evaluator we come to the end of a development begun in chapter one in which we have explored successively more precise models of the evaluation process
+we started with the relatively informal substitution model then extended this in chapter three to the environment model which enabled us to deal with state and change
+in the metacircular evaluator of chapter four we used scheme itself as a language for making more explicit the environment structure constructed during evaluation of an expression
+now with register machines we have taken a close look at the evaluator's mechanisms for storage management argument passing and control
+at each new level of description we have had to raise issues and resolve ambiguities that were not apparent at the previous less precise treatment of evaluation
+to understand the behavior of the explicit control evaluator we can simulate it and monitor its performance
+we will install a driver loop in our evaluator machine
+this plays the role of the driver loop procedure of section four point one point four
+the evaluator will repeatedly print a prompt read an expression evaluate the expression by going to eval dispatch and print the result
+the following instructions form the beginning of the explicit control evaluator's controller sequence
+when we encounter an error in a procedure we print an error message and return to the driver loop
+for the purposes of the simulation we initialize the stack each time through the driver loop since it might not be empty after an error interrupts an evaluation
+if we combine all the code fragments presented in sections five point four point one 5.4.4 we can create an evaluator machine model that we can run using the register machine simulator of section five point two
+we must define scheme procedures to simulate the operations used as primitives by the evaluator
+these are the same procedures we used for the metacircular evaluator in section four point one together with the few additional ones defined in footnotes throughout section five point four
+finally we can initialize the global environment and run the evaluator
+of course evaluating expressions in this way will take much longer than if we had directly typed them into scheme because of the multiple levels of simulation involved
+our expressions are evaluated by the explicit control evaluator machine which is being simulated by a scheme program which is itself being evaluated by the scheme interpreter
+simulation can be a powerful tool to guide the implementation of evaluators
+simulations make it easy not only to explore variations of the register machine design but also to monitor the performance of the simulated evaluator
+for example one important factor in performance is how efficiently the evaluator uses the stack
+we can observe the number of stack operations required to evaluate various expressions by defining the evaluator register machine with the version of the simulator that collects statistics on stack use and adding an instruction at the evaluator's print result entry point to print the statistics
+interactions with the evaluator now look like this
+note that the driver loop of the evaluator reinitializes the stack at the start of each interaction so that the statistics printed will refer only to stack operations used to evaluate the previous expression
+use the monitored stack to explore the tail recursive property of the evaluator
+start the evaluator and define the iterative factorial procedure from section one point two point one
+run the procedure with some small values of n
+record the maximum stack depth and the number of pushes required to compute n for each of these values
+a
+you will find that the maximum depth required to evaluate n is independent of n
+what is that depth
+b
+determine from your data a formula in terms of n for the total number of push operations used in evaluating n for any n > one
+note that the number of operations used is a linear function of n and is thus determined by two constants
+for comparison with exercise five point twenty six explore the behavior of the following procedure for computing factorials recursively
+by running this procedure with the monitored stack determine as a function of n the maximum depth of the stack and the total number of pushes used in evaluating n for n > one
+summarize your experiments by filling in the following table with the appropriate expressions in terms of n
+maximum depth number of pushes
+recursive
+factorial
+iterative
+factorial
+the maximum depth is a measure of the amount of space used by the evaluator in carrying out the computation and the number of pushes correlates well with the time required
+modify the definition of the evaluator by changing eval sequence as described in section five point four point two so that the evaluator is no longer tail recursive
+rerun your experiments from exercises five point twenty six and five point twenty seven to demonstrate that both versions of the factorial procedure now require space that grows linearly with their input
+monitor the stack operations in the tree recursive fibonacci computation
+a
+give a formula in terms of n for the maximum depth of the stack required to compute fib ( n ) for n > two
+hint in section one point two point two we argued that the space used by this process grows linearly with n
+b
+give a formula for the total number of pushes used to compute fib ( n ) for n > two
+you should find that the number of pushes grows exponentially with n
+hint let s ( n ) be the number of pushes used in computing fib ( n )
+you should be able to argue that there is a formula that expresses s ( n ) in terms of s s and some fixed overhead constant k that is independent of n
+give the formula and say what k is
+then show that s ( n ) can be expressed as a fib plus b and give the values of a and b
+our evaluator currently catches and signals only two kinds of errors unknown expression types and unknown procedure types
+other errors will take us out of the evaluator read eval print loop
+when we run the evaluator using the register machine simulator these errors are caught by the underlying scheme system
+this is analogous to the computer crashing when a user program makes an error
+it is a large project to make a real error system work but it is well worth the effort to understand what is involved here
+a
+errors that occur in the evaluation process such as an attempt to access an unbound variable could be caught by changing the lookup operation to make it return a distinguished condition code which cannot be a possible value of any user variable
+the evaluator can test for this condition code and then do what is necessary to go to signal error
+find all of the places in the evaluator where such a change is necessary and fix them
+this is lots of work
+b
+much worse is the problem of handling errors that are signaled by applying primitive procedures such as an attempt to divide by zero or an attempt to extract the car of a symbol
+in a professionally written high quality system each primitive application is checked for safety as part of the primitive
+for example every call to car could first check that the argument is a pair
+if the argument is not a pair the application would return a distinguished condition code to the evaluator which would then report the failure
+we could arrange for this in our register machine simulator by making each primitive procedure check for applicability and returning an appropriate distinguished condition code on failure
+then the primitive apply code in the evaluator can check for the condition code and go to signal error if necessary
+build this structure and make it work
+this is a major project

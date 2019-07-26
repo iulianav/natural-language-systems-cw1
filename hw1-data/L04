@@ -1,0 +1,526 @@
+well so far in this course we have been talking about procedures
+and then just to remind you of this framework that we introduced for talking about languages we talked about the primitive things
+that are built into the system uh we mentioned some means of combination by which you take the primitive things and you make more complicated things and then we talked about the means of abstraction how you can take those complicated things and name them so you can use them as simple building blocks
+and then last time you saw we went even beyond that we saw that by using higher order procedures you can actually express general methods for computing things like the method of doing something by fixed points or newton's method and so the incredible expressive power you can get just by combining these these means of abstraction and the crucial idea in all of this is the one that we build a layered system
+so for instance if we're writing the squareroot procedure somewhere the square root procedure uses a procedure called goodenough
+and between those there is some sort of abstraction boundary
+it is almost as if we go out and in writing squareroot we go and make a contract with uh with george and tell george that his job is to write goodenough and so long as goodenough works we don't care what it does we don't care exactly how it's implemented
+there are levels of detail here that are george's concern and not ours
+so for instance george might use a an absolute value procedure that's written by harry and we don't much care about that or even know that that maybe harry exists
+so the crucial idea is that when we're building things we divorce the task of building things from the task of implementing the parts
+it is as if and in a in a large system of course we have abstraction barriers like this at lots and lots and lots of levels
+and that's the idea that we've been using so far over and over in implementing procedures
+well now what we're going to do is look at the same issues for data
+we are going to see that the system has primitive data
+in fact we've already seen that we've talked about numbers as primitive data and then we're going to see there're means of combination for data there's glue that allows you to put primitive data together to make more complicated kind of compound data and then we are going to see a methodology for abstraction
+that's a very good thing to use when you start building up data in terms of simpler data
+and again the key idea is that you're going to build this system in layers and set up abstraction barriers that isolate the details at the lower layers from the thing that's going on at the upper layers
+the details at the lower layers the idea is they won't matter they're going to be george's concern because he signed this contract with us for how the stuff that he implements behaves
+and how he implements the thing is his problem
+all right well let's look at an example and the example i'm going to talk about is a system that does arithmetic on rational numbers
+and what i have in mind is that we should have something in the computer that allows us to ask it like uh what's the sum of a half and a fourth and somehow the system should say say yeah that's three fourths
+or uh we should be able to say what's three fourths times two thirds and the system should be able to say yeah that's a half
+all right
+and you know what i have in mind and you also know how to do this from uh i don't know fifth grade or sixth grade
+right there're these formulas that say if i have some fraction which is a numerator over a denominator and i want to add that to some other fraction which is another numerator over another denominator then the answer is the numerator of the first times the denominator of the second plus the uh numerator of the second times the denominator of the first
+that's the numerator of the answer and the denominator is the product of the two denominators
+right
+so there's something from fifth or sixth grade fraction arithmetic
+and then similarly if i want to multiply two things n1 over d1 multiplied by n2 over d2 is the product of the numerators over the product of the denominators
+so it's no problem at all
+all right it's absolutely no problem to think about what computation you want to make in adding and multiplying these fractions
+but as soon as we go to implement it we run up across something
+we don't have what a rational number is
+see we've said that the system gives us individual numbers so we can have five and three but but somehow we don't have a way of of saying there's a thing that has you know both a three and a four in it
+or both a both a two and a three
+it's almost as if we'd like to imagine that somehow there are these clouds and a cloud somehow has both a numerator and a denominator in it and that's what we'd like to work in terms of
+well how are we going to solve that problem
+we're going to solve that problem by using this incredibly powerful design strategy that you've already seen us use over and over and that's the strategy of wishful thinking
+just like before when we didn't have a procedure we said well let's imagine that that procedure already exists we'll say well let's imagine that we have these clouds
+and more precisely what i mean is let's imagine that we have three procedures
+one called makerat
+makerat is going to take as arguments two numbers which i'll call numerator and denominator and it'll return for us a cloud
+right
+one of these clouds
+and i don't really know what a cloud is
+it's whatever makerat returns that's its business
+and then we're going to say suppose we've got one of these clouds we have a procedure called numer which takes in a cloud that has an n and a d in it whatever a cloud is and i don't know what it is and returns for us the numerator part
+and then we'll assume we have a procedure denom which again takes in a cloud whatever a cloud is and returns for us the denominator required
+this is just like before when if we are building uh squareroot we assume that we have goodenough
+all right and what we'll say is we'll go find george and we'll say to george well it's your business to make us these procedures and how you choose to implement these clouds that's your problem
+we don't want to know
+well having pushed this task off onto george then it's pretty easy to do the other part
+once we've got the clouds it's pretty easy to write the thing that does say addition of rational numbers
+you can just say define well let's say plusrat
+define plusrat which will take in two rational numbers
+we have x and y x and y are are each these clouds
+and what does it do
+well it's going to return for us a rational number
+what rational number is it
+well we've got the formulas there
+the numerator of it is the sum of the product of the numerator of x and the denominator of y
+that's one thing in the sum
+and the other thing in the numerator is the product of the numerator of y and the denominator of x plus right that's the the first argument to makerat which is the numerator of the thing i'm constructing
+and then the rest of the thing goes into makerat is the denominator of the answer which is the product of the denominator of x and the denominator of y
+like that
+ok
+so there is there's the analog of of doing rational number addition and it's no problem at all assuming that we have these clouds
+and of course we can do uh multiplication in the same way
+i define how to get the product of two rational numbers call it starrat takes in two of these clouds x and y
+it returns a rational number makerat whose numerator is the product of the numerators numerator of x times the numerator of y and the denominator of the thing it's going to return is the product of the denominators
+ok
+well except that i haven't told you what these clouds are that's all there is to it
+see what did i do
+i assumed by wishful thinking that i had a new kind of data object
+in particular i assumed i had ways of creating these data objects
+makerat creates one of these things this is called a constructor
+all right i have the thing that that constructs such data objects and then i assume i have things that having made these things i have ways of getting the parts out
+those are called selectors
+and so formally what i said is i assumed i had procedures that are constructors and selectors for these data objects and then i went off and used them
+i mean that's no different in kind from saying i assume i have a procedure goodenough and i go use it to implement squareroot
+ok but before we go on let's ask the question of why we want to why we want to do this in the first place
+see why do we want a procedure like uh like plusrat that takes in two rational numbers and returns a rational number
+see another way to think about this is well here's this formula and what i fo to implement you know something that adds rational numbers one other way to think about it is well there's this thing and i type in four numbers an n1 and a d1 and an n2 and a d2 and it sets some registers in the machine to uh this numerator and this denominator so i might say well why don't i just add rational numbers by i type in four numbers numerators and denominators and get out two numbers which is a numerator and a denominator
+all right why are why are we worrying about building things like this anyway
+well the answer is suppose you want to think about expressing something like uh like this
+suppose i'd like to express the idea of taking two rational numbers x plus y say and multiplying that by the sum of two other rational numbers
+well the way i'd do it having things like plusrat and starrat is i'd say oh yeah what that is is is just the uh the product that's starrat of the sum of x and y and the sum of s and t
+so except for syntax i get an expression that looks like the way i want to think about it mathematically
+and i want to say there's there're two numbers there's a thing which is the sum of them and there's a thing which is the sum of these two that's this and this and then i multiply them
+so i get an expression that matches this expression
+if i did the other thing if i said well the way i want to think about this is i type into my machine four numbers which are the numerators and denominators of x and y and then four more numbers which are the numerators and denominators of x s and t and then what i'd be sitting with is well what would i do
+i'd add these and somehow i'd have to have two temporary variables which are the numerators and denominators of this sum and i'd go off and store them someplace
+and then i'd go over here i'd type in four more numbers i'd get two more temporary variables which are the numerators and denominators of s and t
+and then finally i'd put those together by multiplying them
+you see what's what's starting to happen
+there are all these temporary variables which are which are sort of the guts of the internals of these rational numbers that start hanging out all over the system
+and of course if i had more and more complicated expressions there'd be more and more guts hanging out that confuse my programming
+and those of you who sort of programmed things like that where you're just uh adding numbers in assembly language you sort of see you have suddenly be concerned with these temporary variables
+but more more importantly they they're going to not more importantly than confusing my programming they're going to confuse my mind because the whole name of this game is that we'd like the programming language to express the concepts that we have in our heads like rational numbers are things that you can add and then take that result and multiply them
+ok
+let's break for questions
+ok
+yeah
+i do not quite the see the need where we had makerat with a numerator and denominator we had to have a numerator and denominator to pass these parameters to create the cloud
+that's right
+and then we extracted to get back what we had to have originally
+that's right
+all right so the question is i sort of have the numerator and denominator why am i why am i worrying about having the cloud given that i have to get the pieces out
+that's sort of what i tried to say at the end but let me let me try and say it again because that's really the crucial question
+the point is i want to carry this numerator and denominator around together all the time
+and it's almost of if i i want to know yeah there's a numerator and denominator in there but also i would like to to say fine but from another point of view that's x and then i carry x around and i name it as x and i hold it and i can say things like the sum of x and y rather than just hav see it's not so bad when i only think about x but if i have a system with ten rational numbers suddenly i have twenty numerators and denominators which are not necessarily if i don't link them then it's just twenty arbitrary numbers that are not linked in any particular way
+it's a i mean it's a lot like saying well i have these instructions that are the body of the procedures why do i want to package them and say it's the procedure
+it's exactly the same idea
+ok
+any more
+ok
+let's break let's just stretch and get somebody to
+ok well we've been working on this rational number arithmetic system and then what we did all right the important thing about what we did is we thought about the problem by breaking it into two pieces
+all right we said assume there is this contract with george and george has figured out the way to how to construct these clouds provided us procedures makerat which is a constructor and selectors which are numer and denominator and then in terms of that we went off and implemented addition and multiplication of rational numbers
+well now let's go look at george's problem
+all right how can we go and package together a numerator and a deno and a denominator actually make one of these clouds
+see what we need is a kind of glue
+a kind of glue that a glue for data objects that allows us to put things together
+and lisp provides such a glue and that glue is is called list structure
+all right list structure is a way of gluing things together
+and more precisely list provides a way of constructing things called pairs
+there's a there's a primitive operation in lisp called cons you can take a look at it
+there's a thing called called cons
+all right cons is an operator which takes in two arguments called x and y and it returns for us a thing called a pair
+all right things called it's a thing called a pair right that has a first part and a second part
+all right
+so cons takes two objects there's a thing called a pair the first part of the cons is x and the second part of the cons is y and that's what it builds
+and then we also assume we have ways of getting things out
+if you're giving a pair there's a thing called car
+and car of the pair p gives you out the first part of the pair p
+and there's a thing called cdr and cdr of the pair p gives you the the second part of the pair p
+ok so that's how we construct things
+there's also a conventional way of drawing pictures of these things just like we write down uh you know just as we write down that as the conventional way of writing plato's idea of two the way we would we could draw a diagram to represent cons of two and three is like this
+i draw a little box and say here's the box we're talking about and this box has two arrows coming out of it that say the first part of this pair is two and the second part of this pair is three and this notation has a name it's called box it's called box and pointer notation
+ok
+by the way let me say right now that a lot of people get confused that there's some significance to the geometric way i drew these pointers the directions
+like some people think it'd be different if i took this pointer and turned it up here and put the three out here
+that has no significance all right it's it's merely you have a bunch of arrows these pointers right and the boxes and the only issue is the is how they're connected not the the geometric arrangement of whether i write the pointer across or up or down
+that's pr completely unobvious probably why that's called list structure
+we're not actually going to talk about that today we'll we'll see that next time
+ok so those are pairs
+there's cons that constructs them and what i'm going to know about cons and car and cdr is precisely that if i did if i had any x and y all right if i i'm going to say if i have any things x and y and i use cons to construct a pair then the car of that pair is going to be x the thing i put in and the cdr of that pair is going to be y
+all right and that's the that's the behavior of these operators cons car and cdr
+given them it's pretty clear how george can go off and construct his rational numbers
+so all he has to do remember george's problem was to implement makerat numerator and denom so all george has to do is say define makerat of some n and a d so all i have to do is cons them
+all right that's cons of n to d
+and then if i want to get the numerator out i can say define the numerator numer of some rational number x
+if the rational number is implemented as a pair then all i have to do is get out the car of x
+and then similarly define the denom is going to be the cdr the other thing i put into the pair
+mm hmm
+well now we're in business
+right that's the that's a complete implementation of rational numbers
+let's use it
+suppose i want to say i want to think about how to add one half plus one fourth and see how watch the system work
+well the way i'd use that is i'd say well maybe define define a i have to make a one half
+well that's a rational number with numerator one and denominator of two
+so a will be makerat of one and two
+and then i'll construct the one fourth i'll say define d to be makerat of uh one and four
+and if i'd like to look at the answer well assuming i don't have a special thing that prints rational numbers or i could make one i could say for instance define the answer to be plusrat of a and b and now i can say what's the answer what's the what are the numerators and denominators of the answer
+so if i'm adding one half and one fourth i'll say what is the numerator of the answer
+and the system is going to type out well six
+bad news
+and if i say what's the denominator of the answer the system is going to type out eight
+so instead of what i would really like which is for it to say that one half and one fourth is three fourths this foolish machine is going to say no it's uh six eighths
+well that's that's sort of bad news
+where's the bug
+why does it do that after all
+well it's the way that we just had plusrat
+plusrat just took the if i had said you add the the numerator times the denominator you add that to the numerator times the denominator and put that over the product of the two denominators and that's why you get six eight
+so what was wrong with our implementation of plusrat
+what's wrong with that rational number arithmetic stuff that we did before the break
+well the answer is one way to look at it is actually nothing is wrong with it
+that's a perfectly good implementation follows the right
+follows the sixth grade fifth grade mathematics for adding fractions
+one thing we can say is well that's george's problem
+all right boy wasn't george dumb to say that he can make a rational number simply by sticking together the numerator and denominator
+all right wouldn't it be better for george when he made a rational number to reduce the stuff to lowest terms
+and what i mean is wouldn't it be better for george instead of using this version of makerat to use this one on the slide or instead of just saying cons together n and d what you do is compute the greatest common divisor of n and d and gcd is a procedure which well for all we care is a primitive which computes the greatest common divisor of two numbers
+so the way i can construct a rational number is get the greatest common divisor of the two numbers and i'm going to call that g and then instead of consing together n and d i'll divide them through
+i'll cons together the quotient of n by the the gcd and the quotient of d by the gcd
+and that'll reduce the rational number to lowest terms so that when right so when i do this addition when this when plusrat calls makerat remember the definition of plusrat it had a makerat in here just by the fact that it's constructing that the thing will get reduced to lowest terms automatically
+ok that that is a complete system right for rational number arithmetic
+let's look at what we've done
+all right we said we want to build rational number arithmetic and we had a thing called plusrat we implemented that and uh showed you multiplying rational numbers and although i didn't put them up there presumably we'd like to have something that subtracts rational numbers and i don't know all sorts of things things that test equality and division and maybe things that print rational numbers in some particular way
+and we implemented those in terms of pairs
+these pairs cons car and cdr that are built into lisp but the important thing is that between these and these we set up an abstraction barrier
+we set up a layer of abstraction
+and what was that layer of abstraction
+that layer of abstraction was precisely the constructor and the selectors
+all right this layer was makerat and numer and denom
+ok
+this methodology all right this methodology another way to say what it's doing is that we are separating we're separating the way something is used separating the use of data objects from the representation of data objects
+all right so up here we have the way that rational numbers are used the arithmetic on them down here we have the way that they're represented and they're separated by this boundary
+the boundary is the constructors and selectors
+ok
+and this this methodology has a name
+this is called data abstraction
+data abstraction is sort of the programming methodology of setting up data objects by postulating constructors and selectors to isolate use from representation
+well so what
+i mean after all we didn't have to do it this way
+it's perfectly possible to do rational number addition without having any compound data objects and here on this slide is one example because we certainly could have defined plusrat which takes in things x and y and will say well what are these rational numbers really
+all right we'll say well really they're just pairs and the numerator is the car and the denominator is the cdr so what we'll do is we'll take the car of x times the cdr of y multiply them take the car of y times the cdr of x multiply them add them take the cdr of x and the cdr of y multiply them and then cons the two together
+and that well that sort of does the same thing
+right
+but this ignores the problem of reducing things to lowest terms but let's let's not worry about that for a minute
+well so what why don't we do it that way
+right
+after all there're there're sort of fewer procedures to define and it's a lot more straightforward
+saves you all this self righteous bs about talking about data abstraction we just sort of do it
+i mean who knows maybe it's even marginally more efficient depending on whatever compiler we're using for this
+all right what's the what's the point of isolating the use from the representation
+well goes back to this notion of naming
+remember the one of the most important principles in programming is the same as one of the most important principles in sorcery
+right
+that's if you have the name of the spirit you get control over it
+and if you go back and look at the slide you see what's in there is we have this thing plusrat but nowhere in the system if i have a plusrat and a minusrat and a starrat and things that look like it nowhere in the system do i have a thing that i can point at thing that i can point at which is a rational number
+but i don't have in a system like that the no idea of rational number as a conceptual entity
+well what's the advantage of that
+what's the advantage of isolating the idea of rational number as a conceptual entity and really meaning it with makerat numerator and denominator
+well one advantage is you might want to you might want to have alternative representations
+be before i showed you that one way george could solve this this uh things not reduced to lowest terms problem is when you build a rational number you divide out by the greatest common denominator
+another way to do that is uh shown over here
+i can have an alternative representation for rational numbers where when you make a rational number you just cons them
+however when you go to select out the numerator at that point you compute the gcd of the stuff that's sitting in that pair and divide out by the gcd
+all right and similarly when i get the denominator at that point when i go to get the denominator i'll divide out by the gcd
+so the difference would be in the old representation when ans was constructed here say with six and eight in the first way the six and eight would have got reduced when they got stuck into that pair and numerator would select out three and in the way i just showed you well ans would get six and eight put in and then at the point where i said numerator some computation would get done to put out three instead of six
+so those are two different ways i might do it
+which one's better
+well it depends
+right
+if i'm making a system where i am mostly constructing rational numbers and hardly ever looking at them then it's probably better not to do that gcd computation when i construct them
+if i'm doing a system where i look at a thing look at things a lot more than i construct them then it's probably better to to do the work when i construct them
+so there's there's a choice there but the real issue is that you might not be able to decide at the moment you're worrying about these rational numbers
+see in general as system designers you're forced with the necessity to make decisions about how you're going to do things
+and in general you the way you'd like to retain flexibility is to never make up your mind about anything until you're forced to do it
+and the problem is there's a a very very narrow line between deferring decisions and outright procrastination
+see you'd like to make progress
+you'd like to make progress but also at the same time never be bound by the consequences of your decisions
+the data abstraction's one way of doing this
+what we did is we used wishful thinking
+see we gave a name to the decision
+we said makerat numerator and denominator will stand for however it's going to be done and however it's going to be done it's george's problem
+but really what that was doing is giving a name to the decision of how we're going to do it and then continuing as if we'd made the decision
+we'll come and then eventually when we really wanted it to work coming back and facing what we really had to do
+and in fact we'll see a couple of times from now that you may never have to choose any particular representation ever ever
+anyway that's a very powerful design technique it's the key to the reason people use data abstraction
+and we're going to see that idea again and again
+let's stop for questions
+what does this um decision making through abstraction layers do to the maxim of do all your design before any of your code
+well that's someone's axiom and i bet that's the axiom of someone who hasn't implemented very large computer systems very much
+uh say that computer science is a lot like magic and it's sort of good that it's like magic
+there's a bad part of computer science that's a lot like religion
+and uh but uh in general i think people who really believe that you design everything before you implement it basically are people who haven't designed very many things
+the real the real power is that you can pretend that you've made the decision and then later on figure out which one is ri which decision you ought to have made and when you can do that you have the best of both worlds
+can you explain the difference between let and define
+oh ok
+uh let is let is a way to to establish local names
+ok
+so there let me give you sort of a half answer and i'll say maybe we later on we can talk about the whole very complicated thing
+but the big difference for now is that see when you're typing at lisp you're typing in this this environment where you're making definitions and when you say define a to be 5 if i say define a to be 5 then from then on the thing will remember that a is 5
+ok
+let is a way to set up a local context where there's a definition
+so if i type something like saying let uh let a no i shouldn't say a
+if i said let let z be 10 and within that context tell me what the sum of z and z is so if i typed in this expression to lisp and then this would put out 20
+however then if i said what's z the computer would say that's an unbound variable
+so let is a way of setting up a context where you can make definitions
+but the definitions are local to this context
+and of course if i'd said a in here i'd still get 20 but this a would not interfere at all with this one
+so if i typed this and then typed this and then say what's a a will still be 5
+so that's there's some other subtle differences between let and define but that's the the most important one
+all right well we've looked at implementing this this little system for doing arithmetic on rational numbers as an example of this methodology of data abstraction
+and that's a way of controlling complexity in large systems
+but see like procedure definition and like all the ways we're going to talk about for controlling complexity the real power of these things show up not when you sort of do these things in themselves like it's you know it's not such a great thing that we've done rational number arithmetic it's that you can use these as building blocks for making more complicated things
+all right so it's no wonderful idea that you can just put two numbers together to form a pair if that's all you ever wanted to do there are tons of ways that you can do that
+the real issue is can you do that in such a way so that the things that you build become building blocks for doing something even even more complex
+so whenever someone shows you a method for controlling complexity you should say yeah that's great but what can i build with it
+so for example let's do a s let me just run through another thing that's a lot like the rational number one suppose we would like to represent uh you know points in the plain
+you sort of say well there's a point and we're going to call that point p and that point might have coordinates
+like ah this might be the point one comma two its x coordinate might be one and its y coordinate might be two and we'll make a little system for for manipulating points in the plane
+and again we can do that
+here's a here's a little example of that
+you can represent vectors the same as points in the plane and we'll say yeah there's a there's a constructor called makevector
+makevector is going to take two coordinates and here we can implement them if we like as pairs but the important thing is that there's a constructor and then given some vector p we can find its x coordinate or we can get its y coordinate
+so there's a constructor and selectors for points in the plane
+well given points in the plain we might want to use them to build something
+so for instance we might want to talk about we might have a point p and a point q
+so p might be the point one two and q might be the point two three and we might want to talk about the line segment that starts at p and ends at q
+right
+and that might be the segment s
+so we might want to build points in terms of numbers and segments in terms you might want to build points or vectors in terms of numbers and segments in terms of vectors so we can represent line segments in exactly the same way
+right so the line segment from p to q we'll say there's a constructor makesegment and there's we make up names for the selectors the starting point of the segment and the ending point of the segment and again we can implement a segment using cons a pair of points and car and cdr get out the two points that we put together to get the segment
+ok
+well now having done that we can have some operations on them
+right like we could say what's the what's the mid point of a line segment
+so here's the mid point of a line segment that's going to be the point that's well the points whose coordinates are the averages of the coordinates of the end points that there is the mid point so to get the mid point of a line segment s we'll just say grab the starting point of the segment grab the ending point of the segment and now make a vector right
+make a point whose coordinates are the average of the x coordinate of the first point and the x coordinate of the second point and whose y coordinate is the average of the y coordinates
+right so there's an implementation of midpoint and then and then and then similarly we can build something like the length of a segment
+right the length of a segment is a thing whose all right we use the use pythagoras' rule the length of the segment is the square root of dx squared plus dy squared we'll say
+to get the length of a line segment well we'll let dx be the difference of the x coordinates of one end point and the x coordinate of the other end point and we'll let dy be the difference of the y coordinates and then we'll take the square root of the sum of the squares of dx and dy that's what this says
+all right so there's an implementation of length
+and again what we've built is a layered system
+right
+we built a system which has well say up here there are segments and then there's an abstraction barrier
+all right
+the abstraction barrier separates the implementation of segments from the implementations of vectors and points and what that abstraction barrier is are the constructors and selectors it's makesegment and segmentstart and segmentend
+all right
+and then there are vectors
+and then vectors in turn are built on top of pairs of numbers
+and so let's say pairs and numbers and that has its own abstraction barrier
+all right
+which is makevector and xcoordinate and ycoordinate
+all right
+so we have a again a layered system and you're starting to see that there are layers here
+i ought to mention there's a very important thing that i kind of took for granted and it's it's sort of so natural
+on the other hand it's it's one it's a very important thing notice that in order to represent the segment s i said this segment is a pair of points
+and a point is a pair of numbers and if i were going to draw the box and pointer structure for that i would say oh the segment is given those particular representations that i showed you i'd say this segment s is a pair and the first thing in the pair is a vector and the vector is a pair of numbers
+and that's this that's p
+and the other thing in the segment is q which is itself a pair of numbers
+so i almost took it for granted when i said that cons allows you to put things together
+but it's very easy to not appreciate that because notice i can put the some of the things i can put together can themselves be pairs
+and let me introduce a word that i'll talk about more next time
+it's one of my my favorite words called closure
+and by closure i mean that the means of combination in your system are such that when you put things together using them like you make a pair you can then put those together with the same means of combination
+so i can have not only a pair of numbers but i can have a pair of pairs
+so for instance making arrays in a language like fortran is not a closed means of combination because i can make an array of numbers but i can't make an array of arrays
+and one of the things that you should ask one of your one of your tests of quality for a means of combination that someone shows you is gee are the things you make closed under that means of combination
+so it's not so pairs would not be nearly so interesting if all i could do was make a pair of numbers
+i couldn't build very much structure at all
+well we'll come back to that i just wanted to mention it now
+you'll hear a lot about closure later on
+you can also see the potential for losing control of complexity as soon as you have a layered system if you don't use data abstraction
+see let's go back and let's go back and look at this slide for length
+see length works and is a simple thing because i can say when i want to get this value i can say oh that is the xcoordinate of the first endpoint of the segment
+and each of these things each of these selectors xcoordinate and endpoint stand for a decision choice whose details i don't have to look at
+see i could perfectly well again just like rational numbers i did before i could say oh well gee a segment really is a pair of pairs and the uh the x coordinate of the first end point of the segment really is the well what is it
+it's the car of the car of the segment
+so i could perfectly well go and redefine length i could say define length of some segment s and i could start off writing something like well we'll let dx be well what's it got to be
+it's got to be the difference of the two coordinates so that's the difference of the first one is the car of the car of s subtracted from the x the first one the car of the other half of it the cdr of s
+all right and then dy would be well let's see it would be i've got the y coordinate so it would be the difference of the cdr of the car of s and the cdr of the cdr of s sort of go on
+and you see that's that's much harder to read than the program i had before but uh but worse than that i mean suppose you'd gone and implemented length
+and you co and then the next day george comes to you and said i'm sorry i changed my mind
+i want to write points with the with the x coordinate first
+so you come back and say oh gee what was that that was the oh the car so i have to change this to cdr and this is cdr and this now has to be car and this has to be car and you sort of do that and then the next day george comes back and says sorry uh the guys designing the display would like you know would like lines to be painted in the opposite direction so i have to write the end point first in the order and then you come back and you stare at this code and say gee what was it you know what was it talking about
+oh yeah well i've got to change this one to cdr and this one becomes car and this one becomes car and this becomes cdr and you go up and do that and then the next day george comes back here i'm sorry what i really meant is that the segments always have to go be painted from left to right on the screen
+and then you sort of you know and it's clear you just go and punch george in the mouth at that point
+but uh all right but you see as soon as we have you know a ten layer system you see how that complexity immediately builds up to the point where where even something like this gets out of control
+all right
+so again the way we've gotten out of that is we've named that spirit so we've built we've built a system where there is a thing which is the representation choice for how you're going to talk about vectors
+and choices about that representation are localized right there
+they don't have their guts spilling over into things like how you compute the length or how you compute the mid point
+all right and that's the real that's the real power of this system
+ok we're explicit about them so that we have control over them
+all right questions
+what happens in the case where you you're you don't want to be treating objects in terms of pairs
+for instance at in three dimensional space you'd have three coordinates or even in the case where you have n dimensional space
+right
+ok well this is a this is a preview of what i'll say tomorrow but uh the point is once you have once you have two things you have as many things as you want
+all right because if i want to make three things i could start making things like a pair whose first thing is one and whose second thing is another pair that say has two and three in it
+and so on a hundred things i can nest them out of pairs
+here i made a pretty arbitrary decision about how to do it and you can immediately see there are lots of ways to do that
+what we'll start talking about next time are conventions for how to do things like that
+but notice that what this really depends on is i can make pairs of pairs
+if all i could do is make pairs of numbers i'd be stuck
+ok
+let's break
+all right well we've just gone off and done a couple of simple examples of data abstraction
+now i'm going to do something more complicated
+we're going to talk about what it means and this'll be harder because it's always it's always much harder to in computer programming to talk about what something means than to go off and do it
+but uh let's go back to almost the very beginning
+let's go back to the point where i said we just assumed that there were procedures makerat and numer and denom
+let's go back to where we had those at the very beginning constructors and selectors and went off and defined the rational number arithmetic and remember i said at that point we were sort of done except for george
+although what is it that we'd actually done at that point
+what was it that was done
+well what i want to say is what was done after we'd implemented the operations in terms of these was that we had defined a rational number representation in terms of abstract data
+what do i mean by abstract data
+well the idea is that at that point when we had our plusrat and our starrat that any implementation of makerat and numerator and denominator that george supplied us with could be the basis for a rational number representation like it wasn't our concern where you where you uh divided through to get the greatest common denominator or or any of that
+all right so the idea is that what we built is a rational arithmetic system that would sit on top of any representation
+now what do i mean by any representation
+i mean certainly it can't be the case that all i mean is george can reach in the bag and pull out three arbitrary procedures and say well fine now you now that's the implementation
+all right that can't be what i mean
+all right what i've got to mean is that there's some way of saying whether three procedures are going to be suitable as a basis for a rational number representation
+if we if we think about it what suitable might mean is is i have to assume something like this i have to say that if x is the result of say doing makerat of n and d then the numerator of x divided by the denominator of x is equal to n over d
+see what that is is that's george's contract
+and what we mean by writing a contract for rational numbers if you think about it this is the right thing
+and the two the two ones we showed do do the right thing
+see if i'm taking out greatest common divisors doesn't matter whether i take them out or not or the place where i take them out because the idea is i'm going to divide through
+but see this is george's contract so what we really say to george is what your your business is to go off and find us three procedures makerat numerator and denominator that fulfill this contract for any choice of n and d
+and that's what we mean by we can use that as the basis for a rational number representation
+and other than that it fulfills this contract we don't care how he does it
+it's not our business it's below the layer of abstraction
+in fact if we want to say what is a rational number really see what's it really without having to talk about going below the layer of abstraction what we're forced into saying is a rational number really is sort of this axiom is three procedures makerat numerator and denominator that satisfy this axiom
+so in some in some sense abstractly that's what a rational number is really
+all right
+so we s that's that's sort of easy that's sort of easy words to listen to because what you have in your head of course is well for all this thing about saying that's what a rational number is really you actually just saw that we built rational numbers
+see what we really did is we built rational numbers on top of pairs
+so for all i'm saying abstractly we can say a rational number really is just this axiom
+we can listen to that comfortably because you're saying well yeah but really it's actually pairs and i'm just annoying you by trying to be abstract
+well let me as an antidote for that let me do something that i think is really going to terrify you and is really going to bring you you know face to face with the the sort of uh existential reality of this abstraction that we're talking about
+and what i'm going to talk about is what are pairs really
+see what did i tell you about pairs
+i tricked you right
+i said that lisp well lisp has this primitive called cons that builds pairs
+but what did i really tell you about them
+if you go back and said let's look on this slide all i really told you about pairs is that there happens to be this properties these properties of cons car and cdr and all i really said about pairs is that there's a thing called cons and a thing called car and a thing called cdr and it is the case that if i built cons of x y and take car of it i get x
+and if i build cdr if i build cons of x y and get cdr of it i get y
+and that right even though i even though i lulled you into thinking that there's something in lisp that does that so you pretended you knew what it was in fact i didn't tell you any more about pairs than this tells you about rational numbers
+it's just some axiom for pairs
+well to drive that home let me really scare you and show you what we might build the pairs in terms of
+and what you're going to see is that we can build right rational numbers and line segments and vectors and all of this stuff in terms of pairs and we're going to see below here that pairs can be built out of nothing at all
+all right pure abstraction
+so what it let me show you on this slide on implementation of cons car and cdr
+and we'll look at it again in a second but notice that there are procedure definitions of cons car and cdr you don't see any data in there
+what you see is is a lambda
+right cons so cons here is going to return is a procedure that returns a procedure
+just like uh averagedamp
+cons of a and b returns a procedure of an argument called pick and it says if pick is equal to one i'm going to return a and if pick is equal to two i'm going to return and that's what cons is going to be
+car of a thing x car of a pair x is going to be x applied to one and notice that makes sense
+you may not understand why or how i'm doing such a thing but at least it makes sense because the thing constructed by cons is a procedure and car applies that to one
+and similarly cdr applies that thing to two
+ok now i claim that this is a representation of cons car and cdr and notice there's no data in it
+right it's built out of air it's just procedures
+right there's no data objects at all in that representation
+well what could that possibly mean
+all right
+well if you really believe this stuff then you have to believe that in order to show that that's a representation for cons car and cdr all i have to do is show that it satisfies that axiom
+see all i should have to convince you of is for example that uh gee that car of cons of 37 and 49 right is 37 right for arbitrary values of 37 and 49
+right
+and see if i really can and cdr the same way
+right
+see if i really can can demonstrate to you that that weird procedure definition in terms of air has the property that it satisfies this then you just have to grant me that that is a rep that is a possible implementation of cons car and cdr on which i can build everything else
+well let's look at that and this'll be practice in in the substitution model how would i actually all right how could we check this we sort of know how to do that it's just the same substitution model
+all right let's let's look
+we start out and we say what's car of cons of 37 and 49
+what do we do
+cons is some procedure
+it's value is cons was a procedure of a and b
+the thing returned by cons is its procedure body with 37 subs and 49 substituted for the parameters namely 37 substituted for a and 49 substituted for b
+so this expression has the same meaning as this expression it's car of and the body of cons was this thing that started with lambda and says so if pick is equal to one where pick is this other argument if pick is equal to one it's 37 that's where a was and if pick is equal to two it's 49
+right so that's the first step and i'm just going through mechanical substitution
+and remember at this point in the course if you're confused about what things mean go mechanically through the substitution model
+well what does this reduce to
+car said take your take your argument which in this case is this and apply it to one that was the definition of car so if i look at car if i do that the answer is well it's that argument this was the argument to car applied to one
+well what does that mean
+i take one and i substitute it in the body here for this value of pick which is the name of the argument and what do i get
+well i got the thing that says if one equals to equals one it's 37 and if one equals two it's 49 so the answer's 37
+and similarly if i'd applied it if i'd taken cdr that would apply it to two and i'd get 49
+so you see what i've demonstrated is that that completely weird implementation of cons car and cdr satisfies the axioms
+so it was a perfectly valid way of building in fact all the data objects we're going to see in lisp
+so they all if you like can be built on on sort of existential nothing
+and as far as you know that's how it works
+you couldn't tell if all you're ever going to do with pairs is construct them with cons and look at them with car and cdr you couldn't possibly tell how this thing works
+now it might give you a sort of warm feeling in side if i say well yeah in fact for various reasons there happens to be a primitive called cons car and cdr and you know if it's too scary if this kind of stuff is too scary you don't have to look inside of it
+so that might make you feel better but the point is it it really could work this way and it wouldn't make any difference to the system at all
+so in some sense we don't need data at all to build these data abstractions 'cause we can do everything in terms of procedures
+ok well why did i terrify you in this way
+first i really want to reinforce this idea of abstraction that you really can do these things abstractly
+secondly i want to introduce an idea we're going to see more and more of in this course which is we're going to blur the line between what's data and what's a procedure
+see in this funny implementation it turned out that that cons of something happened to be represented in terms of a procedure even though we think of it as data
+well here that's sort of a mathematical trick but one of the things we'll see is that a lot of the very important programming techniques that we're going to get to refer sort of depend very crucially on blurring this this traditional line between what you consider a procedure and what you consider data
+we're going to see more and more of that especially next time
+ok questions
+if you asked ah the system to print a what would be the result
+uh the question is what the question is what would happen if i asked the system to print a
+given this representation you already know the answer
+a
+right
+the answer is compound procedure a just like last time it'll say compound procedure
+it might say a little bit more it might say compound procedure lambda something or other depending on details of how i named it but it's a procedure and the only reason for that is i haven't told the system anything special about how to print such things
+now it's in fact true that with the actual implementation of cons that happens to be built in the system it would print something else
+it would print say this is a pair
+um when you define cons and then you pass it in two values how does it know where to look for the cons because you can use cons over and over again
+so how does it know where to look to know which a and b it's supposed to pull back out
+i don't know if i'm expressing that quite right
+ok the question is
+where is it stored
+ok
+the question is i sort of have a cons with a with a 37 and a 49 and i might make another cons with a 1 and a 2 and i might have one called a and i might have one called b
+and the question is how does it know and why don't they get confused
+that's a very that's a very good question
+what it see you have to really believe that the procedures are objects
+see it's sort of it's sort of like saying let's try another simpler example
+suppose i ask for the square root of three
+so i ask for the square root of five and then i ask for the square root of twenty
+you're probably not the least bit bothered like i that i can take square root and apply it to five and then i can take square root and apply it to twenty and there's sort of no issue of gee doesn't it get confused about whether it's working on five or twenty
+there's no issue about that because you're thinking of a procedure which goes off and and does something
+now in some sense you're asking me the same question
+but it's really bothering you and it's bothering you for a really good reason
+because when i write that you're saying gee this is i know sort of a procedure but it's not a procedure that's just running it's just sort of a procedure sitting there
+and how can it be that sometimes this procedure has 37 and 49 and there might be another one which has uh five and six in there and why don't they get confused
+see so you're really there's something very very important that's bothering you
+and it's really crucial to what's going on
+it's we're suddenly saying that procedures are not just the act of doing something
+procedures are conceptual entities objects and if i built
+but is
+and if i built cons of 37 and 49 that's a particular procedure that sits there
+and it's different from cons
+and it's different from cons of three and four
+that's another procedure that sits there
+and exists independently
+and they both can be referenced by car and cdr
+and they both would be referenced by car and cdr just like i could you know just like i could increment this and i could increment increment that
+they're objects
+and that's that's sort of where we're going
+see the fact that you're asking the question shows that you're really starting to think about the implications of of what's going on
+it's the difference between saying a procedure is just the act of doing something and a procedure is a real object that has existence
+so when the procedure gets built the actual values are now substituted for a and b and then
+that's right
+that procedure exist as a lambda and
+that's right
+pick is what's actually passed in
+yes when when cons gets called and the result of cons is a new procedure that's constructed that new procedure has an argument that's called pick
+but it no longer has an a and b the a and b are the actual values that were passed to it
+and it has right according to the substitution model what it now has is not those arbitrary names a and b it somehow has that 37 and 49 in there
+but you're right that's a hard thing to think about and it's different from the way you've been thinking about procedures
+and if i i have again cons of 37 and 49 it's a different object
+and if you make and if you make another cons of 37 and 49 you're into a wonderful philosophical problem which is going to be what the lecture about half way through this course is about
+which is if i cons 37 and 49 and i do it again is that the same thing or is it a different thing and how could you tell and when could it possibly matter
+and that's like saying is that's sort of like saying is is that the same thing as as this
+or is this the same thing as that
+it's the same kind of question and that's a very that's a very very deep question and i can't answer it in less than an hour
+but we will

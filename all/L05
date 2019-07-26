@@ -1,0 +1,577 @@
+the last time we talked about compound data and there were two there are two main points to that to that business first of all there was a methodology of data abstraction and the point of that was that you could isolate the way that data objects are used from the way that they're represented
+this idea that there's this guy george and you go out and make a contract with him and it's his business to represent the data objects and at the moment you're using them you don't think about george's problem
+and then secondly there was this particular way that lisp has of gluing together things to form objects called pairs and that's done with cons car and cdr and the way that cons car and cdr are implemented is is basically irrelevant
+that's that's sort of george's problem of how to build those things it could be done as primitives it could be done using procedures in some weird way but we're not going to worry about that
+and as an example we looked at rational number arithmetic
+we looked at vectors and here's just a review of vectors here's a an operation that takes the sum of two vectors so we want to add this vector v1 and this vector v2 and we get the sum
+and the sum is the vector whose coordinates are the sum of the coordinates of the pieces you're adding so i can say to define make vect right
+to add two vectors i make a vector whose x coordinate is the sum of the two x coordinates and whose y coordinate is the sum of the two y coordinates
+and then and then similarly we could have an operation that scaled vectors so here's a here's a procedure scale that multiplies a vector v by some number s so here's v v goes from there to there
+and then i scale v i get a vector in the same direction that's that's longer
+and again to scale a vector i multiply the successive coordinates so i make a vector whose x coordinate is the scale factor times the x coordinate and whose y coordinate's the scale factor times the y coordinate
+so those are two operations that are implemented using the representation of vectors and the representation of vectors for instance is something that we could build in terms of pairs
+and so george has gone out and implemented for us make vector and x coordinate and y coordinate and this could be done for instance using cons car and cdr
+and uh
+notice here i wrote this in a in a slightly different way
+the pro the procedures we've seen before i've said something like say make vector of x and y cons of x and y and here i just wrote make vector cons and that means something slightly different
+previously we'd say define make vector to be a procedure that takes two arguments x and y and does conses of x and y and here i'm saying define make vector to be the thing that cons is
+and that means almost the sa that's almost the same as the other way we've been writing things
+and i just want you to get used to the idea that that procedures can be objects and that you can name them
+ok well there's vector representation and again if that was all there was to it this would all be pretty boring
+and the point is remember that you can use cons to glue together not just numbers to form pairs but to glue together arbitrary things
+so for instance if we'd like to represent a line segment say the line segment that goes from a certain vector say a segment from the vector 2 3 to the point represented by the vector 5 1
+if we want to represent that line segment then we can build that as a pair of pairs
+so again we can represent line segments we can make a constructor that makes a segment using cons selects out the start of a segment selects out the end point of a segment
+and then if we actually look at that if we peel away the abstraction layers and say what's that really is a pair of pairs
+we'd say well that's a pair here's the segment
+its car right
+its car pointer is a pair and its cdr is also a pair
+and then what they what the car is here's the car that itself is a pair of 2 and 3 and similarly the cdr is a pair of 2 and 3
+let me remind you again that a lot of people have some idea that if i'd taken this arrow and somehow written it to point down that would mean something else
+that's that's irrelevant
+right
+it's only how these are connected and not whether this arrow happens to go go vertically or horizontally
+and again just to remind you there was this notion of closure
+see closure was the
+closure was the thing that allowed us to start building up complexity that didn't trap us in pairs particularly what i mean is the things that we make having combined things using cons to get a pair those things themselves can be combined using cons to make more complicated things
+or as a mathematician might say the set of data objects in lisp it's closed under the operation of forming pairs
+and that's the thing that allows us to build complexity and that seems obvious but remember a lot of the things in the computer languages that people use are not closed so for example forming arrays in basic and fortran is not a closed operation because you can make an array of of numbers or or character strings or something but you can't make an array of arrays
+now when you look at means of combination you should be you should be asking yourself whether things are closed under that means of combination
+well in any case because we can form pairs of pairs we can start using pairs to glue things together in all sorts of different ways
+so for instance if i'd like to glue together the four things 1 2 3 and 4 there are a lot of ways i can do it
+i could for example like we did with that line segment i could make a pair that had a 1 and a 2 and a 3 and a 4 right
+or if i liked i could uh do something like this i could make a pair whose first thing is a pair whose car is 1 and whose cdr is itself a pair that has the 2 and the 3 and then i could put the 4 up here
+so you see there are a lot of different ways that i can start using pairs to glue things together and so it'll be a good idea to establish some kind of conventions right that allow us to to deal with this thing in in some conventional way so we're not constantly making an ad hoc choice
+and lisp has a particular convention for representing a sequence of things as uh essentially a chain of pairs
+and that's called a list
+and what a list is is essentially just a convention for representing a sequence
+i would represent the sequence 1 2 3 and 4 by a sequence of pairs
+i'd put 1 here and then the cdr of this would point to another pair whose car was the next thing in the sequence and the cdr would point to another pair whose car was the next thing in the sequence so there's 3 and then another one
+so for each item in this sequence i'll get a pair and now there are no more so i put a special marker that means there's nothing more in the list
+ok
+so that's a that's a conventional way to glue things together if you want to represent a sequence
+right
+and what it is is a bunch of pairs the successive parts of each pair are the items that you want to glue together
+and the cdr pointer points to the next pair
+now if i actually wanted to construct that what i would type into lisp is this i'd actually construct that as saying well this thing is the cons of 1 onto the cons of 2 onto the cons of 3 onto the cons of 4 onto well this thing new and what new is is a name for the end of list marker
+that's a special name which means this is the end of the list
+ok
+so that's how i would i would actually construct that
+uh
+of course it's a terrible drag to constantly have to write something like the cons
+of 1 onto the cons
+of 2 onto the cons
+of 3 whenever you want to make this thing so lisp has a an operation that's called list and list is just an abbreviation for this next of conses
+i would so i can say i could construct that by saying that is the list of 1 2 3 and 4
+and all this is is another way a more a piece of syntactic sugar a more convenient way of writing that chain of conses
+cons
+of cons
+of cons
+of cons
+of cons
+on to nil
+so for example i could uh build this thing and say i'll define 1 to 4 i'll define 1 to 4 to be the list of 1 2 3 and 4
+ok well notice some of the consequences of using this convention first of all if i have this list this 1 2 3 and 4 the car of the whole thing is the first element in the list
+right
+the how do i get 2
+well 2 would be the the car of the cdr of this thing 1 to 4
+that'd be 2
+right
+that's the that i take this thing i take the cdr of it which is which is this much and the car of that is 2
+and then similarly the car of the cdr of the cdr of 1 to 4 cdr cdr car would give me 3 and so on
+let's take a look at that on the computer screen for a second
+all right i could come up to lisp and i could type define 1 to 4 to be the lisp of 1 2 3 and 4
+and i'll tell i'll tell that to lisp and it says it says fine that's the definition of 1 to 4
+and now i could say for instance what's the car of the cdr of the cdr of 1 to 4 close paren
+close paren
+all right
+so the the car of the cdr of the cdr would be 3
+but or i could say what's 1 to 4 itself
+and you see what lisp typed out is 1 2 3 4 enclosed in parentheses
+and this notation typing the elements of the list enclosed in parentheses is lisp's conventional way for printing back this chain of pairs that represents a sequence
+so for example if i said what's the uh what's the cdr of 1 to 4
+that's going to be the rest of the list that's the thing pointed to by the first pair which is again a sequence that starts off with 2
+or for example if i go off and say what's the the cdr of the cdr of 1 to 4
+then that's 3 4
+or if i say uh what's the cdr of the cdr of the cdr of the cdr of 1 to 4
+and i'm down there looking at the end of lisp's pointer itself and lisp prints that as just open paren
+close paren
+you can think of that as a list with nothing in there
+right
+see at the end what i did there is i looked at the cdr of the cdr of the cdr 1 to 4 and i'm just left with the with the end of lisp pointer itself and that gets printed as open close
+all right well that's a a conventional way as you can see for for working down a list by taking successive cdrs of things it's called cdring down a list
+and of course it's pretty much of a drag to type all those cdrs by hand you don't do that you write procedures that do that
+and in fact one very very common thing to do in lisp is to write procedures that sort of take a list of things and do something to every element in the list and return you a list of the results
+so what what i mean for example is i might write a procedure called scale list and in scale list i might say i want to scale by 10 the entire list 1 to 4 and that would return for me the list 10 20 30 40
+all right
+so i right it returns the list and well you can see that that there's going to be some kind of uh recursive strategy for doing that how would i actually write that procedure
+the idea would be well if you'd like to build up a list where you've uh multiplied every element by 10 what you say is well you imagine that you'd taken the rest of the list all right
+the the thing represented by the cdr of the list and suppose i'd a wha suppose i'd already built a list where each of these was multiplied by 10
+that would be scale list of the cdr of the the list
+and then all i have to do is multiply the car of the list by 10 and then cons
+that onto the rest and i'll get a list
+right
+and then similarly to have scaled the cdr of the list i'll scale the cdr of that and cons
+onto that 2 multiplied by 10 and finally when i get all the way down to the end and i only have this end of list pointer right this thing whose name is nil well i just returned an an end of list pointer
+so there's a recursive strategy for doing that
+here's the actual procedure that does that
+but this is an example of the the general strategy of cdring down a list and so called consing up the result
+right
+so to scale a list to scale a list l by some scale factor s what do i do
+well there's a there's a test and list has a predicate called null null means is this thing the end of list pointer
+or another way to think of that is are there any elements in this list
+right
+but in any case if i'm looking at the end of list pointer then i just return the end of list pointer
+right
+i just return nil
+otherwise i'm i cons
+together the result of of doing what i'm going to do to the first element in the list namely taking the car of l and multiplying it by s and i cons
+that onto recursively scaling the rest of the list
+ok
+so again the general idea is that you you'd recursively do something to the rest of the list to the cdr of the list and then you cons
+that onto actually doing something to the the first element of the list
+when you get down to the end here you return the end of list pointer and that's a general that's a general pattern for doing something to a list
+well of course you should know by now that the very fact that there's a general pattern here means i shouldn't be writing this procedure at all
+what i should do is write a procedure that's the general pattern itself that says do something to everything in the list and define this thing in terms of that
+like make some higher order procedure and here's the higher order procedure that does that it's called map
+and what map does is it takes a list takes a list l and it takes a procedure p and it returns the list of the elements gotten by applying p to each successive element in the list
+all right
+so p of e1 p of e2 p of en
+all right
+so i think of taking this list and transforming it by applying p to each element
+and you see all this procedure is is exactly the general strategy i said instead of multiply by 10 it's do the procedure
+if the list is empty return nil
+otherwise apply p to the first element of the list right
+apply p to car of l and cons
+that onto the result of applying p to everything in the cdr of the list
+so that's a general procedure called map and i could well i could define scale list in terms of that of map
+let me show you that first
+that i could say scale list is another way to define it is just map along the list by the procedure which takes an item and multiplies it by s
+all right so in so this is really the way i should think about scaling the list build that build that actual recursion into the general strategy not to every particular procedure i write
+and of course one of the values of doing this is that you start to see commonality
+right
+again you're capturing general patterns of usage
+so for instance if i said map the square procedure down this list 1 to 4 then i'd end up with 1 4 9 and 16
+right
+or if i said map down this list lambda of x plus x10 i map that down 1 to 4 right i get the list where everything had 10 added to it
+all right
+so i get 11 12 13 14
+and and you can see that's going to be a very very common idea doing something to every element in the list
+one thing you might think about is writing map in an integrative style
+the one i wrote happens to involve a recursive process but we could have just as easily have made one that involves an integrative process
+but see the interesting thing about it is that once you start thinking in terms of map see once you say scale is just map you stop thinking about whether it's iterative or recursive and you just say well there's this aggregate there's this list and what i do is transform every item in the list and i stop thinking about the particular control structure and order
+that's a very very important idea and it um i guess it really comes out of apl it's sort of the the really important idea in apl that you stop thinking about control structures and you start thinking about operations on aggregates
+and then about halfway through this course we'll see when we talk about something called stream processing how that how that view of the world really comes into its glory
+this is just a a sort of cute idea but we'll see much more applications of that later on
+well let me mention that uh there's something that's very similar to map that's also a useful idea and that's see map says i take a list i apply some i apply something to each item and i return a list of the successive values
+there's another thing i might do which is very very similar which is take a list and some action you want to do and then do it to each item in the list in succ in sequence
+don't make a list of the values just do this particular action
+and that's something that's very much like like like map
+it's called for each and for each takes a procedure and a list and what it's going to do is do something to every item in the list
+so basically what it does it says if the list is is not empty right if the list is not no then what i do is i apply my procedure to the first item in the list and then i do this thing to every to the rest of the list i apply for each to the cdr of the list
+all right so i do it to the first of the list do it to the rest of the list and of course when i call it recursively that's going to do it to the rest of the rest of the list and so on and finally when i get done i have to just do something to say i'm done so we'll return the message done
+so that's very very similar to map
+it's mostly different in what it returns
+and so for example if i had some procedure that uh printed things on the screen if i wanted to print everything in a list i could say for each print this list
+or if i had a list of uh of figures and i wanted to draw them on the display i could say for each display on the screen this figure
+ok
+let's take questions
+does it create a new copy with with something done to it unless you explicitly tell it to do that
+is that correct
+right
+uh
+yeah that that's right
+for each does not create a list it just sort of does something so if you have a bunch of things you want to do and you're not worried about values like printing something or drawing something on the screen or ringing the bell on the terminal or or something you can say for each
+you know do this for each of those things in the list
+whereas map actually builds you this this new collection of values that you might want to use
+it's just a subtle difference between them
+could you write map using for each so that you did some sort of cons
+or something to build the list back up
+uh well sort of i mean i i probably could
+i can't think of how to do it right off hand but i but yeah i could arrange something
+i think
+yeah
+there's a fundamental difference between map and for each and one is recursive and the other is not in the t the sense you defined early uh yesterday i believe
+yeah about map and for each and re and recursion
+yeah
+that's a good that's a good point
+uh the for the map procedure i wrote that happens to be a recursive process and the reason for that is that after you when you've done this thing to the rest of the list you're waiting for that value so that you can stick it onto the beginning of the list whereas for each doesn't really have any values to wait for
+so that turns out to be an integrative process that's not fundamental i could have defined map so that it's evolved by an integrative process i just didn't happen to
+if you were to call for each with uh a list that had embedded lists
+i imagine it would work
+right
+it would it would be it would give you the internal elements of each of those internal lists
+ok the question is if i call for each or or map for that matter with a with a list that had lists in it although we haven't really looked at at that yet would that work and the answer it would work the answer is yes in the sense i mean work in and no in the sense that you that you mean work
+mm hmm
+because all that see if i give you a list where hanging off here is you know is something that's not a number maybe another another list
+mm hmm
+or you know another cons
+or something for each just says do something to each item in this list and it goes down successively looking at the cdrs
+and as far as it's concerned the first item in this list is whatever's hanging off here
+mm hmm
+that might or might not be the right thing
+so it wouldn't go down into the
+absolutely not
+mm hmm
+i could certainly write something else
+there's another what you're looking for is a common pattern of usage called tree recursion where you take a list and you actually go all the way down to the what's called the leaves of the tree and you can write such a thing but that's not for each and it's not map
+remember these things are really being very simple minded
+ok
+any more questions
+all right let's break
+well what i'd like to do now is spend the rest of this time talking about one example and this example i think pretty much summarizes everything that we've done up 'til now
+all right and that's list structure and uh issues of abstraction and representation and capturing commonality with higher order procedures and also is going to introduce something we haven't really talked about a lot yet what i said is the is the major third theme in this course metalinguistic abstraction which is the idea that one of the ways of tackling complexity in engineering design is to build a suitable powerful language
+um you might recall what i said was pretty much the very most important thing that we're going to tell you in this course is that when you think about a language
+you think about it in terms of what are the primitives what are the means of combination and they're what are the things that allow you to build bigger things and then what are the means of abstraction
+right how do you how do you take those bigger things that you built and put blacks put black boxes around them and use them as elements in making something even more complicated
+now a particular language i'm going to talk about is an example that was made up by a friend of ours called peter henderson
+peter henderson is at the university of sterling in scotland and what this language is about is making figures that sort of look like like this
+all right
+this is a this is a woodcut by escher called square limit
+and you sort of see it has this complicated s kind of recursive all right
+sort of re recursive kind of figure where there's this fish pattern in the middle and things sort of sort of bleed out smaller and smaller in self similar ways
+yeah peter henderson's language was for for describing figures that look like that and designing designing new ones that look like that and drawing them on a display screen
+there's another theme that that we'll see uh illustrated by this example and that's the issue of what jerry and i have already mentioned a lot that there's no real difference in some sense between procedures and data
+and and i hope anyway i hope by the end of this morning if you're not already you will be completely confused about what the difference between procedures and data are if you're not confused about that already
+well in any case let's start describing peter's language
+i should start by telling you what the primitives are this language is very simple because there's only one primitive and the primitive is not quite what you think it is
+uh uh there's only one primitive called a picture and a picture's not quite what you think it is
+here's a here's an example this is a picture of george
+um
+and the idea is that a picture in this language is going to be something that draws a figure scaled to fit a rectangle that you specify
+so here you see in in faint lines this outline of the rectangle
+that's not really part of the picture but the picture you'll give it a rectangle and it will draw this figure scale to fit the the rectangle so for example there's there's george and uh here this is also george
+it's the same picture all right just scaled to fit a different rectangle
+only here's george as a fat kid and that's that's the same that's the same george
+that's all the same figure
+all of these all of these three things are the same picture in this language i'm just i'm just giving it different rectangles to scale itself in
+ok
+those are the primitives
+those are that is the primitive
+now let's start talking about the means of comber combination and the operations
+there is a well for example an operation called rotate and what rotate does is if i have a picture say a picture that draws an a in some rectangle that i give it the rotate of that so the rotate by 90 degrees would i give it a rectangle draw the same image but again scaled to fit that rectangle
+so that's that's rotate by 90 degrees
+there's another operation called flip i can flip something either horizontally or vertically
+all right so those are sort of operations or you can think of those as means of combination of one one element
+i can put things together there's a means of combination called beside
+and what beside does it'll take two pictures let's say a and b and by picture i mean something that's going to draw an image in a specified rectangle
+and what beside will do i have to say beside of a and b beside of two pictures and some number s
+and s'll be a number between zero and one
+and beside will draw a picture that looks like this it'll take the rectangle you give it and scale its base by s say s is 5 and then over here over here it will draw it'll put the picture the first picture and over here it'll put the second picture
+or for instance if i gave it a different value of s if i said beside with a a 25 then it would do the same thing except the a would be much skinnier
+so it so it would draw something like that
+ok so there's a means of combination beside
+and similarly there's an above which does the same thing except it puts them vertically instead of horizontally
+well let's look at that
+right here's all right there's there's george and his kid brother which is all right constructed by taking taking george and putting him beside the above taking the empty picture and there's a thing called the empty picture which does the obvious thing putting the empty picture above a copy of george and then putting that whole thing beside george
+ok
+uh
+here's something called p which is again george beside flipping george i think horizontally in this case and then rotating the whole result by a hundred and eighty degrees and putting them beside one another with a the basic rectangle divided at point five
+all right and i can call that p and then i can take p and put it above the flipped copy of itself and i can call that q
+notice how rapidly that we've built up complexity just in in you know in in 15 seconds we've gotten from george to that that thing q
+why is that
+how were we able to do that so fast
+the answer is the closure property see it's the fact that when i take a picture and put it beside another picture that's then again a picture that i can go and rotate or flip or put above something else
+all right
+and when i take that element p which is the beside of the flip of the rotate of something that's again a picture
+right
+the world of pictures is closed under those means of combination
+so whenever i have something i can turn right around and use that as an element in something else so it may be better than than lists and segments that just gives you an image for how fast you can build up complexity because operations are closed
+ok well before we go on with building more things let's talk about how this language is actually implemented
+the basic element that sits under the table here is a thing called a rectangle and what a rectangle is going to be it's a thing that's specified by by an origin
+that's going to be some vector that says where the rectangle starts
+and then there's going to be some other vector that i'm going to call the horizontal part of the rectangle and some other and another another vector called the vertical part of the rectangle
+and that specifi those three pieces of element where the lower vertex is how you get to the next vertex over here and how you get to the vertex over there three vectors specify a rectangle
+now to actually build rectangles what i'll assume is that we have a constructor called makerectangle or makerect and selectors called horiz and vert and origin that get out the pieces of that rectangle
+and well you know a lot of ways you can do this now
+you can do it by using pairs and some and some way or other standard lists or not
+but in any case the implementation of these things that's george's problem
+it's just a data representation problem
+so let's assume we have these rectangles to work with
+ok
+now the idea of this remember what's got to happen
+somehow we have to worry about taking a figure and scaling it to fit some rectangle that you give it
+that's that's the basic thing you have to arrange that these pictures can do
+how do we think about that
+well one way to think about that is that any time i give you a rectangle any time i give you a rectangle that defines in some sense a transformation from the standard square into that rectangle
+let me say what i mean
+the stan by the standard square i mean something which is a square whose coordinates are zero zero and one zero and zero one and one one
+and there's some sort of sort of the obvious scaling transformation which maps this to that and this to that and sort of stretches everything uniformly
+so it would take a let's see a line a line segment like this and end up mapping it to a line segment like that
+so some some point x y goes to some other point up there
+and uh although it's not important with a little little vector algebra you could write that formula
+the thing that x y goes to the point that x y goes to is gotten by taking the origin of the rectangle and then adding that as a vector to well take x the x coordinate which is something between zero and one
+multiply that by the horizontal vector of the rectangle
+and take the y coordinate which is also something between zero and one and multiply that by the the vertical vector of the rectangle
+i mean that's just a little little linear algebra
+any this that's the formula which is the the right obvious transformation that takes things into the unit square into the the interior of that rectangle
+ok well let's actually look at that as a procedure
+see what we want is the thing which tells us that particular transformation that a rectangle defines
+so here's the procedure
+i'll call it coordinatemap
+coordinatemap is the thing that takes as its argument a rectangle and returns for you a procedure on points
+right so for each rectangle you get a way of transforming a point x y into that rectangle
+and how do you get it
+well i just writing in lisp what i wrote there on the blackboard i add to the origin of the rectangle the result of adding
+if i take the the horizontal part of the rectangle i scale that by the x coordinate of the point
+i take the vertical vector of the rectangle i scale that by the y coordinate of the point and then add all those three things up
+that's the procedure
+that is the pr procedure that i'm going to apply to a point
+and this whole thing is generated for each rectangle
+so any rectangle defines a coordinate map which is a procedure on points
+ok
+right so for example george here my original george might have been something that i specified by segments in the unit square and then for each rectangle i give this thing i'm going to draw those segments inside that rectangle
+how actually do i do that
+well i take each segment in my original reference george that was specified and to each of the endpoints of those segments i apply the coordinate map of the particular rectangle i want to draw it in
+so for example this lower rectangle right this george is a fat kid rectangle has its coordinate map and if i want to draw this this image what i do is
+for each segment here say for this segment i draw the li i transform that point by the coordinate map transform that point by the coordinate map that'll give me this point and that point and draw the segment between them
+right that's the idea
+right and if i give it a different rectangle like this one that's a different coordinate map so i get a different image of those line segments
+well how do we actually get a picture to start with
+i can build a a picture to start with out of a list of line segments initially
+here's a procedure that builds what i'll call a primitive picture meaning one i sort of got that didn't come out of beside or rotate or something
+it starts with a list of line segments and now it does what i said
+what's a what's a picture have to be
+first of all it's a procedure that's defined on rectangles
+what does it do
+it says for each this is going to be a list of line segments for each segment for each s which is a segment in this list of segments well it draws a line
+what line does it draw
+it gets the start point of that segment transforms that by the coordinate map of the rectangle that's the first new point it wants to do
+then it takes the end point of the segment transforms that by the coordinate map of the rectangle
+and then draws a line between them
+let's assume drawline is some primitive that's built into the system that actually draws a line on the display
+right
+so it transforms the endpoints by the coordinate map of the rectangle draws a line between them
+does that for each s in this list of segments
+and now remember again a picture is a procedure that takes a rectangle as argument
+so when you hand it a rectangle this is what it does
+draws those lines
+right so there's how would i actually use this thing
+just to make it a little bit more concrete
+right i would say for instance define r to be make makerectangle of some stuff and i'd have to specify some vectors here using makevector
+and then i could say define say g to be makepicture and then some stuff
+and what i'd have to specify here is a list of line segments right using makesegment
+and makesegment might be made out of vectors and vectors might be made out of points
+and then if i actually wanted to see the image of g inside a rectangle well a rec a procedure is a a picture is a procedure that takes a rectangle as argument
+so if i then called g with an input of r that would cause whatever image g is worrying about to be drawn inside the rectangle r
+right so that's how you use that
+well why is it that i say this example is nice
+you probably don't think it's nice
+you probably think it's more weird than nice right representing these pictures as procedures which do complicated things with rectangles
+so why is it nice
+the reason it's nice is that once you've implemented the primitives in this way the means of combination just fall out by implementing procedures
+let me show you what i mean
+suppose we want to implement beside
+right so i'd like to suppose i've got a picture let's call it p1
+p1 is going to be and now remember what a picture really is it's a thing that if you hand it some rectangle it'll cause an image to be drawn in whatever rectangle you hand it
+and suppose p2 is some other picture and you hand that a rectangle and whatever rectangle you hand it it draws some picture
+and now if i'd like to implement beside of p1 and p2 with the scale factor a well what does that have to be
+that's got to be a picture
+it's got to be a thing that you hand it a rectangle and it draws something in that rectangle
+so if you hand beside this rectangle it's handed a rectangle well what's it going to do
+it's going to take this rectangle and split it into two at a ratio of a and one minus a and it'll say oh sure now i've got two rectangles
+and now it goes off to p1 and says p1 well draw yourself in this rectangle and goes off to p2 and says p2 fine draw yourself in this rectangle
+the only computation it has to do is figure out what these rectangles are
+remember a rectangle is specified by an origin and a horizontal vector and a vertical vector so it's got to figure out what these things are
+so for this first rectangle the origin turns out to be the origin of the original rectangle and the vertical vector is the same as the vertical vector of the original rectangle
+the horizontal vector is the horizontal vector of the original rectangle scaled by a
+and that's the first rectangle
+the second rectangle the origin is the original origin plus that horizontal vector scaled by a
+the horizontal vector of the second rectangle is the rest of the horizontal vector of the first one right which is one minus a times the original h
+and the vertical vector is still v
+but basically it goes and constructs these two rectangles and the important point is having constructed the rectangles it says ok p1 you draw yourself in there and p2 you draw yourself in there and that's all beside has to do
+all right let's look at that piece of code
+right
+beside beside of a picture and another picture with some scaling ratio is first of all since it's a picture a procedure that's going to take a rectangle as argument
+what's it going to do
+it says p1 draw yourself in some rectangle and p2 draw yourself in some other rectangle
+and now what are those rectangles
+well here's the computation
+it makes a rectangle and this is the algebra i just did on the board
+the origin something and the horizontal vector something and the vertical vector something
+and or p2 the rectangle it wants has some other origin and horizontal vector and vertical vector
+but the important point is that it's all it's saying is p1 go do your thing in one rectangle and p2 go do your thing in another rectangle
+that's all beside has to do
+ok similarly similarly rotate
+see if i have a picture if i have this picture a and i want to look at say rotating a by 90 degrees
+what that should mean is well take this rectangle which is origin and horizontal vector and vertical vector and now pretend that it's really the rectangle that looks like this
+which has an origin and a horizontal vector up here and a vertical vector there and now draw yourself with respect to that rectangle
+let me show you that as a procedure
+right so the rotate90 of a picture is again a procedure of a rectangle which says ok picture draw yourself in some rectangle
+and then this algebra is the the transformation on the rectangle
+it's the one that which makes it look like the rectangle's sideways
+the origin's someplace else and the vertical vector is someplace else
+and the horizontal vector is someplace else and the vertical vector is someplace else
+ok
+ok
+ok again notice the crucial thing that's going on here is you're using the representation of pictures as procedures to automatically get the closure property
+because what happens is beside just has this thing p1
+beside doesn't care if that's a primitive picture or it's line segments or if p1 is itself the result of doing aboves or besides or rotates
+all beside has to know about say p1 is that if you hand p1 a rectangle it'll cause something to be drawn
+and above that level beside just doesn't it's none of its business how p1 accomplishes that drawing
+right so you're using the procedural representation to ensure this closure
+ok
+so implementing pictures as procedures makes these these means of combination you know both pretty simple and and also i think elegant
+but but that's not the real punchline
+the real punchline comes when you look at the means of abstraction in this language
+because what have we done
+we've implemented the means of combination themselves as procedures
+and what that means is that when we go to abstract in this language everything that lisp supplies us for manipulating procedures is automatically available to do things in this picture language
+the technical term i want to say is not only is this language implemented in lisp which obviously is but the language is nicely embedded in lisp
+what i mean is by embedding the language in this way all the power of lisp is automatically available as an extension to whatever you want to do
+now what do i mean by that
+example
+see suppose i want to uh suppose i want to make a thing that takes four pictures right a b c and d and makes a configuration that looks like this
+ok you might call that you know fourpictures or something
+fourpict configuration
+how do i do that
+well i can obviously do that
+i just write a procedure that takes uh b above d and a above c and puts those things beside each other
+see i automatically have lisp's ability to do procedure composition
+and i didn't have to make that specifically in the picture language it's automatic from the fact that the means of combination are themselves procedures
+or suppose i wanted to do a little something a little bit more complicated
+i wanted to put in a parameter so that for each of these i could independently specify a a rotation by 90 degrees
+that's just putting a parameter in the procedure
+it's automatically there
+right it automatically comes from the embedding
+or uh gee even more
+suppose i wanted to uh you know re use recursion
+let's look at a a recursive means of combination on pictures
+i could say defi let's see if you can figure out what this one is
+suppose i say define what it means to rightpush a picture rightpush a picture and some integer n and some scale factor a
+i'll define this to say if n equals zero then the answer is the picture
+otherwise i'm going to put oops
+name change
+p
+otherwise i'm going to take p and put it beside the result of recursively rightpushing p with n minus one and a and use a scale factor of a
+ok so if p n's zero it's p otherwise i put p with a scale factor of a i'm sorry i didn't align this right recursively beside the result of rightpushing p n minus 1 times with a scale factor of a
+there's a recursive means of combination
+what does that look like
+well here's what it looks like
+there's there's george right there's george rightpushed against himself twice with a scale factor of point seven five
+ok
+where'd that come from
+why how did i get all this fancy recursion
+the answer it's just automatic
+absolutely automatic since these are procedures the embedding says well sure i can define recursive procedures
+i didn't have to arrange that
+and of course we can do more complicated things
+the same sort
+i could make something that does an uppush right that sort of goes like this by recursively putting something above
+or i could makes something uh that sort of was this scheme
+i might start out with a a picture and then sort of recursively both push it beside and above and that might put something there and then up here i put the same recursive thing and i might end up with something like this
+right so there's a pic there's a procedure that's a little bit more complicated than rightpush but not much
+i just do a an above and a beside rather than just a beside
+ok
+now if i take that and apply that with the result o with the idea of putting four pictures together which i can surely do and i go and i apply that to q which we defined before right
+what i end up with is is this thing which is sort of the the square limit of q done twice
+right and then we can compare that with uh with escher's square limit
+and you see it's sort of the same idea
+escher's is of course much much prettier
+if we go look at if we go back and look at george right we go go look at george here see i started with a fairly fairly arbitrary design this picture of george and did things with it
+right whereas if we go look in the escher picture right the escher picture is not an arbitrary design
+it's this very very clever thing so that when you take this fish body and rotate it and shrink it down it bleeds into the next one really nicely
+and of course with with george i didn't really do anything like that
+so if we look at if we look at george right there's a little bit of match up but not very nice and it's pretty arbitrary
+one very nice project by the way would be to uh write a procedure that could take some basic figure like this george thing and start moving the ends of the lines around so you got a really nice one when you went and did that square limit process
+that'd be a really nice thing to think about
+well so we can combine things we can have recursive procedures we can do all kinds of things and that's all automatic
+right the important point the difference between merely implementing something in a language and embedding something in the language so that you don't lose the original power of the language
+and what lisp is great at see lisp is a lousy language for doing any particular problem
+what it's good for is figuring out the right language that you want and embedding that in lisp
+that's the real power of this approach to design
+of course we can go further
+see you saw the other thing that we can do in lisp is uh capture capture uh general methods of doing things as higher order procedures
+and you probably s just from your drawing had got the idea the rightpush and the analogous thing where you push something up and up and up and up and this cornerpush thing are all generalizations of a common kind of idea
+so just to illustrate and give you practice in looking at a at a fairly convoluted use of higher order procedures let me show you the the general idea of pushing some means of combination to recursively repeat it
+right so here's a here's a good one to puzzle out
+we'll define what it means to push using a means of combination
+and comb is going to be something like beside or above
+well what's that going to be
+that's going to be a procedure remember about wha what beside actually was right
+it took a a picture took took two pictures and a scale factor
+using that i produced something that took a a level number and a picture and a scale factor that i called rightpush
+so this is going to be something that takes a picture a level number and a scale factor and it's going to say i going to do some repeated operation
+i'm going to repeatedly apply the procedure which takes a picture and applies the means of combination to the picture and the p the original picture and the one i took i took in here and the scale factor
+and i do the thing which re repeats this procedure n times
+and i apply that whole thing to my original picture
+repeated here in case you haven't seen it is another higher order procedure that takes a procedure and a number and returns for you another procedure that repl applies this procedure n times
+and i think some of you have already written repeated as an exercise but if you haven't it's a very good exercise in thinking about higher order procedures
+but in any case the result of this repeated is what i apply to picture
+and having done that that's going to capture the that is the thing the way i got from the idea of beside to the idea of rightpush
+so having done that i could say define rightpush to be push of beside
+or if i said define uppush to be push of above i'd get the analogous thing or define cornerpush to be push of some appropriate thing that did both a beside and an above or i could push anything
+anyway this is a if you're having trouble with lambdas this is an excellent exercise in figuring out what this means
+ok
+ok well there's a lot to learn from this example
+the main point i've been drawing on is the notion of nicely embedding a language inside another language right so that so that all the power of this language like lisp of the surrounding language is still accessible to you and appears as a natural extension of the language that you've built
+that's one that's one thing that this example shows very well
+ok
+another thing is if you go back and think about that what's procedures and what's data
+you know by the time we get up to here my god what's going on
+i mean this is some procedure and it takes a a picture and an argument and what's a picture well a picture itself as you remember was a procedure and that took a rectangle and a rectangle is some abstraction
+and i hope now that by now you're completely lost as what in as to the question of what in this system is procedure and what's data
+you see there isn't any difference
+there really isn't
+and you might think of a picture sometimes as a procedure and sometimes as data but that's just sort of you know making you feel comfortable
+it's really both in some sense or neither in some sense
+ok
+there's a more general point about the structure of uh of this system
+the structure of the system as creating a language
+viewing the the engineering design process as one of creating a language or or rather uh rather one of creating a sort of sequence of layers of language
+you see there's this there's this uh methodology or or maybe i should say say mythology that that sort of uh charitably called software quote engineering
+right and what does it say
+it says well you go and you figure out your task and you figure out exactly what you want to do
+and once you figure out exactly what you want to do you find out that it breaks out into three subtasks and you go and you start working on it and you work on this subtask and you figure out exactly what that is and you find out that that breaks down into three subtasks and you specify them completely
+and you go and you work on those two and you work on this sub one and you specify that exactly and then finally when you're done you come back way up here and you work on your second subtask and specify that out and work it out and then you end up with you end up at the end with this beautiful edifice right
+you end up with a a marvelous tree that where you've broken your task into subtasks and broken each of these into subtasks and broken those into subtasks right
+and each of these nodes is exactly and precisely defined to do the wonderful beautiful task to make it fit into the whole edifice
+right that's this that's this mythology
+see only a computer scientist could possibly believe that you build a a complex system like that
+right
+contrast that with this henderson example
+it didn't work like that
+what happened was that there was a sequence of layers of language
+what happened
+there was a layer of a thing that allowed us to build primitive pictures
+there's primitive pictures
+and that was a language
+i didn't say much about it
+we talked about how to construct george
+but that was a language where you talked about vectors and line segments and points and where they sat in the unit square
+and then on top of that right on top of that so this is the language of primitive pictures right talking about line segments and particular pictures in the unit square
+on top of that was a whole language there was a language of geometric combinators right a language of geometric uh positions which talks about things like above and beside and rightpush and rotate
+and those things sort of happened with reference to the things that are talked about in this language
+and then if we like we saw that above that there was sort of a language of schemes of combination
+for example push which talked about repeatedly doing something o over with a scale factor
+and the things that were being discussed in that language were sort of the things that happen down here
+so what you have is at each level the objects that are being talked about are the things that were erected at the previous level
+what's the difference between this thing and this thing
+the answer is that over here in the tree each node and in fact each decomposition down here is being designed to do a specific task whereas in the other scheme what you have is a full range of linguistic power at each level
+see what's happening there at any level is n it's not being set up to do a particular task
+it's being set up to d talk about a whole range of things
+the consequence of that for design is that something that's designed in that method is likely to be more robust
+where by robust i mean that if you go and make some change in your description it's more likely to be captured by a change by asch by a corresponding change in the way that each lan that the language is implemented at the next level up
+right because you've made these levels full
+so you have you're not talking about a particular thing like beside
+you've given yourself a whole vocabulary to express things of that sort
+so if you go and change your specifications a little bit it's more likely that your methodology will be able to adapt to capture that change
+whereas a design like this is not going to be robust because if i go and change something here that might affect the entire way that i decomposed everything down further down the tree
+right so very big difference in outlook in decomposition
+levels of language rather than sort of a strict hierarchy
+not only that but when you have levels of language you've given yourself different vocabularies for talking about the design at different levels
+so if we go back and look at george one last time if i wanted to change this picture george see suddenly i have a whole different ways of describing the change
+like for example i may want to go to the basic primitive design and move the endpoint of some vector
+that's a change that i would discuss at the lowest level
+i would say the endpoint's somewhere else
+or i might come up and say well the next thing i wanted to do this little replicated element i might want to do by something else
+i might want to put a scale factor in that beside
+that's a change that i would discuss at the next level of design the level of combinators
+or i might want to say i might want to change the basic way that i took this pattern and made some recursive decomposition maybe not bleeding out toward the corners or something else
+that would be a change that i would discuss at the highest level
+and because i've structured the system to t this way i have all these vocabularies for talking about change in different ways and a lot of flexibility to decide which one's appropriate
+ok
+well that's sort of a big point about the difference in software methodology that comes out from lisp
+and it all comes again out of the notion that really the design process is not so much implementing programs as implementing languages
+and that's really the power of lisp
+ok thank you let's take a break

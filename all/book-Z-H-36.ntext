@@ -1,0 +1,534 @@
+references
+abelson harold andrew berlin jacob katzenelson william mcallister guillermo rozas gerald jay sussman and jack wisdom
+1992
+the supercomputer toolkit a general framework for special purpose computing
+international journal of high speed electronics three ( three ) three hundred thirty seven 361
+allen john
+1978
+anatomy of lisp
+new york mcgraw hill
+ansi x 3.226 1994
+american national standard for information systems programming language common lisp
+appel andrew w
+1987
+garbage collection can be faster than stack allocation
+information processing letters twenty five ( four ) two hundred seventy five 279
+backus john
+1978
+can programming be liberated from the von neumann style
+communications of the acm twenty one ( eight ) six hundred thirteen 641
+baker henry g. jr
+1978
+list processing in real time on a serial computer
+communications of the acm twenty one ( four ) two hundred eighty 293
+batali john neil mayle howard shrobe gerald jay sussman and daniel weise
+1982
+the scheme eighty one architecture system and chip
+in proceedings of the mit conference on advanced research in vlsi edited by paul penfield jr
+dedham ma artech house
+borning alan
+1977
+thinglab an object oriented system for building simulations using constraints
+in proceedings of the 5th international joint conference on artificial intelligence
+borodin alan and ian munro
+1975
+the computational complexity of algebraic and numeric problems
+new york american elsevier
+chaitin gregory j
+1975
+randomness and mathematical proof
+scientific american two hundred thirty two ( five ) forty seven 52
+church alonzo
+1941
+the calculi of lambda conversion
+princeton n.j. princeton university press
+clark keith l
+1978
+negation as failure
+in logic and data bases
+new york plenum press pp
+two hundred ninety three 322
+clinger william
+1982
+nondeterministic call by need is neither lazy nor by name
+in proceedings of the acm symposium on lisp and functional programming pp
+two hundred twenty six 234
+clinger william and jonathan rees
+1991
+macros that work
+in proceedings of the 1991 acm conference on principles of programming languages pp
+one hundred fifty five 162
+colmerauer a. h
+kanoui r
+pasero and p
+roussel
+1973
+un syst&egrave me de communication homme machine en fran&ccedil ais
+technical report groupe intelligence artificielle universit&eacute d'aix marseille luminy
+cormen thomas charles leiserson and ronald rivest
+1990
+introduction to algorithms
+cambridge ma mit press
+darlington john peter henderson and david turner
+1982
+functional programming and its applications
+new york cambridge university press
+dijkstra edsger w
+1968a
+the structure of the the multiprogramming system
+communications of the acm eleven ( five ) three hundred forty one 346
+dijkstra edsger w
+1968b
+cooperating sequential processes
+in programming languages edited by f
+genuys
+new york academic press pp
+forty three one hundred twelve
+dinesman howard p
+1968
+superior mathematical puzzles
+new york simon and schuster
+dekleer johan jon doyle guy steele and gerald j
+sussman
+1977
+amord explicit control of reasoning
+in proceedings of the acm symposium on artificial intelligence and programming languages pp
+one hundred sixteen 125
+doyle jon
+1979
+a truth maintenance system
+artificial intelligence twelve two hundred thirty one 272
+feigenbaum edward and howard shrobe
+1993
+the japanese national fifth generation project introduction survey and evaluation
+in future generation computer systems vol
+nine pp
+one hundred and five 117
+feeley marc
+1986
+deux approches &agrave l'implantation du language scheme
+masters thesis universit&eacute de montr&eacute al
+feeley marc and guy lapalme
+1987
+using closures for code generation
+journal of computer languages twelve ( one ) forty seven 66
+feller william
+1957
+an introduction to probability theory and its applications volume one
+new york john wiley & sons
+fenichel r. and j
+yochelson
+1969
+a lisp garbage collector for virtual memory computer systems
+communications of the acm twelve ( eleven ) six hundred eleven 612
+floyd robert
+1967
+nondeterministic algorithms
+jacm fourteen ( four ) six hundred thirty six 644
+forbus kenneth d. and johan dekleer
+1993
+building problem solvers
+cambridge ma mit press
+friedman daniel p. and david s
+wise
+1976
+cons should not evaluate its arguments
+in automata languages and programming third international colloquium edited by s
+michaelson and r
+milner pp
+two hundred fifty seven 284
+friedman daniel p. mitchell wand and christopher t
+haynes
+1992
+essentials of programming languages
+cambridge ma mit press / mcgraw hill
+gabriel richard p
+1988
+the why of y
+lisp pointers two ( two ) fifteen twenty five
+goldberg adele and david robson
+1983
+smalltalk eighty the language and its implementation
+reading ma addison wesley
+gordon michael robin milner and christopher wadsworth
+1979
+edinburgh lcf
+lecture notes in computer science volume seventy eight
+new york springer verlag
+gray jim and andreas reuter
+1993
+transaction processing concepts and models
+san mateo ca morgan kaufman
+green cordell
+1969
+application of theorem proving to problem solving
+in proceedings of the international joint conference on artificial intelligence pp
+two hundred nineteen 240
+green cordell and bertram raphael
+1968
+the use of theorem proving techniques in question answering systems
+in proceedings of the acm national conference pp
+one hundred sixty nine 181
+griss martin l
+1981
+portable standard lisp a brief overview
+utah symbolic computation group operating note fifty eight university of utah
+guttag john v
+1977
+abstract data types and the development of data structures
+communications of the acm twenty ( six ) three hundred ninety seven 404
+hamming richard w
+1980
+coding and information theory
+englewood cliffs n.j. prentice hall
+hanson christopher p
+1990
+efficient stack allocation for tail recursive languages
+in proceedings of acm conference on lisp and functional programming pp
+one hundred and six 118
+hanson christopher p
+1991
+a syntactic closures macro facility
+lisp pointers four ( three )
+hardy godfrey h
+1921
+srinivasa ramanujan
+proceedings of the london mathematical society xix ( two )
+hardy godfrey h. and e
+m
+wright
+1960
+an introduction to the theory of numbers
+4th edition
+new york oxford university press
+havender j
+1968
+avoiding deadlocks in multi tasking systems
+ibm systems journal seven ( two ) seventy four 84
+hearn anthony c
+1969
+standard lisp
+technical report aim ninety artificial intelligence project stanford university
+henderson peter
+1980
+functional programming application and implementation
+englewood cliffs n.j. prentice hall
+henderson
+peter
+1982
+functional geometry
+in conference record of the 1982 acm symposium on lisp and functional programming pp
+one hundred seventy nine 187
+hewitt carl e
+1969
+planner a language for proving theorems in robots
+in proceedings of the international joint conference on artificial intelligence pp
+two hundred ninety five 301
+hewitt carl e
+1977
+viewing control structures as patterns of passing messages
+journal of artificial intelligence eight ( three ) three hundred twenty three 364
+hoare c
+a
+r
+1972
+proof of correctness of data representations
+acta informatica one ( one )
+hodges andrew
+1983
+alan turing the enigma
+new york simon and schuster
+hofstadter douglas r
+1979
+g&ouml del escher bach an eternal golden braid
+new york basic books
+hughes r
+j
+m
+1990
+why functional programming matters
+in research topics in functional programming edited by david turner
+reading ma addison wesley pp
+seventeen forty two
+ieee std 1178 1990
+1990
+ieee standard for the scheme programming language
+ingerman peter edgar irons kirk sattley and wallace feurzeig assisted by m
+lind herbert kanner and robert floyd
+1960
+thunks a way of compiling procedure statements with some comments on procedure declarations
+unpublished manuscript
+kaldewaij anne
+1990
+programming the derivation of algorithms
+new york prentice hall
+kohlbecker eugene edmund jr
+1986
+syntactic extensions in the programming language lisp
+ph.d
+thesis indiana university
+konopasek milos and sundaresan jayaraman
+1984
+the tk solver book a guide to problem solving in science engineering business and education
+berkeley ca osborne / mcgraw hill
+knuth donald e
+1973
+fundamental algorithms
+volume one of the art of computer programming
+2nd edition
+reading ma addison wesley
+knuth donald e
+1981
+seminumerical algorithms
+volume two of the art of computer programming
+2nd edition
+reading ma addison wesley
+kowalski robert
+1973
+predicate logic as a programming language
+technical report seventy department of computational logic school of artificial intelligence university of edinburgh
+kowalski robert
+1979
+logic for problem solving
+new york north holland
+lamport leslie
+1978
+time clocks and the ordering of events in a distributed system
+communications of the acm twenty one ( seven ) five hundred fifty eight 565
+lampson butler j
+j
+horning r
+london j
+g
+mitchell and g
+k
+popek
+1981
+report on the programming language euclid
+technical report computer systems research group university of toronto
+landin peter
+1965
+a correspondence between algol sixty and church's lambda notation part i
+communications of the acm eight ( two ) eighty nine one hundred and one
+lieberman henry and carl e
+hewitt
+1983
+a real time garbage collector based on the lifetimes of objects
+communications of the acm twenty six ( six ) four hundred nineteen 429
+liskov barbara h. and stephen n
+zilles
+1975
+specification techniques for data abstractions
+ieee transactions on software engineering one ( one ) seven nineteen
+mcallester david allen
+1978
+a three valued truth maintenance system
+memo four hundred seventy three mit artificial intelligence laboratory
+mcallester david allen
+1980
+an outlook on truth maintenance
+memo five hundred fifty one mit artificial intelligence laboratory
+mccarthy john
+1960
+recursive functions of symbolic expressions and their computation by machine
+communications of the acm three ( four ) one hundred eighty four 195
+mccarthy john
+1967
+a basis for a mathematical theory of computation
+in computer programing and formal systems edited by p
+braffort and d
+hirschberg
+north holland
+mccarthy john
+1978
+the history of lisp
+in proceedings of the acm sigplan conference on the history of programming languages
+mccarthy john p
+w
+abrahams d
+j
+edwards t
+p
+hart and m
+i
+levin
+1965
+lisp 1.5 programmer's manual
+2nd edition
+cambridge ma mit press
+mcdermott drew and gerald jay sussman
+1972
+conniver reference manual
+memo two hundred fifty nine mit artificial intelligence laboratory
+miller gary l
+1976
+riemann's hypothesis and tests for primality
+journal of computer and system sciences thirteen ( three ) three hundred 317
+miller james s. and guillermo j
+rozas
+1994
+garbage collection is fast but a stack is faster
+memo 1462 mit artificial intelligence laboratory
+moon david
+1978
+maclisp reference manual version 0
+technical report mit laboratory for computer science
+moon david and daniel weinreb
+1981
+lisp machine manual
+technical report mit artificial intelligence laboratory
+morris j
+h. eric schmidt and philip wadler
+1980
+experience with an applicative string processing language
+in proceedings of the 7th annual acm sigact / sigplan symposium on the principles of programming languages
+phillips hubert
+1934
+the sphinx problem book
+london faber and faber
+pitman kent
+1983
+the revised maclisp manual
+technical report two hundred ninety five mit laboratory for computer science
+rabin michael o
+1980
+probabilistic algorithm for testing primality
+journal of number theory twelve one hundred twenty eight 138
+raymond eric
+1993
+the new hacker's dictionary
+2nd edition
+cambridge ma mit press
+raynal michel
+1986
+algorithms for mutual exclusion
+cambridge ma mit press
+rees jonathan a. and norman i
+adams iv
+1982
+t a dialect of lisp or lambda the ultimate software tool
+in conference record of the 1982 acm symposium on lisp and functional programming pp
+one hundred fourteen 122
+rees jonathan and william clinger ( eds )
+1991
+the revised four report on the algorithmic language scheme
+lisp pointers four ( three )
+rivest ronald adi shamir and leonard adleman
+1977
+a method for obtaining digital signatures and public key cryptosystems
+technical memo lcs / tm82 mit laboratory for computer science
+robinson j
+a
+1965
+a machine oriented logic based on the resolution principle
+journal of the acm twelve ( one ) twenty three
+robinson j
+a
+1983
+logic programming past present and future
+new generation computing one 1 hundred and seven 124
+spafford eugene h
+1989
+the internet worm crisis and aftermath
+communications of the acm thirty two ( six ) six hundred seventy eight 688
+steele guy lewis jr
+1977
+debunking the expensive procedure call myth
+in proceedings of the national conference of the acm pp
+one hundred fifty three 62
+steele guy lewis jr
+1982
+an overview of common lisp
+in proceedings of the acm symposium on lisp and functional programming pp
+ninety eight one hundred and seven
+steele guy lewis jr
+1990
+common lisp the language
+2nd edition
+digital press
+steele guy lewis jr. and gerald jay sussman
+1975
+scheme an interpreter for the extended lambda calculus
+memo three hundred forty nine mit artificial intelligence laboratory
+steele guy lewis jr. donald r
+woods raphael a
+finkel mark r
+crispin richard m
+stallman and geoffrey s
+goodfellow
+1983
+the hacker's dictionary
+new york harper & row
+stoy joseph e
+1977
+denotational semantics
+cambridge ma mit press
+sussman gerald jay and richard m
+stallman
+1975
+heuristic techniques in computer aided circuit analysis
+ieee transactions on circuits and systems cas twenty two ( eleven ) eight hundred fifty seven 865
+sussman gerald jay and guy lewis steele jr
+1980
+constraints a language for expressing almost hierachical descriptions
+ai journal fourteen one thirty nine
+sussman gerald jay and jack wisdom
+1992
+chaotic evolution of the solar system
+science two hundred fifty seven 256 two hundred sixty two
+sussman gerald jay terry winograd and eugene charniak
+1971
+microplanner reference manual
+memo 203a mit artificial intelligence laboratory
+sutherland ivan e
+1963
+sketchpad a man machine graphical communication system
+technical report two hundred ninety six mit lincoln laboratory
+teitelman warren
+1974
+interlisp reference manual
+technical report xerox palo alto research center
+thatcher james w. eric g
+wagner and jesse b
+wright
+1978
+data type specification parameterization and the power of specification techniques
+in conference record of the tenth annual acm symposium on theory of computing pp
+one hundred nineteen 132
+turner david
+1981
+the future of applicative languages
+in proceedings of the 3rd european conference on informatics lecture notes in computer science volume one hundred twenty three
+new york springer verlag pp
+three hundred thirty four 348
+wand mitchell
+1980
+continuation based program transformation strategies
+journal of the acm twenty seven ( one ) one hundred sixty four 180
+waters richard c
+1979
+a method for analyzing loop programs
+ieee transactions on software engineering five ( three ) two hundred thirty seven 247
+winograd terry
+1971
+procedures as a representation for data in a computer program for understanding natural language
+technical report ai tr seventeen mit artificial intelligence laboratory
+winston patrick
+1992
+artificial intelligence
+3rd edition
+reading ma addison wesley
+zabih ramin david mcallester and david chapman
+1987
+non deterministic lisp with dependency directed backtracking
+aaai eighty seven pp
+fifty nine 64
+zippel richard
+1979
+probabilistic algorithms for sparse polynomials
+ph.d
+dissertation department of electrical engineering and computer science mit
+zippel richard
+1993
+effective polynomial computation
+boston ma kluwer academic publishers

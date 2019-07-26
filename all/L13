@@ -1,0 +1,814 @@
+well today we're going to learn about something quite amazing we're going to sort of understand what we mean by a program a little bit more profoundly than we have up 'til now
+up 'til now uh we've been thinking of programs as describing machines
+so for example looking at this uh this still store what we see here is a program for factorial
+and what it is is a character string description if you will of the wiring diagram of a potentially infinite machine
+and we can look at that a little bit and just see the idea that this is a sort of compact notation which says if n is zero the result is one
+well here comes n coming into this machine and if it's zero then i control this switch in such a way that the switch allows the output to be one
+otherwise it's n times factorial of n minus one
+well i'm computing factorial of n minus one and multiplying that by n and in the case that it's not zero the switch makes the output come from there
+of course this is a machine with a potentially infinite number of parts because factorial occurs within s factorial
+so we don't know how deep it has to be
+but that's basically what our notation for programs really means to us at this point
+it's a character string description if you will of a wiring diagram that could be also drawn some other way
+and in fact many people have proposed to make uh programming languages look graphical like this
+uh i'm not sure i believe that there are many advantages
+the uh major disadvantage of course is that it takes up more space on a page and therefore it's harder to pack into a listing or to edit very well
+but in any case you know there is something very remarkable that can happen in the computation world which is that you can have something called a universal machine
+if we look at the second uh s slide
+what we see is a special machine called eval
+there is a machine called eval and i'm going to show it to you today
+hm
+it's very simple
+what is remarkable is that it will fit on the blackboard
+ok
+however eval if a machine which takes as input a description of another machine
+it could take the wiring diagram of the factorial machine as input
+having done so it becomes a simulator for the factorial machine such that if you put a six in out comes a seven hundred and twenty
+that's a very remarkable sort of machine
+and the most amazing part of it is that it fits on a blackboard
+by contrast one could imagine in the al analog electronics world a very different machine a machine where
+a machine which also is in some sense universal where you gave a circuit diagram as one of the inputs for example of this little low pass filter one pole low pass filter
+and you could imagine that you could for example scan this out
+the scan lines
+right
+are the signal that descri that's describing what this machine is to simulate
+then the analog eval which is made out of electrical circuits should configure itself into a filter that has the frequency response specified by the circuit diagram
+that's a very hard machine to make and surely there's no chance that i could put it on the blackboard
+ok
+so we're going to see an amazing thing today
+we're going to see on the blackboard the universal machine
+and we'll see that among other other things it's extremely simple
+now we're getting very close to the real spirit in the computer at this point
+so i have to show it a certain amount of uh reverence and respect so i'm going to wear a suit jacket for the only time you'll ever see me wear a suit jacket here
+ok
+and i think i'm also going to put on an appropriate hat for the occasion
+ok
+now this is a lecture which i have to warn you uh let's see
+normally people under forty who don't have several children are advised to be careful if they're really worried they should leave
+because there's a certain amount of mysticism that will appear here uh which may be disturbing and cause trouble in your minds
+well in any case let's see
+i wish to write for you the evaluator for for lisp
+now the evaluator isn't very complicated
+it's very much like all the programs we've seen already that's the amazing part of it ok
+it's going to be and i'm going to write it write here it's a program called eval
+and it's a procedure of two arguments an expression and an environment
+and like every interesting procedure it's a case analysis
+ok
+ok but before i start on this i want to tell you some things
+the program i'm gonna write on the blackboard is ugly
+dirty
+disgusting
+not the way i would write this as a professional ok
+it is written with concrete syntax meaning i'm gonna use lots of cars and cdrs which is exactly what i told you not to do
+hm
+that's o on purpose in this case
+because i want it to be small compact fit on the blackboard so you can get the whole thing
+so i don't to use long names like i normally use 'kay
+i want to use car cdr because it's short
+k
+i want to there's a whole but that that's a tradeoff but i don't want you writing programs like this
+this is purely for an effect
+k
+now you're going to have to work a little harder to read it but i'm going to try to make it clear as i'm i'm writing it
+i'm also this is a pretty much complete interpreter but there's gonna be room for putting in more things i'm gonna leave out definition and assignment just because they're essential they're not essential at a at a math for a mathematical reason that i'll show you later
+and also uh they're they take up more space
+but in any case what do we have to do
+well we have to do a dispatch which breaks the types of expressions up into particular classes
+mm
+so that's what we're going to have here
+but what expressions are there
+let's look at the kinds of expressions
+we could have things like the nu the numeral three
+what i want that to do
+i can make choices but i think right now i want it to be a three
+that's what i want
+right
+so that's easy enough that means i want
+if the thing is a number the expression then i want the expression itself as the answer
+k
+now the next possibility is things that we represent as symbols
+examples of symbols are things like exp n eval number x
+what do i meant hem to be
+those are things that stand for other things those are the variables of our language
+k
+so i want to be able to say for example that x for example transforms to its value which might be three
+k
+or i might have something like like car i want to have as it's value the something like some procedure which i don't know what it is inside there perhaps some machine language code or something like that
+k
+so well that's easy enough i'm gonna push that off on on someone else
+if something's a symbol if the expression is a symbol then i want the answer to be the result
+looking up the expression in the environment
+now the environment is a dictionary which maps the symbol names to their values and that's all it is
+how it's done well we'll see that later
+k
+it's very easy it's easy to make data structures that are tables of various sorts but it's only a table and this is the access routine for some table
+k
+well the next thing another kind of expression you have things that are described constants that are not numbers like foo
+well for my convenience i want to syntactically transform that into a list structure which is quote
+foo words a quoted se a quoted object whatever it is is going to be actually an abbreviation which is not part of the evaluator k
+but happened somewhere else
+an abbreviation for an expression that looks like this
+this way i can test for the type of the expression as being the quotation by examining the car of the expression
+k
+so i'm not going to worry about that in the evaluator it's happening somewhere earlier in the reader or something
+if the expression of the expression is quote then what do i want
+i want the i want quote foo
+to itself evaluate to foo it's a constant
+this is just a way of saying that this evaluates to itself
+k
+so that's the what is that
+that's the first of the second of the list it's the second element of the list k
+but the second element of the list is its cadr
+so i'm just going to write here cadr
+k
+what else do we have here
+we have lambda expressions
+for example lambda of x um lambda x plus x y
+well i'm gonna have to have some representation for the procedure which is the value of an expression of a lambda expression
+the procedure area is not the expression lambda x
+that's the description of it the textual description
+however what i'm going to expect to see here is something which contains as environment as one if its parts
+right
+if i'm implementing a lexical language
+and so and so what i'd like to see is some type flag 'cause i'm gonna n have to be able to distinguish procedures later procedures which were produced by lambdas from ones that may primitive
+and so i'm going to have some t flag which i'll just arbitrarily call closure just for historical reazho reasons
+now i have to say what parts of this are important
+i'm gonna to know the bound variable list and the body
+well that's the cdr of this so that's going to be x and plus x y and some environment
+now this is not something a user should ever should ever see this is purely a representation internally for a procedure object
+and it contains a bound variable list a body and an environment and some type tag saying i am a procedure
+i'm gonna make one now
+so if if the car of the expression is quote lambda
+then what i'm going to put here is i'm going to make a list of closure the cdr of the the cdr of the procedure description
+which is everything except the lambda and the current environment
+this implements the rule for environments in the environment model that has to do with construction and procedures from lambda expressions
+the environment that was around at the time the evaluator encountered the lambda expression is the is the environment where the lambda expression gets where the procedure resulting interprets its free variables
+so that's part of that and so we have to capture that environment as part of the procedure object
+and we'll see how that gets used later
+there are also conditional expressions things like cond of say p one e one p two e two
+where there's a predicate and this is a predicate is a thing that's either true or false and an expression to be evaluated if the predicate is true
+a set of clauses if you will that's the name such thing
+so i'm gonna let put that somewhere else we're going to worry n that in another piece of code
+so e q if the car of the expression is cond
+then i'm going do do nothing than evaluate the cond the cdr of the expression
+with all the all the all the clauses in the environment that i'm given
+well there's one more case
+arbitrary thing like the sum of x and three
+hm
+where this is a an operator applied to operands
+and there's nothing special about it it's not one of the special cases the special forms
+these are the special forms
+and if i were writing here a professional program again i would somehow make this data directed
+so there wouldn't be a sequence of conditionals here there'd be a dispatch on some bits
+k
+if i were trying to do this in more in a more professional way so that in fact i could add to the thing without changing my program much
+so for example the thing would run fast
+but i'm not worried about that
+here we're trying to look at this in uh it's enti entirety
+so it's else
+well what do we do
+in this case i have to somehow do an addition
+well i have to find out what the plus is and i have to find out what the x and the three are
+and then i have to apply the result of pl of uh of finding out what the plus is to the result of finding out what the x and the three are
+k
+we'll have name for that
+so i'm going to apply the result of evaluating the car of the expression
+the car of the expression is the operator
+in the environment given so evaluating the operator gets me the procedure
+now i have to evaluate all the operands to get the arguments
+i'll call that evlist the cdr that the operands of the expression with respect to the environment
+evlist will come up later
+evlist apply cond pair cond lambda define
+k
+so that what you're seeing here now is pretty much all there is in the evaluator itself is the case dispatch on the
+on the type of the expression with the default being a general application or a combination
+now there's lots of things we haven't defined yet
+let's just look at them and see what they are
+we're gonna have to do this later
+evcond
+we're going to have to write apply
+gonna have to write evlist
+i'm gonna have to look write lookup
+i think that's everything isn't there
+everything else is something which is simple or primitive or something like that
+right
+and of course we could put much many more special forms here but that would be a bad idea in general in a language you make a language very complicated by putting a lot of things in there
+the number of reserved words that should exist in a language should be no more than a person can remember on his fingers and toes and i get very upset with languages with ha which have hundreds of reserved words
+but that's where the reserved words go
+ok
+well now well let's get to the next part of this the kernel apply
+k
+what else is this doing
+well apply's job is to take a procedure and apply it to its arguments after both have been evaluated to come up with the procedure and the arguments rather than the operator symbols and the operand symbols
+whatever they are symbolic expressions
+so we will define apply
+to be a procedure of two arguments a procedure and arguments
+and what does it do
+it does nothing very complicated
+it's got two cases
+either the procedure is primitive
+and i don't know exactly how that is done it's possible that there's some type information just like we made closure for here be the description of the type of a compound thing k
+probably so but it's not essential how that works
+and in fact it turns out as you probably know or have deduced that you don't need any primitives anyway
+you can compute anything because without them
+'cause some of the lambda playing that i've been playing with
+but it's nice to have them so here we're going to do some magic which i'm not gonna explain go to the machine language
+apply primop here's how it adds
+execute an add instruction
+however the interesting part of a language is the glue by which the parameters are glued together
+so let's look at that
+well the other possibility is that this is a a compound made up by executing my a lambda expression
+this is a comple compound procedure
+well we'll check it's type
+if it is closure
+if it's one of those then i have to do an eval of the body right
+the way i do this the way i deal with this at all is the way i evaluate the application of a procedure to its arguments is by evaluating the body of the procedure
+in the environment resulting from extending the environment of the procedure with the bindings of the formal parameters of the procedure to the arguments that were passed to it
+long se long sentence
+well that's easy enough
+however here's gonna be a lot of car cdring
+i have to get the body of the procedure
+where's the body of the procedure
+in here
+well here's the car here's the cdr is the whole rest of this so here's the cadr and so i see what i have here is the body is the second element of the second element of the procedure
+so it's the cadr of the cadr or the cadadr
+it's the c a d a d r
+cadadr of the procedure
+so i evaluate the body in the re in the result of binding that's making up more environment
+well i need the formal parameters of the of the procedure
+what is that
+that's the car of the cadr
+k
+it's horrible isn't it
+of the procedure bind that tot eh arguments that were passed in the environment which is passed also as part of the procedure
+well that's the car of the cdr of the cdr of this
+cadadr
+of the procedure
+bind eval pair cond lambda define
+k
+now of course if were being really a neat character and i was being fick very careful
+i would actually put in an extra case here for checking for certain errors like did you apply to apply one to it to an argument you get a undefined procedure type
+so i may as well do that anyway else some sort of error
+k
+like that
+now of course again in some sort of more real system written for professional reasons this would be written with a case analysis done by some sort of dispatch
+over here i would probably have other cases like is this compiled code
+right
+it's very important i've i have distinguished the kind of code that's produced by directly evaluating lambda in interpretation
+from code that was c pro produced by somebody's compiler or something like that
+and we'll talk about that later
+or is this a piece of fortran program i have to go off and execute
+right
+it's a perfectly possible thing at this point to do that
+in fact there is well in this concrete syntax evaluator i'm writing here there's a uh there's an assumption built in that this is lisp
+right
+'cause i'm using cars and cdrs
+car means the operator and cdr means the operands
+in the text there is an abstract syntax evaluator for which these could be they these have g are given abstract names like operator and operand and all these other things like that and in that case you could reprogram it to be algol with no problem
+ok well here we have added another couple of things that we haven't defined
+i don't think i'll worry about these at all
+however this one will be interesting later
+well we have let's just proceed through this and get it done
+and there's only two more blackboards so it can't be very long
+k
+it's carefully tailored to exactly fit
+well what do we have left
+we have to define evlist which is over here and evlist is nothing more than a map down the down a bunch of of arguments operands producing op arguments
+but i'm gonna write it out
+and one of the reasons i'm gonna write this out is for a mystical reason which is i want to make this evaluator so simple that it can eval understand itself
+gonna really worry about that a little bit
+so let's write it out completely
+see i don't want to worry about whether or not the thing can pass functional arguments
+the evaluator is not gonna use them
+the evaluator's not gonna produce functional values
+so d even if there were a different alternative language that were very close to this this this evaluates a complex language like scheme which does allow procedural arguments and procedural values and procedural data
+but even if i were evaluating algol which doesn't allow procedural values i could use this evaluator
+k
+and this evaluator's not making an assumptions about that
+and in fact if this evaluator were restricted it's not being able to do that it wouldn't matter 'cause it doesn't use any of those to those clever things
+so that's why i'm arranging this to be super simple
+this is sort of the kernel of all possible language evaluators
+how 'bout that
+evlist
+well what is it
+it's a procedure of two arguments l and an environment where l is a list such that if
+if the list of in of uh of arguments is the empty list then the result is the empty list
+otherwise i want to cons up the result of evaluating the car of the the car of the list of o operands in the environment
+so i want the first operand evaluated and i'm gonna make a list of the results by consing that onto the result of of evlisting as a cdr recursion
+the cdr of the list relative to the same environment
+evlist cons else cond lambda define
+k
+and i have one more that i want to put on the blackboard since the essence of this whole thing
+and then there's some sort of next layer down
+conditionals
+conditionals are the only thing left that are sort of substantial
+then below that we have to worry about things like lookup and bind and we'll lookup that we'll look at that in a second
+but of the substantial stuff at this level of detail next important thing is how you deal with conditionals
+well how do we have a conditional thing
+k
+it's a procedure of a set of clauses and an environment and what does it do
+it says if the cl if i have no more clauses well i have to give this a value
+it could be that it was an error
+supposing i ran run off the end of a conditional
+it's pretty arbitrary it's up to me as programmer to choose what i want to happen
+it's convenient for me right now to write down that this has a value which is the empty list
+doesn't matter right
+for error checking some people might pre prefer something else
+but the interesting things are the following ones
+if i've got an else clause a cl you see if i have a list of clauses then each clause is a list
+and so the predicate part is the k r of the clauses it's the car which is the first part of the first clause in the list of clauses
+k
+if it's an else then it means i want my result of the conditional to be the result of evaluating the matching e expression
+so i eval the cadr so this is the first clause the second element of it cadr cadr of the car
+k
+of the clauses with respect to the environment
+now the next possibility's more interesting
+if it's false if the first predicate in the predicate list is not an else and it's not false if it's not the word else and if it's not a false thing let's write down what it is if it's a false thing
+if the result of evaluating the first clause the first predicate the clauses with respect to the environment
+if that evaluation yields false then it means i want to look at the next clause
+so i want to discard the first one
+so we just go around the loop evcond the cdr of the clauses relative to that environment and otherwise
+i had a true clause in which case what i want is to evaluate the cadr of the clauses
+relative to that environment
+boy it's almost done
+k it's quite close to done
+i think we're going to finish that par this part off and sort of just buzzing through this evaluator but so far you're seeing almost everything
+let's look at the next next uh transparency here and see ah yes here is bind
+bind is bind is for making more table
+and what we're gonna do here is make a we're gonna make a new frame for an environment structure
+the environment structure is gonna be represented as a list of frames
+so given an e existing environment structure i'm gonna make a new environment structure by consing a new frame onto the existing environment structure
+where the new frame consists of the result of pairing up the variables which are the bound variables of the procedure i'm applying to the argu values which are the arguments that were passed to that that procedure
+so it's just making a list uh z adding adding a new element to a list of frames which is an environment structure to make a new environment
+right
+where pairup is very simple
+pairup is nothing more than if i have a list of variables and a list of values well if i've run out of variables and if i've run out of values everything's ok otherwise i've given too many arguments
+if if i've not run out of variables but i've run out of values then i have too few arguments
+and in the general case where i don't have any errors and i'm not done k then i really am just adding a new pair of the first variable with the first
+of the first argument k the first value onto a list consisting of pairing or resulting from pairing up the rest of the variables with the rest of the values
+lookup is of course equally simple right
+if i have to look up a symbol in an environment well if the environment is empty then i've got an unbound variable
+otherwise what i'm going to do is use a special pair list lookup procedure which we'll have very shortly of a symbol in the first frame of the environment
+since i know the environment's not empty it must have a first frame
+so if i look up the symbol in the first frame that becomes the value cell here k
+and then if the value cell is empty k
+that if there is no such value cell then i have to continue and look at the rest of the frames
+it means there was nothing found there
+so that's a property of assq as it returns emptiness if it doesn't find something
+k
+but if it did find something then i'm gonna l use the cdr of the value cell here which is the thing that was the pair consisting of the variable and the value
+so the cdr of it is the value part
+k
+finally assq is something you've probably seen already assq takes a symbol and a list of pairs and if the list is empty it's empty
+if the li if the symbol is the first thing in the list that's an error that should be k r c a a r everybody note that
+right there
+k
+and in any case if the su if the symbol is the k r of the a list then i want the first the first pair in the a list so if the in other words if this is the key matching the right the right entry
+otherwise i want to look up that symbol in the rest
+sorry for producing a bug k
+bugs appear
+well in any case you're pretty much seen the whole thing now
+mm
+it's a very beautiful thing even though it's written in an ugly style being the kernel of every language
+i suggest that we let's look at it for a while
+are there any questions
+all right i suppose it's time to take a small break then
+k now we're just going to do a little bit of practice understanding what it is we've just shown you k
+what we're going to do is go through in detail an evaluation by informally substituting through the interpreter okay
+and since we have no assignments or definitions in this interpreter we have no ass no possible side effects k
+so the uh we can do substitution with impunity and not worry about the results right
+so the particular problem i'd like to look at is an interesting one it's the evaluation of quote open open open lambda of x
+lambda of y plus x y lambda lambda applied to three applied to four
+in the gl in some global environment which i'll call e zero
+so what we have here is a procedure of one argument x which produces as it's value a procedure of one argument y which adds x to y
+we are applying the procedure of one argument x to three so x should become three right
+and the result of that should be procedure of one argument y which we will then apply to four
+k and that's a very simple case
+they will then add those results
+k now in order to do that i want to make a very simple environment model and at this point you should already have in your mind the environments that this k produces
+but we're gonna start out with a global environment which i'll call e zero
+which is that and it's going to have in it things definitions for plus and times and i'm using greek letters isn't that interesting
+for the objects
+and minus uh and uh quotient and car and cdr and
+cons and e q a everything else you might imagine in a global environment it's got something there for each of those things
+something that the machine is born with
+that's e zero
+now what does it mean to do this evaluation
+well we go through the set of special forms
+first of all this is not a number
+this is not a symbol
+gee it's not a quoted expression
+i'm this is a quoted expression but that's not what i'm interested in
+i'm ask the question is whether or not the thing that is quoted is a quoted expression
+'kay
+i'm evaluating an expression this just says it's this particular expression
+this is not a quoted expression
+right
+it's not it's not a thing that begins with lambda
+it's not a thing that begins with cond therefore it's an application of its procee of an operator to operands
+it's a combination
+the combination th thus has this as the operator and this as the operands
+well that means that what i'm going to do is transform this into apply of eval of quote open open lambda of x lambda of y
+i'm evaluating the operator plus x y in the environment also e zero
+with the operands that i'm gonna apply this to the arguments being the result of evlist the list containing four in e zero
+i'm using this funny notation here for e zero because it s should be the that environment and i don't have any i can't have a name for it 'cause i have no environment to name it in
+okay
+so this is just a representation of what would be a quoted expression if you will the data structure which is the environment goes there
+well so this is the that's what we're seeing here
+well in order to do this i have to do this and i have to do that
+well this one's easy so what don't we do that one first k
+this turns into apply of eval just copying something now
+most of the substitution rule is copying so i'm going to not say the words when i copy 'cause it's faster
+and then the evlist is going to turn into a cons of eval of four in e zero because it was not an empty list
+uh
+onto the result of evlisting of the empty list in e zero and i'm gonna start leaving out steps soon 'cause this is gonna get boring
+but this is basically the same thing as apply of eval i'm gonna keep doing this the lambda of x the lambda of y plus x y
+three close e zero i'm a pretty good machine
+applied well eval of flo four that's meets the question is it a number
+so that's cons right
+cons of four and evlist of the empty list is the empty list so that's this k
+and that's very simple to understand 'cause that means it's just four the list containing four itself so this is nothing more than apply of eval
+of quote open open lambda of x oh lambda of y plus x y two three three applied to well e zero applied to the list four
+bang
+so that's that step
+well now now let's look at the next more interesting thing
+what do i do to evaluate that
+evaluating this means i have to evaluate i have this is well it's not it's nothing but an application
+it's not one of the special things
+it's the application of this operator which we see here here's the operator applied to this operands
+it's that combination
+but we know how to do that k 'cause that's the the last case of the conditional so substituting in for this evaluation it's apply of eval of the operator in the evlist of the operands
+hell it's apply of apply of eval of quote open lambda of x plu uh uh lambda of y
+plus x y lambda lambda in environment e zero
+apply that i'm gonna short circuit the evaluation of the operands 'cause they're the same as they were before i got a list containing three apply that and apply that to four
+k
+well let's see
+eval of a lambda expression produces a procedure object
+k
+so this is apply of apply of the procedure object closure which contains the body of the procedure x
+which is lambda of which binds x and has the pr the internals the body it returns the procedure of one argument y which adds x to y
+environment e zero is now captured in it because this was evaluated with respect to e zero e zero is part now of the closure object apply that to open three close
+apply to open four close apply
+so going form this step to this step meant that i made up a procedure object which captured in it
+e zero as part of the procedure object
+now we're gonna pass those to apply we have to apply this procedure to that set of arguments
+well but that procedure is not is not primitive it's in fact a thing which has got the tag closure and therefore what we have to do is do a bind
+we have to bind a new environment is made at this point which has as its parent environment the one over here e zero
+that environment
+k
+we'll call this one e one
+now what's bound in there
+x is bound to three
+k
+so i have x equals three
+that's what's in there
+o k
+and we'll call that e one
+so what this transforms into is an eval of the body of this which is this the body of that procedure in the environment that you just saw
+so that's an apply of eval quote open lambda of y plus x y the body
+in e one and apply the result of that to four
+open close four
+list of arguments
+o k well that's sensible enough because evaluating a lambda i know what to do
+that means i apply the procedure which is closure binds one argument y adds x to y
+with e one captured in it and you should really see this right
+i somehow manufactured a closure i should have put this here there was one over here too
+k
+well there's one here now i've captured e one and this is the procedure of one argument y okay whatever this is
+that's what that is there
+that closure okay
+and i'm gonna apply that to four
+o k
+well that's easy enough
+that means i have to make a new environment by copying this pointer which is the pointer of the procedure which binds y equal four with that environment and here's my new environment which i'll call e two hm
+and of course this application then is evaluate the body in e two
+k
+so this is eval the body which is plus x y in the environment e two
+oh but this is an application so this is the apply of eval plus e two
+and evlist quote open x and y in e two k
+well but let's see
+that is apply the object which is the result of evaluating plus so here we are in e two plus is not here it's not here oh yes but it's here as some primitive operator k
+so it's the primitive operator for addition k
+apply that to the result of evaluating x and y in e two uh but we can see that x is three and y is four k
+so that's a to three and four here and that magically produces for me a seven
+k
+i wanted to go through this so you would see essentially one important ingredient which is what's being passed around and who is wh who owns what and what his job is
+so what do we have here
+we have eval and we have apply the two main players
+and there is a big loop that goes around like this which is eval produces
+produces a procedure and arguments for apply
+now eval some things eval could do by itself
+does a little self things here that are not interesting
+also eval evaluates all of the arguments one after another
+that's not very interesting
+apply can pro apply some procedures like plus
+not very interesting
+however if apply can't apply a procedure like plus it produces and expression and environment for for eval
+the procedure and arguments wrap up the sta essentially the state of a computation
+and certainly the expression environment
+and so what we're actually going to do next it's not the complete state 'cause it doesn't say what things who wa who wants the answers
+hm
+but what we're going to do i it's always got something like in an expression environment or a procedure in arguments that's the main loop that we're going around
+there are minor little subloops like eval through evlist or eval through evcond you know or apply through primitive apply
+but they're not the essential things
+so that's what i wanted you to see
+are there any questions
+yes david
+um i'm trying to understand how x got down to three instead of four at the early part of the
+here
+mmm
+here
+you want to know how x got down to three
+'cause x is the outer uh procedure and x and y is the inner procedure
+fine
+well i was very careful and mechanical
+maybe first of all i should write those procedures again for you pretty printed
+first order of business because you're probably not reading them well
+so i have here that procedure of what is it x over there
+which is value is that procedure of y which adds x to y lambda lambda applied that to three
+take the result of that and applied that to four
+is that not what i wrote
+k
+now you should immediately see that here is an application let me get a white piece of chalk
+here is an application a combination
+k
+that combination ahs this is the operator and this as the operand
+the three is going in for the x here
+the result of this is a procedure of one argument y which gets applied to four
+uh huh
+'kay
+so you just weren't reading the expression right
+the way you see that over here k
+is that here i have the actual procedure object x it's getting getti g getting applied to three the list containing three
+what i'm left over with is something which gives applied to four
+k
+are there any other questions
+k time for our next small break then
+thank you
+let's see
+at this point you should be getting the feeling what's this nonsense this sussman character is feeding me
+there's a awful lot of strange nonsense here
+after all he purported to explain to me lisp and he wrote me a lisp program on the blackboard
+the lisp program was intended to be interpreter for lisp but you need a lisp interpreter in order to understand that program
+how could that program have told me anything there is to be known about lisp
+how is that not completely vacuous
+right
+it's a very strange thing
+does it tell me anything at all
+well you see the whole thing is sort of like these escher's hands that we see on this slide k
+yes eval and apply each sort of draw each other and construct construct the real thing which can sit out and draw itself
+escher was a very brilliant man he just didn't know the names of these spirits
+mm
+what i'm gonna do now is i'm gonna try to convince you that b both this means something and as a aside i'm gonna show you why you don't need definitions
+it just turns out that that sort of falls out
+why definitions are n inessential in a mathematical sense for doing all the things that we need to do for computing
+well let's see here
+consider the following small program
+what does it mean
+it's a program for computing exponentials
+the exponential of x to the nth power is if n is zero
+then the result is one
+otherwise i want the product of x and the result of exponentiating
+x to the n minus one power
+i think i got it right
+now this is a recursive definition
+it's a defini definition of the exponentiation procedure in terms of itself
+and as has been mentioned before your high school geometry teacher probably gave you a hard time about things like that
+was that justified
+why does this self referential definition make any sense
+well first of all i'm gonna convince you that your high school geometry teacher was sell telling you nonsense
+consider the following set of definitions here
+x plus y equals three and x minus y equal one
+well gee this tells you x in terms of y and this one tells you y in terms of x presumably
+k
+and yet this happens to have a unique solution in x and y
+hm
+however i could also write two x plus two y is six
+these two equations have an infinite number of solutions
+and i could write you for example x minus y equal two and these two equations have no solutions
+well i have here three sets of simultaneous linear equations k
+this set this set and this set
+but they have different numbers of solutions
+the number of solutions is not in the form of the equations
+they all three sets have the same form
+the number of solutions is in the content
+i can't tell by looking at the form of a definition whether it makes sense only by its detailed content what are the coefficients for example in the case of linear equations
+so i should expect to be able to tell looking at something like this from some simple thing like oh yes e x p t is the solution of this recursion equation
+e x p t is the procedure which s if pres if substituted in here gives me e x p t back k
+i can't tell looking at this form whether or not there is a single unique solution to e x p t an infinite number of solutions or no solutions
+it's gotta be how it counts and things like that the details and it's harder in programming than linear algebra
+there aren't too many theorems about it in programming
+well i want to rewrite these equations a little bit these over here because what we're investigating is equations like this
+but i want to play a little with equations like this that we understand just so we get some insight into this kind of equation
+we could rewrite our equations here say these two the ones that are interesting as x equals three minus y and y equals x minus one
+why do we call this transformation this a linear transformation t
+then what we're getting here is an equation x y equals t of x y
+what am i looking for
+i'm looking for a fixed point of t
+so the solution is a fixed point of t
+so the methods we should have for looking fro solutions to equations if i can do it by fixed points might be applicable
+if i have a means of finding a solution to an equations by fixed points just may not might not work but it might be applicable to investigating solution of equations like this
+but what i want you to feel is that this is an equation
+it's an expression with several instances of various names which puts a constraint on the name saying what that name could b have as it's value
+rather than some sort of mechanical process of substitution right now
+this is an equation which i'm going to try to solve
+well let's play around and solve it
+first of all i want to write down the function which corresponds to t
+first i want to write down the function which corresponds to t whose fixed point is the answer to this question
+k
+well let's consider the following procedure f
+i claim it computes that function
+f is that procedure of one argument g
+which is that procedure of two arguments x and n which have the property that if n is zero
+then the result is one
+otherwise the result is the product of x and g applied to x and
+minus n one minus g times else cond lambda lambda
+k
+here f is a procedure which if i had a solution to that equation
+if i had a cl a good exponentiation procedure and i applied f to that procedure then the result would be a good exponentiation procedure
+because what does it do
+well all it is is exposing g were a good exponentiation procedure
+well then this would produce as its value a particular of two arguments x and n such that if n were zero the result would be one which is certainly true of exponentiation
+otherwise it would be the result of multiplying x by the exponentiation procedure given to me with x and n minus one as arguments
+so if this computed the correct exponentiation for n minus one then this would be the correct exponentiation for eh for exponent n so this would have been the right exponentiation procedure
+so what i really want to say here is e x p t is a fixed point of f
+now now our problem is there might be more than one fixed point there might be no fixed points i have to go hunting for the fixed points
+k
+gotta solve this equation
+well there are various ways to hunt for fixed points
+of course the one we played with at the beginning of this term worked for cosine
+go into go into radians mode on your calculator and push cosine and just keep doing it and you get to some number which is about point seven three or point seven four i can't remember which
+k
+by iterating a procedure which ahs a by iterating a function whose fixed point i'm searching for it is sometimes the case that that function will converge and produce me the fixed point
+i think we luck out in this case
+so let's look for it
+let's look at this overhead or this uh this uh this slide
+consider the following sequence of procedures
+e zero over here is the procedure which does nothing at all
+it's the procedure which produces an error for any arguments you give it
+it's basically useless
+well however i can make ab an approximation
+let's consider it the worst possible approximation to exponentiation 'cause it does nothing
+well supposing i substituted e zero for g by calling f as you see over here on e zero
+so you see over here have e zero there
+then gee what's e one
+e one is a procedure which will exponentiate things to the zeroth power with no trouble
+it gets the right answer
+anything to the zero is one and it makes an error on anything else
+well now what if i take e one and i substitute it for g by calling f on e one
+k
+oh gosh i have here a procedure of two arguments now remember e one was appropriate for taking exponentiations of zero for expo raising to the the zero exponent
+so here if n is zero the result is one so this guy's good for that too
+however i can use something for raising to the zeroth power to multiply by x to raise something to the first power
+so e what e two is good for both power of zero and one
+k
+and e three is constructed from e two in the same way and e three of course by the same argument
+is good for powers zero one and two
+k
+so i will assert for you without proof because the proof is horribly difficult and that's the sort of things that people call denotational semanticists do i suppose it was invented
+this uh great idea was invented by scott and strachey uh sort of they're very famous mathematician types who invented the interpretation for these programs that we have that i'm talking to you about right now
+and they proved by topology that there is such a fixed point in in the cases that we want
+but the assertion is e x p t is limit
+as n goes to infinity of e n
+and that we've constructed this by the following way
+is well it's f of f of f of f of f applied to the anything at all
+it didn't matter what that was 'cause in fact this always produces an error
+applied to this despite an infinite nesting of fs
+so now my problem is to make some infinite things
+we need some infinite loo things
+how am i gonna nest up an f an infinite number of times
+i'd better construct this
+well i don't know how would i make an infinite loop at all
+let's take a very simple infinite loop
+the simplest infinite loop imaginable
+if i were to take that procedure of one argument x which applies x to x okay
+and apply that to the procedure of one argument x which applies x to x then this is an infinite loop
+and the reason which this is an infinite loop is as follows
+the way i understand this is i substitute the argument for the formal parameter in the body
+but if i do that i take each of these xs i substitute one of these making a copy of the original expression i just started with
+the simplest infinite loop
+now i want to tell you about a particular operator which is constructed by a perturbation from this infinite loop
+i'll call it y k
+y this is called curry's paradoxical combinator y after a fellow by the name of curry who was a logician of the nineteen thirties also
+and if i have a procedure of one argument f well what's it going to have in it
+it's going to have a kind of infinite loop in it which is that procedure of one argument x which applies f to x of x
+applied to th that procedure of one argument x which applies to f to x of x
+now what's this do
+suppose we apply y to f
+k
+well that's easy enough
+that's this capital f over here
+well the easiest thing to say there is i substitute f for here k
+ah
+so that's going to give me basically
+'cause then i'm going to put substitute this for x in here
+so that's f of let me actually do it in steps and so you can see it completely i'm gonna be very careful k
+this is open open lambda of x capital f x x applied to itself
+f of x of x
+substituting this for this in here this is f applied to what is it
+substituting this in here open open lambda of x f of x of x applied to lambda of x f of x of x
+f lambda pair l f
+oh but what is this
+this thing over here that i just computed is this thing over here
+but i just wrapped another f around it
+so by applying y to f i make an infinite series of fs
+k
+if i just let this run forever i'll just k be making more and more fs outside around an infinite loop which is of useless
+but it doesn't matter that the inside is useless
+k
+so y of f is f applied to y of f
+so y is a magical thing which when applied to some function produces the object which is the fixed point of that function if it exists
+and if this all works
+k
+because indeed if i take y of f and put it into f i get y of f out
+k
+now i want you to think about this in terms of the eval apply interpreter for a bit
+i wrote down a whole bunch of recursion equations out there
+they're simultaneous in the same that these are simultaneous equations exponentiation was not a simultaneous equation there was only one variable i was looking for uh meaning for
+but what lisp is the fixed point of the process which says if i knew what lisp was and substituted it in for eval and apply and so on on the right hand sides of all those recursion equations then if it were was a real good lisp if it was the real one
+then the left hand side would also be lips
+so i made sense of that definition
+k
+now whether or not there is an answer isn't so obvious
+and i can't attack that
+now these arguments that w i'm giving you now are quite dangerous
+let's look over here on the these are limit arguments we're talking about limits and it's really calculus or topology or something like that a kind of analysis k
+and here's an argument that you all believe and i want to make sure that you realize that i could be bully bull you know bullshitting you
+right
+what is this
+u is the sum of a half and a quarter and an eighth and so on the sum of the geometric series
+and of course i could play a game here
+u minus one is a half plus a quarter plus an eighth and so on
+k
+but now if i mul if i what i could do here oops there's a parentheses error here but i could put here two times u minus one is one plus a half plus a quarter plus an eighth
+can i fix that
+yes
+well
+k
+but that gives me back u two times u minus one is u
+therefore we conclude that u is two
+and this actually is true
+there's no problem like that
+but supposing i did something different
+supposing i started up with something which manifestly has no sum
+v is one plus two plus four plus eight plus dot dot dot
+k
+well v minus one is surely two plus four plus eight plus dot dot dot right
+v minus one over two gee that looks like v again
+from that i should be able to conclude that that's also wrong apparently v equals minus one
+let's see
+that should be a minus one
+and that's certainly a false conclusion
+so when you play with limits arguments that may work in one case you know may not work in some other case you have to be very careful
+the arguments have to be well formed
+and i don't know in general what the story is about arguments like this
+we could read a pile of topology and find out
+but surely at least you understand now why it might be some meaning to the things we've been writing on the blackboard
+and you understand what that might mean
+so i suppose it's almost about time for you to merit being made a member of the grand recursive order of lambda calculus hackers of we're this is the badge
+'cause you now understand for example what it says at the very top why f equals f of y f
+thank you
+are there any questions
+yes le
+yeah with this it seems at the end there is no need to define as you i as you imply to just a member value to apply it later
+yeah
+uh defines were kind of a side effect it seemed in the langua
+order dependent
+does this does this eliminate the last side effect from this dialect
+well the answer is this is not the way these things are implemented
+k
+define indeed is implemented as an operation that actually modifies an environment's structure
+k
+changes the frame that the define is is ex executed in
+and uh th for there are many reasons for that
+but a lot of this has to do with making an interactive system
+what this is saying is that if you've made a system and you know every you're not gonna do any debugging or anything like that and you know everything there is all at once and you want to say what is the meaning of the final set of equations this gives you a meaning for it
+but in order to make an interactive system where you can change the meaning of one thing without changing everything else incrementally uh you can't do that by implementing it this way
+yes
+another question on this your danger slide
+it seemed that the two completely two examples that you gave had to do with convergence and non convergence
+yes right
+and that may or may not have something to do with function theory in a way which would lead you to think of it in terms of linear systems
+or non linear systems
+but it how does this convergence relate to being able to see a priori what properties of f might be violated
+i don't know
+the answer is i don't know under what circumstances and i don't know how to translate that into less than less than an hour of talk more
+what are the conditions under which for which we know that these things converge
+and indeed all that was telling you is that that arguments that are based on convergence are flaky if you don't know the convergence beforehand
+you can make wrong arguments
+you can make deductions that as if you know the answer and not be stopped somewhere by some obvious contradiction
+mm hmm
+so can we say then that if f is a convergent mathematical expression then the recursion property can be
+well i think the th there is a there is a technical kind of f k
+that there is a technical description of those fs that have the property that when you when you uh uh iteratively apply them like this you converge
+things that are monotonic and continuous k and i forgot what else there's a whole bunch of little conditions like that k
+which have this property
+now the real problem is deducing from looking at the f its definition here whether or not it has those properties
+and that's very hard
+the properties are easy you can write them down
+can look in a book by joe stoy it's a great book stoy
+it's called the stre the scott strachey the scott strachey method of denotational semantics
+that is by joe stoy mit press
+and he works out all this in great detail enough to horrify you
+but it's really is readable
+ok well thank you time for the bigger break i suppose

@@ -1,0 +1,39 @@
+acknowledgments
+we would like to thank the many people who have helped us develop this book and this curriculum
+our subject is a clear intellectual descendant of 6.231 a wonderful subject on programming linguistics and the lambda calculus taught at mit in the late 1960s by jack wozencraft and arthur evans jr
+we owe a great debt to robert fano who reorganized mit's introductory curriculum in electrical engineering and computer science to emphasize the principles of engineering design
+he led us in starting out on this enterprise and wrote the first set of subject notes from which this book evolved
+much of the style and aesthetics of programming that we try to teach were developed in conjunction with guy lewis steele jr. who collaborated with gerald jay sussman in the initial development of the scheme language
+in addition david turner peter henderson dan friedman david wise and will clinger have taught us many of the techniques of the functional programming community that appear in this book
+joel moses taught us about structuring large systems
+his experience with the macsyma system for symbolic computation provided the insight that one should avoid complexities of control and concentrate on organizing the data to reflect the real structure of the world being modeled
+marvin minsky and seymour papert formed many of our attitudes about programming and its place in our intellectual lives
+to them we owe the understanding that computation provides a means of expression for exploring ideas that would otherwise be too complex to deal with precisely
+they emphasize that a student's ability to write and modify programs provides a powerful medium in which exploring becomes a natural activity
+we also strongly agree with alan perlis that programming is lots of fun and we had better be careful to support the joy of programming
+part of this joy derives from observing great masters at work
+we are fortunate to have been apprentice programmers at the feet of bill gosper and richard greenblatt
+it is difficult to identify all the people who have contributed to the development of our curriculum
+we thank all the lecturers recitation instructors and tutors who have worked with us over the past fifteen years and put in many extra hours on our subject especially bill siebert albert meyer joe stoy randy davis louis braida eric grimson rod brooks lynn stein and peter szolovits
+we would like to specially acknowledge the outstanding teaching contributions of franklyn turbak now at wellesley his work in undergraduate instruction set a standard that we can all aspire to
+we are grateful to jerry saltzer and jim miller for helping us grapple with the mysteries of concurrency and to peter szolovits and david mcallester for their contributions to the exposition of nondeterministic evaluation in chapter four
+many people have put in significant effort presenting this material at other universities
+some of the people we have worked closely with are jacob katzenelson at the technion hardy mayer at the university of california at irvine joe stoy at oxford elisha sacks at purdue and jan komorowski at the norwegian university of science and technology
+we are exceptionally proud of our colleagues who have received major teaching awards for their adaptations of this subject at other universities including kenneth yip at yale brian harvey at the university of california at berkeley and dan huttenlocher at cornell
+al moy&eacute arranged for us to teach this material to engineers at hewlett packard and for the production of videotapes of these lectures
+we would like to thank the talented instructors in particular jim miller bill siebert and mike eisenberg who have designed continuing education courses incorporating these tapes and taught them at universities and industry all over the world
+many educators in other countries have put in significant work translating the first edition
+michel briand pierre chamard and andr&eacute pic produced a french edition susanne daniels herold produced a german edition and fumio motoyoshi produced a japanese edition
+we do not know who produced the chinese edition but we consider it an honor to have been selected as the subject of an unauthorized translation
+it is hard to enumerate all the people who have made technical contributions to the development of the scheme systems we use for instructional purposes
+in addition to guy steele principal wizards have included chris hanson joe bowbeer jim miller guillermo rozas and stephen adams
+others who have put in significant time are richard stallman alan bawden kent pitman jon taft neil mayle john lamping gwyn osnos tracy larrabee george carrette soma chaudhuri bill chiarchiaro steven kirsch leigh klotz wayne noss todd cass patrick o'donnell kevin theobald daniel weise kenneth sinclair anthony courtemanche henry m
+wu andrew berlin and ruth shyu
+beyond the mit implementation we would like to thank the many people who worked on the ieee scheme standard including william clinger and jonathan rees who edited the r4rs and chris haynes david bartley chris hanson and jim miller who prepared the ieee standard
+dan friedman has been a long time leader of the scheme community
+the community's broader work goes beyond issues of language design to encompass significant educational innovations such as the high school curriculum based on edscheme by schemer's inc. and the wonderful books by mike eisenberg and by brian harvey and matthew wright
+we appreciate the work of those who contributed to making this a real book especially terry ehling larry cohen and paul bethge at the mit press
+ella mazel found the wonderful cover image
+for the second edition we are particularly grateful to bernard and ella mazel for help with the book design and to david jones tex wizard extraordinaire
+we also are indebted to those readers who made penetrating comments on the new draft jacob katzenelson hardy mayer jim miller and especially brian harvey who did unto this book as julie did unto his book simply scheme
+finally we would like to acknowledge the support of the organizations that have encouraged this work over the years including support from hewlett packard made possible by ira goldstein and joel birnbaum and support from darpa made possible by bob kahn

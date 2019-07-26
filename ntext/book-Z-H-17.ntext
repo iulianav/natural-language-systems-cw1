@@ -1,0 +1,208 @@
+we have introduced data abstraction a methodology for structuring systems in such a way that much of a program can be specified independent of the choices involved in implementing the data objects that the program manipulates
+for example we saw in section two point one point one how to separate the task of designing a program that uses rational numbers from the task of implementing rational numbers in terms of the computer language's primitive mechanisms for constructing compound data
+the key idea was to erect an abstraction barrier in this case the selectors and constructors for rational numbers that isolates the way rational numbers are used from their underlying representation in terms of list structure
+a similar abstraction barrier isolates the details of the procedures that perform rational arithmetic from the higher level procedures that use rational numbers
+the resulting program has the structure shown in figure two point one
+these data abstraction barriers are powerful tools for controlling complexity
+by isolating the underlying representations of data objects we can divide the task of designing a large program into smaller tasks that can be performed separately
+but this kind of data abstraction is not yet powerful enough because it may not always make sense to speak of the underlying representation for a data object
+for one thing there might be more than one useful representation for a data object and we might like to design systems that can deal with multiple representations
+to take a simple example complex numbers may be represented in two almost equivalent ways in rectangular form and in polar form
+sometimes rectangular form is more appropriate and sometimes polar form is more appropriate
+indeed it is perfectly plausible to imagine a system in which complex numbers are represented in both ways and in which the procedures for manipulating complex numbers work with either representation
+more importantly programming systems are often designed by many people working over extended periods of time subject to requirements that change over time
+in such an environment it is simply not possible for everyone to agree in advance on choices of data representation
+so in addition to the data abstraction barriers that isolate representation from use we need abstraction barriers that isolate different design choices from each other and permit different choices to coexist in a single program
+furthermore since large programs are often created by combining pre existing modules that were designed in isolation we need conventions that permit programmers to incorporate modules into larger systems additively that is without having to redesign or reimplement these modules
+in this section we will learn how to cope with data that may be represented in different ways by different parts of a program
+this requires constructing generic procedures procedures that can operate on data that may be represented in more than one way
+our main technique for building generic procedures will be to work in terms of data objects that have type tags that is data objects that include explicit information about how they are to be processed
+we will also discuss data directed programming a powerful and convenient implementation strategy for additively assembling systems with generic operations
+we begin with the simple complex number example
+we will see how type tags and data directed style enable us to design separate rectangular and polar representations for complex numbers while maintaining the notion of an abstract complex number data object
+we will accomplish this by defining arithmetic procedures for complex numbers in terms of generic selectors that access parts of a complex number independent of how the number is represented
+the resulting complex number system as shown in figure two point nineteen contains two different kinds of abstraction barriers
+the horizontal abstraction barriers play the same role as the ones in figure two point one
+they isolate higher level operations from lower level representations
+in addition there is a vertical barrier that gives us the ability to separately design and install alternative representations
+in section two point five we will show how to use type tags and data directed style to develop a generic arithmetic package
+this provides procedures that can be used to manipulate all sorts of numbers and can be easily extended when a new kind of number is needed
+in section two point five point three we'll show how to use generic arithmetic in a system that performs symbolic algebra
+we will develop a system that performs arithmetic operations on complex numbers as a simple but unrealistic example of a program that uses generic operations
+we begin by discussing two plausible representations for complex numbers as ordered pairs rectangular form and polar form
+section two point four point two will show how both representations can be made to coexist in a single system through the use of type tags and generic operations
+like rational numbers complex numbers are naturally represented as ordered pairs
+the set of complex numbers can be thought of as a two dimensional space with two orthogonal axes the real axis and the imaginary axis
+from this point of view the complex number z equal x plus iy can be thought of as the point in the plane whose real coordinate is x and whose imaginary coordinate is y
+addition of complex numbers reduces in this representation to addition of coordinates
+when multiplying complex numbers it is more natural to think in terms of representing a complex number in polar form as a magnitude and an angle
+the product of two complex numbers is the vector obtained by stretching one complex number by the length of the other and then rotating it through the angle of the other
+thus there are two different representations for complex numbers which are appropriate for different operations
+yet from the viewpoint of someone writing a program that uses complex numbers the principle of data abstraction suggests that all the operations for manipulating complex numbers should be available regardless of which representation is used by the computer
+for example it is often useful to be able to find the magnitude of a complex number that is specified by rectangular coordinates
+similarly it is often useful to be able to determine the real part of a complex number that is specified by polar coordinates
+to design such a system we can follow the same data abstraction strategy we followed in designing the rational number package in section two point one point one
+assume that the operations on complex numbers are implemented in terms of four selectors real part imag part magnitude and angle
+also assume that we have two procedures for constructing complex numbers make from real imag returns a complex number with specified real and imaginary parts and make from mag ang returns a complex number with specified magnitude and angle
+these procedures have the property that for any complex number z both
+and
+produce complex numbers that are equal to z
+using these constructors and selectors we can implement arithmetic on complex numbers using the abstract data specified by the constructors and selectors just as we did for rational numbers in section two point one point one
+as shown in the formulas above we can add and subtract complex numbers in terms of real and imaginary parts while multiplying and dividing complex numbers in terms of magnitudes and angles
+to complete the complex number package we must choose a representation and we must implement the constructors and selectors in terms of primitive numbers and primitive list structure
+there are two obvious ways to do this we can represent a complex number in rectangular form as a pair or in polar form as a pair
+which shall we choose
+in order to make the different choices concrete imagine that there are two programmers ben bitdiddle and alyssa p
+hacker who are independently designing representations for the complex number system
+ben chooses to represent complex numbers in rectangular form
+with this choice selecting the real and imaginary parts of a complex number is straightforward as is constructing a complex number with given real and imaginary parts
+to find the magnitude and the angle or to construct a complex number with a given magnitude and angle he uses the trigonometric relations
+which relate the real and imaginary parts to the magnitude and the angle
+ben's representation is therefore given by the following selectors and constructors
+alyssa in contrast chooses to represent complex numbers in polar form
+for her selecting the magnitude and angle is straightforward but she has to use the trigonometric relations to obtain the real and imaginary parts
+alyssa's representation is
+the discipline of data abstraction ensures that the same implementation of add complex sub complex mul complex and div complex will work with either ben's representation or alyssa's representation
+one way to view data abstraction is as an application of the principle of least commitment . in implementing the complex number system in section two point four point one we can use either ben's rectangular representation or alyssa's polar representation
+the abstraction barrier formed by the selectors and constructors permits us to defer to the last possible moment the choice of a concrete representation for our data objects and thus retain maximum flexibility in our system design
+the principle of least commitment can be carried to even further extremes
+if we desire we can maintain the ambiguity of representation even after we have designed the selectors and constructors and elect to use both ben's representation and alyssa's representation
+if both representations are included in a single system however we will need some way to distinguish data in polar form from data in rectangular form
+otherwise if we were asked for instance to find the magnitude of the pair ( three four ) we would n't know whether to answer five or three
+a straightforward way to accomplish this distinction is to include a type tag the symbol rectangular or polar as part of each complex number
+then when we need to manipulate a complex number we can use the tag to decide which selector to apply
+in order to manipulate tagged data we will assume that we have procedures type tag and contents that extract from a data object the tag and the actual contents
+we will also postulate a procedure attach tag that takes a tag and contents and produces a tagged data object
+a straightforward way to implement this is to use ordinary list structure
+using these procedures we can define predicates rectangular and polar which recognize polar and rectangular numbers respectively
+with type tags ben and alyssa can now modify their code so that their two different representations can coexist in the same system
+whenever ben constructs a complex number he tags it as rectangular
+whenever alyssa constructs a complex number she tags it as polar
+in addition ben and alyssa must make sure that the names of their procedures do not conflict
+one way to do this is for ben to append the suffix rectangular to the name of each of his representation procedures and for alyssa to append polar to the names of hers
+here is ben's revised rectangular representation from section two point four point one
+and here is alyssa's revised polar representation
+each generic selector is implemented as a procedure that checks the tag of its argument and calls the appropriate procedure for handling data of that type
+for example to obtain the real part of a complex number real part examines the tag to determine whether to use ben's real part rectangular or alyssa's real part polar
+in either case we use contents to extract the bare untagged datum and send this to the rectangular or polar procedure as required
+to implement the complex number arithmetic operations we can use the same procedures add complex sub complex mul complex and div complex from section two point four point one because the selectors they call are generic and so will work with either representation
+for example the procedure add complex is still
+finally we must choose whether to construct complex numbers using ben's representation or alyssa's representation
+one reasonable choice is to construct rectangular numbers whenever we have real and imaginary parts and to construct polar numbers whenever we have magnitudes and angles
+the resulting complex number system has the structure shown in figure two point twenty one
+the system has been decomposed into three relatively independent parts the complex number arithmetic operations alyssa's polar implementation and ben's rectangular implementation
+the polar and rectangular implementations could have been written by ben and alyssa working separately and both of these can be used as underlying representations by a third programmer implementing the complex arithmetic procedures in terms of the abstract constructor / selector interface
+since each data object is tagged with its type the selectors operate on the data in a generic manner
+that is each selector is defined to have a behavior that depends upon the particular type of data it is applied to
+notice the general mechanism for interfacing the separate representations within a given representation implementation a complex number is an untyped pair
+when a generic selector operates on a number of polar type it strips off the tag and passes the contents on to alyssa's code
+conversely when alyssa constructs a number for general use she tags it with a type so that it can be appropriately recognized by the higher level procedures
+this discipline of stripping off and attaching tags as data objects are passed from level to level can be an important organizational strategy as we shall see in section two point five
+the general strategy of checking the type of a datum and calling an appropriate procedure is called dispatching on type
+this is a powerful strategy for obtaining modularity in system design
+oh the other hand implementing the dispatch as in section two point four point two has two significant weaknesses
+one weakness is that the generic interface procedures must know about all the different representations
+for instance suppose we wanted to incorporate a new representation for complex numbers into our complex number system
+we would need to identify this new representation with a type and then add a clause to each of the generic interface procedures to check for the new type and apply the appropriate selector for that representation
+another weakness of the technique is that even though the individual representations can be designed separately we must guarantee that no two procedures in the entire system have the same name
+this is why ben and alyssa had to change the names of their original procedures from section two point four point one
+the issue underlying both of these weaknesses is that the technique for implementing generic interfaces is not additive
+the person implementing the generic selector procedures must modify those procedures each time a new representation is installed and the people interfacing the individual representations must modify their code to avoid name conflicts
+in each of these cases the changes that must be made to the code are straightforward but they must be made nonetheless and this is a source of inconvenience and error
+this is not much of a problem for the complex number system as it stands but suppose there were not two but hundreds of different representations for complex numbers
+and suppose that there were many generic selectors to be maintained in the abstract data interface
+suppose in fact that no one programmer knew all the interface procedures or all the representations
+the problem is real and must be addressed in such programs as large scale data base management systems
+what we need is a means for modularizing the system design even further
+this is provided by the programming technique known as data directed programming
+to understand how data directed programming works begin with the observation that whenever we deal with a set of generic operations that are common to a set of different types we are in effect dealing with a two dimensional table that contains the possible operations on one axis and the possible types on the other axis
+the entries in the table are the procedures that implement each operation for each type of argument presented
+in the complex number system developed in the previous section the correspondence between operation name data type and actual procedure was spread out among the various conditional clauses in the generic interface procedures
+but the same information could have been organized in a table as shown in figure two point twenty two
+data directed programming is the technique of designing programs to work with such a table directly
+previously we implemented the mechanism that interfaces the complex arithmetic code with the two representation packages as a set of procedures that each perform an explicit dispatch on type
+here we will implement the interface as a single procedure that looks up the combination of the operation name and argument type in the table to find the correct procedure to apply and then applies it to the contents of the argument
+if we do this then to add a new representation package to the system we need not change any existing procedures we need only add new entries to the table
+to implement this plan assume that we have two procedures put and get for manipulating the operation and type table
+installs the < item > in the table indexed by the < op > and the < type >
+looks up the < op > < type > entry in the table and returns the item found there
+if no item is found get returns false
+for now we can assume that put and get are included in our language
+in chapter three
+we will see how to implement these and other operations for manipulating tables
+here is how data directed programming can be used in the complex number system
+ben who developed the rectangular representation implements his code just as he did originally
+he defines a collection of procedures or a package and interfaces these to the rest of the system by adding entries to the table that tell the system how to operate on rectangular numbers
+this is accomplished by calling the following procedure
+notice that the internal procedures here are the same procedures from section two point four point one that ben wrote when he was working in isolation
+no changes are necessary in order to interface them to the rest of the system
+moreover since these procedure definitions are internal to the installation procedure ben need n't worry about name conflicts with other procedures outside the rectangular package
+to interface these to the rest of the system ben installs his real part procedure under the operation name real part and the type and similarly for the other selectors
+the interface also defines the constructors to be used by the external system
+these are identical to ben's internally defined constructors except that they attach the tag
+alyssa's polar package is analogous
+even though ben and alyssa both still use their original procedures defined with the same names as each other's these definitions are now internal to different procedures so there is no name conflict
+the complex arithmetic selectors access the table by means of a general operation procedure called apply generic which applies a generic operation to some arguments
+apply generic looks in the table under the name of the operation and the types of the arguments and applies the resulting procedure if one is present
+using apply generic we can define our generic selectors as follows
+observe that these do not change at all if a new representation is added to the system
+we can also extract from the table the constructors to be used by the programs external to the packages in making complex numbers from real and imaginary parts and from magnitudes and angles
+as in section two point four point two we construct rectangular numbers whenever we have real and imaginary parts and polar numbers whenever we have magnitudes and angles
+section two point three point two described a program that performs symbolic differentiation
+we can regard this program as performing a dispatch on the type of the expression to be differentiated
+in this situation the type tag of the datum is the algebraic operator symbol and the operation being performed is deriv
+we can transform this program into data directed style by rewriting the basic derivative procedure as
+a
+explain what was done above
+why can't we assimilate the predicates number and same variable into the data directed dispatch
+b
+write the procedures for derivatives of sums and products and the auxiliary code required to install them in the table used by the program above
+c
+choose any additional differentiation rule that you like such as the one for exponents and install it in this data directed system
+d
+in this simple algebraic manipulator the type of an expression is the algebraic operator that binds it together
+suppose however we indexed the procedures in the opposite way so that the dispatch line in deriv looked like
+what corresponding changes to the derivative system are required
+insatiable enterprises inc. is a highly decentralized conglomerate company consisting of a large number of independent divisions located all over the world
+the company's computer facilities have just been interconnected by means of a clever network interfacing scheme that makes the entire network appear to any user to be a single computer
+insatiable's president in her first attempt to exploit the ability of the network to extract administrative information from division files is dismayed to discover that although all the division files have been implemented as data structures in scheme the particular data structure used varies from division to division
+a meeting of division managers is hastily called to search for a strategy to integrate the files that will satisfy headquarters' needs while preserving the existing autonomy of the divisions
+show how such a strategy can be implemented with data directed programming
+as an example suppose that each division's personnel records consist of a single file which contains a set of records keyed on employees' names
+the structure of the set varies from division to division
+furthermore each employee's record is itself a set that contains information keyed under identifiers such as address and salary
+in particular
+a
+implement for headquarters a get record procedure that retrieves a specified employee's record from a specified personnel file
+the procedure should be applicable to any division's file
+explain how the individual divisions' files should be structured
+in particular what type information must be supplied
+b
+implement for headquarters a get salary procedure that returns the salary information from a given employee's record from any division's personnel file
+how should the record be structured in order to make this operation work
+c
+implement for headquarters a find employee record procedure
+this should search all the divisions' files for the record of a given employee and return the record
+assume that this procedure takes as arguments an employee's name and a list of all the divisions' files
+d
+when insatiable takes over a new company what changes must be made in order to incorporate the new personnel information into the central system
+the key idea of data directed programming is to handle generic operations in programs by dealing explicitly with operation and type tables such as the table in figure two point twenty two
+the style of programming we used in section two point four point two organized the required dispatching on type by having each operation take care of its own dispatching
+in effect this decomposes the operation and type table into rows with each generic operation procedure representing a row of the table
+an alternative implementation strategy is to decompose the table into columns and instead of using intelligent operations that dispatch on data types to work with intelligent data objects that dispatch on operation names
+we can do this by arranging things so that a data object such as a rectangular number is represented as a procedure that takes as input the required operation name and performs the operation indicated
+in such a discipline make from real imag could be written as
+the corresponding apply generic procedure which applies a generic operation to an argument now simply feeds the operation's name to the data object and lets the object do the work
+note that the value returned by make from real imag is a procedure the internal dispatch procedure
+this is the procedure that is invoked when apply generic requests an operation to be performed
+this style of programming is called message passing
+the name comes from the image that a data object is an entity that receives the requested operation name as a message . we have already seen an example of message passing in section two point one point three where we saw how cons car and cdr could be defined with no data objects but only procedures
+here we see that message passing is not a mathematical trick but a useful technique for organizing systems with generic operations
+in the remainder of this chapter we will continue to use data directed programming rather than message passing to discuss generic arithmetic operations
+in chapter three we will return to message passing and we will see that it can be a powerful tool for structuring simulation programs
+implement the constructor make from mag ang in message passing style
+this procedure should be analogous to the make from real imag procedure given above
+as a large system with generic operations evolves new types of data objects or new operations may be needed
+for each of the three strategies generic operations with explicit dispatch data directed style and message passing style describe the changes that must be made to a system in order to add new types or new operations
+which organization would be most appropriate for a system in which new types must often be added
+which would be most appropriate for a system in which new operations must often be added

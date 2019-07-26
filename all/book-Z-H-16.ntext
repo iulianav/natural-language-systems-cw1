@@ -1,0 +1,385 @@
+all the compound data objects we have used so far were constructed ultimately from numbers
+in this section we extend the representational capability of our language by introducing the ability to work with arbitrary symbols as data
+if we can form compound data using symbols we can have lists such as
+lists containing symbols can look just like the expressions of our language
+in order to manipulate symbols we need a new element in our language the ability to quote a data object
+suppose we want to construct the list
+we can't accomplish this with because this expression constructs a list of the values of a and b rather than the symbols themselves
+this issue is well known in the context of natural languages where words and sentences may be regarded either as semantic entities or as character strings
+the common practice in natural languages is to use quotation marks to indicate that a word or a sentence is to be treated literally as a string of characters
+for instance the first letter of john is clearly j . if we tell somebody say your name aloud we expect to hear that person's name
+however if we tell somebody say your name aloud we expect to hear the words your name . note that we are forced to nest quotation marks to describe what somebody else might say
+we can follow this same practice to identify lists and symbols that are to be treated as data objects rather than as expressions to be evaluated
+however our format for quoting differs from that of natural languages in that we place a quotation mark only at the beginning of the object to be quoted
+we can get away with this in scheme syntax because we rely on blanks and parentheses to delimit objects
+thus the meaning of the single quote character is to quote the next object
+now we can distinguish between symbols and their values
+quotation also allows us to type in compound objects using the conventional printed representation for lists
+in keeping with this we can obtain the empty list by evaluating and thus dispense with the variable nil
+one additional primitive used in manipulating symbols is eq which takes two symbols as arguments and tests whether they are the same
+using eq we can implement a useful procedure called memq
+this takes two arguments a symbol and a list
+if the symbol is not contained in the list then memq returns false
+otherwise it returns the sublist of the list beginning with the first occurrence of the symbol
+for example the value of
+is false whereas the value of
+is
+what would the interpreter print in response to evaluating each of the following expressions
+two lists are said to be equal if they contain equal elements arranged in the same order
+for example
+is true but
+is false
+to be more precise we can define equal recursively in terms of the basic eq equality of symbols by saying that a and b are equal if they are both symbols and the symbols are eq or if they are both lists such that is equal to and is equal to
+using this idea implement equal as a procedure
+eva lu ator types to the interpreter the expression
+to her surprise the interpreter prints back quote
+explain
+as an illustration of symbol manipulation and a further illustration of data abstraction consider the design of a procedure that performs symbolic differentiation of algebraic expressions
+we would like the procedure to take as arguments an algebraic expression and a variable and to return the derivative of the expression with respect to the variable
+for example if the arguments to the procedure are ax two plus bx plus c and x the procedure should return 2ax plus b
+symbolic differentiation is of special historical significance in lisp
+it was one of the motivating examples behind the development of a computer language for symbol manipulation
+furthermore it marked the beginning of the line of research that led to the development of powerful systems for symbolic mathematical work which are currently being used by a growing number of applied mathematicians and physicists
+in developing the symbolic differentiation program we will follow the same strategy of data abstraction that we followed in developing the rational number system of section two point one point one
+that is we will first define a differentiation algorithm that operates on abstract objects such as sums products and variables without worrying about how these are to be represented
+only afterward will we address the representation problem
+in order to keep things simple we will consider a very simple symbolic differentiation program that handles expressions that are built up using only the operations of addition and multiplication with two arguments
+differentiation of any such expression can be carried out by applying the following reduction rules
+observe that the latter two rules are recursive in nature
+that is to obtain the derivative of a sum we first find the derivatives of the terms and add them
+each of the terms may in turn be an expression that needs to be decomposed
+decomposing into smaller and smaller pieces will eventually produce pieces that are either constants or variables whose derivatives will be either 0 or one
+to embody these rules in a procedure we indulge in a little wishful thinking as we did in designing the rational number implementation
+if we had a means for representing algebraic expressions we should be able to tell whether an expression is a sum a product a constant or a variable
+we should be able to extract the parts of an expression
+for a sum for example we want to be able to extract the addend and the augend
+we should also be able to construct expressions from parts
+let us assume that we already have procedures to implement the following selectors constructors and predicates
+is e a variable
+are v one and v two the same variable
+is e a sum
+addend of the sum e
+augend of the sum e
+construct the sum of a one and a two
+is e a product
+multiplier of the product e
+multiplicand of the product e
+construct the product of m one and m two
+using these and the primitive predicate number which identifies numbers we can express the differentiation rules as the following procedure
+this deriv procedure incorporates the complete differentiation algorithm
+since it is expressed in terms of abstract data it will work no matter how we choose to represent algebraic expressions as long as we design a proper set of selectors and constructors
+this is the issue we must address next
+we can imagine many ways to use list structure to represent algebraic expressions
+for example we could use lists of symbols that mirror the usual algebraic notation representing ax plus b as the list
+however one especially straightforward choice is to use the same parenthesized prefix notation that lisp uses for combinations that is to represent ax plus b as
+then our data representation for the differentiation problem is as follows
+the variables are symbols
+they are identified by the primitive predicate symbol
+two variables are the same if the symbols representing them are eq
+sums and products are constructed as lists
+a sum is a list whose first element is the symbol plus
+the addend is the second item of the sum list
+the augend is the third item of the sum list
+a product is a list whose first element is the symbol multiply
+the multiplier is the second item of the product list
+the multiplicand is the third item of the product list
+thus we need only combine these with the algorithm as embodied by deriv in order to have a working symbolic differentiation program
+let us look at some examples of its behavior
+the program produces answers that are correct however they are unsimplified
+it is true that
+but we would like the program to know that x &middot 0 equal 0 one &middot y equal y and 0 plus y equal y
+the answer for the second example should have been simply y
+as the third example shows this becomes a serious issue when the expressions are complex
+our difficulty is much like the one we encountered with the rational number implementation we have n't reduced answers to simplest form
+to accomplish the rational number reduction we needed to change only the constructors and the selectors of the implementation
+we can adopt a similar strategy here
+we wo n't change deriv at all
+instead we will change make sum so that if both summands are numbers make sum will add them and return their sum
+also if one of the summands is 0 then make sum will return the other summand
+this uses the procedure equal number which checks whether an expression is equal to a given number
+similarly we will change make product to build in the rules that 0 times anything is 0 and one times anything is the thing itself
+here is how this version works on our three examples
+although this is quite an improvement the third example shows that there is still a long way to go before we get a program that puts expressions into a form that we might agree is simplest . the problem of algebraic simplification is complex because among other reasons a form that may be simplest for one purpose may not be for another
+show how to extend the basic differentiator to handle more kinds of expressions
+for instance implement the differentiation rule
+by adding a new clause to the deriv program and defining appropriate procedures exponentiation base exponent and make exponentiation
+build in the rules that anything raised to the power 0 is one and anything raised to the power one is the thing itself
+extend the differentiation program to handle sums and products of arbitrary numbers of terms
+then the last example above could be expressed as
+try to do this by changing only the representation for sums and products without changing the deriv procedure at all
+for example the addend of a sum would be the first term and the augend would be the sum of the rest of the terms
+suppose we want to modify the differentiation program so that it works with ordinary mathematical notation in which plus and multiply are infix rather than prefix operators
+since the differentiation program is defined in terms of abstract data we can modify it to work with different representations of expressions solely by changing the predicates selectors and constructors that define the representation of the algebraic expressions on which the differentiator is to operate
+a
+show how to do this in order to differentiate algebraic expressions presented in infix form such as
+to simplify the task assume that plus and multiply always take two arguments and that expressions are fully parenthesized
+b
+the problem becomes substantially harder if we allow standard algebraic notation such as which drops unnecessary parentheses and assumes that multiplication is done before addition
+can you design appropriate predicates selectors and constructors for this notation such that our derivative program still works
+in the previous examples we built representations for two kinds of compound data objects rational numbers and algebraic expressions
+in one of these examples we had the choice of simplifying ( reducing ) the expressions at either construction time or selection time but other than that the choice of a representation for these structures in terms of lists was straightforward
+when we turn to the representation of sets the choice of a representation is not so obvious
+indeed there are a number of possible representations and they differ significantly from one another in several ways
+informally a set is simply a collection of distinct objects
+to give a more precise definition we can employ the method of data abstraction
+that is we define set by specifying the operations that are to be used on sets
+these are union set intersection set element of set and adjoin set
+element of set is a predicate that determines whether a given element is a member of a set
+adjoin set takes an object and a set as arguments and returns a set that contains the elements of the original set and also the adjoined element
+union set computes the union of two sets which is the set containing each element that appears in either argument
+intersection set computes the intersection of two sets which is the set containing only elements that appear in both arguments
+from the viewpoint of data abstraction we are free to design any representation that implements these operations in a way consistent with the interpretations given above
+one way to represent a set is as a list of its elements in which no element appears more than once
+the empty set is represented by the empty list
+in this representation element of set is similar to the procedure memq of section two point three point one
+it uses equal instead of eq so that the set elements need not be symbols
+using this we can write adjoin set
+if the object to be adjoined is already in the set we just return the set
+otherwise we use cons to add the object to the list that represents the set
+for intersection set we can use a recursive strategy
+if we know how to form the intersection of set two and the cdr of set one we only need to decide whether to include the car of set one in this
+but this depends on whether is also in set two
+here is the resulting procedure
+in designing a representation one of the issues we should be concerned with is efficiency
+consider the number of steps required by our set operations
+since they all use element of set the speed of this operation has a major impact on the efficiency of the set implementation as a whole
+now in order to check whether an object is a member of a set element of set may have to scan the entire set
+hence if the set has n elements element of set might take up to n steps
+thus the number of steps required grows as ( n )
+the number of steps required by adjoin set which uses this operation also grows as ( n )
+for intersection set which does an element of set check for each element of set one the number of steps required grows as the product of the sizes of the sets involved or ( n two ) for two sets of size n
+the same will be true of union set
+implement the union set operation for the unordered list representation of sets
+we specified that a set would be represented as a list with no duplicates
+now suppose we allow duplicates
+for instance the set could be represented as the list
+design procedures element of set adjoin set union set and intersection set that operate on this representation
+how does the efficiency of each compare with the corresponding procedure for the non duplicate representation
+are there applications for which you would use this representation in preference to the non duplicate one
+one way to speed up our set operations is to change the representation so that the set elements are listed in increasing order
+to do this we need some way to compare two objects so that we can say which is bigger
+for example we could compare symbols lexicographically or we could agree on some method for assigning a unique number to an object and then compare the elements by comparing the corresponding numbers
+to keep our discussion simple we will consider only the case where the set elements are numbers so that we can compare elements using <> > and < <>
+we will represent a set of numbers by listing its elements in increasing order
+whereas our first representation above allowed us to represent the set by listing the elements in any order our new representation allows only the list
+one advantage of ordering shows up in element of set in checking for the presence of an item we no longer have to scan the entire set
+if we reach a set element that is larger than the item we are looking for then we know that the item is not in the set
+how many steps does this save
+in the worst case the item we are looking for may be the largest one in the set so the number of steps is the same as for the unordered representation
+on the other hand if we search for items of many different sizes we can expect that sometimes we will be able to stop searching at a point near the beginning of the list and that other times we will still need to examine most of the list
+on the average we should expect to have to examine about half of the items in the set
+thus the average number of steps required will be about n / two
+this is still ( n ) growth but it does save us on the average a factor of two in number of steps over the previous implementation
+we obtain a more impressive speedup with intersection set
+in the unordered representation this operation required ( n two ) steps because we performed a complete scan of set two for each element of set one
+but with the ordered representation we can use a more clever method
+begin by comparing the initial elements x one and x two of the two sets
+if x one equals x two then that gives an element of the intersection and the rest of the intersection is the intersection of the cdr s of the two sets
+suppose however that x one is less than x two
+since x two is the smallest element in set two we can immediately conclude that x one cannot appear anywhere in set two and hence is not in the intersection
+hence the intersection is equal to the intersection of set two with the cdr of set one
+similarly if x two is less than x one then the intersection is given by the intersection of set one with the cdr of set two
+here is the procedure
+to estimate the number of steps required by this process observe that at each step we reduce the intersection problem to computing intersections of smaller sets removing the first element from set one or set two or both
+thus the number of steps required is at most the sum of the sizes of set one and set two rather than the product of the sizes as with the unordered representation
+this is ( n ) growth rather than ( n two ) a considerable speedup even for sets of moderate size
+give an implementation of adjoin set using the ordered representation
+by analogy with element of set show how to take advantage of the ordering to produce a procedure that requires on the average about half as many steps as with the unordered representation
+give a ( n ) implementation of union set for sets represented as ordered lists
+we can do better than the ordered list representation by arranging the set elements in the form of a tree
+each node of the tree holds one element of the set called the entry at that node and a link to each of two other nodes
+the left link points to elements smaller than the one at the node and the right link to elements greater than the one at the node
+figure two point sixteen shows some trees that represent the set
+the same set may be represented by a tree in a number of different ways
+the only thing we require for a valid representation is that all elements in the left subtree be smaller than the node entry and that all elements in the right subtree be larger
+the advantage of the tree representation is this suppose we want to check whether a number x is contained in a set
+we begin by comparing x with the entry in the top node
+if x is less than this we know that we need only search the left subtree if x is greater we need only search the right subtree
+now if the tree is balanced each of these subtrees will be about half the size of the original
+thus in one step we have reduced the problem of searching a tree of size n to searching a tree of size n / two
+since the size of the tree is halved at each step we should expect that the number of steps needed to search a tree of size n grows as
+for large sets this will be a significant speedup over the previous representations
+we can represent trees by using lists
+each node will be a list of three items the entry at the node the left subtree and the right subtree
+a left or a right subtree of the empty list will indicate that there is no subtree connected there
+we can describe this representation by the following procedures
+now we can write the element of set procedure using the strategy described above
+adjoining an item to a set is implemented similarly and also requires steps
+to adjoin an item x we compare x with the node entry to determine whether x should be added to the right or to the left branch and having adjoined x to the appropriate branch we piece this newly constructed branch together with the original entry and the other branch
+if x is equal to the entry we just return the node
+if we are asked to adjoin x to an empty tree we generate a tree that has x as the entry and empty right and left branches
+here is the procedure
+the above claim that searching the tree can be performed in a logarithmic number of steps rests on the assumption that the tree is balanced i.e. that the left and the right subtree of every tree have approximately the same number of elements so that each subtree contains about half the elements of its parent
+but how can we be certain that the trees we construct will be balanced
+even if we start with a balanced tree adding elements with adjoin set may produce an unbalanced result
+since the position of a newly adjoined element depends on how the element compares with the items already in the set we can expect that if we add elements randomly the tree will tend to be balanced on the average
+but this is not a guarantee
+for example if we start with an empty set and adjoin the numbers one through seven in sequence we end up with the highly unbalanced tree shown in figure two point seventeen
+in this tree all the left subtrees are empty so it has no advantage over a simple ordered list
+one way to solve this problem is to define an operation that transforms an arbitrary tree into a balanced tree with the same elements
+then we can perform this transformation after every few adjoin set operations to keep our set in balance
+there are also other ways to solve this problem most of which involve designing new data structures for which searching and insertion both can be done in steps
+each of the following two procedures converts a binary tree to a list
+a
+do the two procedures produce the same result for every tree
+if not how do the results differ
+what lists do the two procedures produce for the trees in figure two point sixteen
+b
+do the two procedures have the same order of growth in the number of steps required to convert a balanced tree with n elements to a list
+if not which one grows more slowly
+the following procedure list tree> converts an ordered list to a balanced binary tree
+the helper procedure partial tree takes as arguments an integer n and list of at least n elements and constructs a balanced tree containing the first n elements of the list
+the result returned by partial tree is a pair whose car is the constructed tree and whose cdr is the list of elements not included in the tree
+a
+write a short paragraph explaining as clearly as you can how partial tree works
+draw the tree produced by list tree> for the list
+b
+what is the order of growth in the number of steps required by list tree> to convert a list of n elements
+use the results of exercises two point sixty three and two point sixty four to give ( n ) implementations of union set and intersection set for sets implemented as ( balanced ) binary trees
+we have examined options for using lists to represent sets and have seen how the choice of representation for a data object can have a large impact on the performance of the programs that use the data
+another reason for concentrating on sets is that the techniques discussed here appear again and again in applications involving information retrieval
+consider a data base containing a large number of individual records such as the personnel files for a company or the transactions in an accounting system
+a typical data management system spends a large amount of time accessing or modifying the data in the records and therefore requires an efficient method for accessing records
+this is done by identifying a part of each record to serve as an identifying key
+a key can be anything that uniquely identifies the record
+for a personnel file it might be an employee's id number
+for an accounting system it might be a transaction number
+whatever the key is when we define the record as a data structure we should include a key selector procedure that retrieves the key associated with a given record
+now we represent the data base as a set of records
+to locate the record with a given key we use a procedure lookup which takes as arguments a key and a data base and which returns the record that has that key or false if there is no such record
+lookup is implemented in almost the same way as element of set
+for example if the set of records is implemented as an unordered list we could use
+of course there are better ways to represent large sets than as unordered lists
+information retrieval systems in which records have to be randomly accessed are typically implemented by a tree based method such as the binary tree representation discussed previously
+in designing such a system the methodology of data abstraction can be a great help
+the designer can create an initial implementation using a simple straightforward representation such as unordered lists
+this will be unsuitable for the eventual system but it can be useful in providing a quick and dirty data base with which to test the rest of the system
+later on the data representation can be modified to be more sophisticated
+if the data base is accessed in terms of abstract selectors and constructors this change in representation will not require any changes to the rest of the system
+implement the lookup procedure for the case where the set of records is structured as a binary tree ordered by the numerical values of the keys
+this section provides practice in the use of list structure and data abstraction to manipulate sets and trees
+the application is to methods for representing data as sequences of ones and zeros ( bits )
+for example the ascii standard code used to represent text in computers encodes each character as a sequence of seven bits
+using seven bits allows us to distinguish twenty seven or one hundred twenty eight possible different characters
+in general if we want to distinguish n different symbols we will need to use log two n bits per symbol
+if all our messages are made up of the eight symbols a b c d e f g and h we can choose a code with three bits per character for example
+a 0 hundred c 0 hundred ten e one hundred g one hundred ten
+b 0 hundred and one d 0 hundred eleven f one hundred and one h one hundred eleven
+with this code the message
+bacadaeafabbaaagah
+is encoded as the string of fifty four bits
+001000010000011000100000101000001001000000000110000111
+codes such as ascii and the a through h code above are known as fixed length codes because they represent each symbol in the message with the same number of bits
+it is sometimes advantageous to use variable length codes in which different symbols may be represented by different numbers of bits
+for example morse code does not use the same number of dots and dashes for each letter of the alphabet
+in particular e the most frequent letter is represented by a single dot
+in general if our messages are such that some symbols appear very frequently and some very rarely we can encode data more efficiently if we assign shorter codes to the frequent symbols
+consider the following alternative code for the letters a through h
+a 0 c 1010 e 1100 g 1110
+b one hundred d 1011 f 1101 h 1111
+with this code the same message as above is encoded as the string
+100010100101101100011010100100000111001111
+this string contains forty two bits so it saves more than 20% in space in comparison with the fixed length code shown above
+one of the difficulties of using a variable length code is knowing when you have reached the end of a symbol in reading a sequence of zeros and ones
+morse code solves this problem by using a special separator code after the sequence of dots and dashes for each letter
+another solution is to design the code in such a way that no complete code for any symbol is the beginning of the code for another symbol
+such a code is called a prefix code
+in the example above a is encoded by 0 and b is encoded by one hundred so no other symbol can have a code that begins with 0 or with one hundred
+in general we can attain significant savings if we use variable length prefix codes that take advantage of the relative frequencies of the symbols in the messages to be encoded
+one particular scheme for doing this is called the huffman encoding method after its discoverer david huffman
+a huffman code can be represented as a binary tree whose leaves are the symbols that are encoded
+at each non leaf node of the tree there is a set containing all the symbols in the leaves that lie below the node
+in addition each symbol at a leaf is assigned a weight and each non leaf node contains a weight that is the sum of all the weights of the leaves lying below it
+the weights are not used in the encoding or the decoding process
+we will see below how they are used to help construct the tree
+figure two point eighteen shows the huffman tree for the a through h code given above
+the weights at the leaves indicate that the tree was designed for messages in which a appears with relative frequency eight b with relative frequency three and the other letters each with relative frequency one
+given a huffman tree we can find the encoding of any symbol by starting at the root and moving down until we reach the leaf that holds the symbol
+each time we move down a left branch we add a 0 to the code and each time we move down a right branch we add a one
+for example starting from the root of the tree in figure two point eighteen we arrive at the leaf for d by following a right branch then a left branch then a right branch then a right branch hence the code for d is 1011
+to decode a bit sequence using a huffman tree we begin at the root and use the successive zeros and ones of the bit sequence to determine whether to move down the left or the right branch
+each time we come to a leaf we have generated a new symbol in the message at which point we start over from the root of the tree to find the next symbol
+for example suppose we are given the tree above and the sequence 10001010
+starting at the root we move down the right branch then down the left branch then down the left branch
+this brings us to the leaf for b so the first symbol of the decoded message is b
+now we start again at the root and we make a left move because the next bit in the string is 0
+this brings us to the leaf for a
+then we start again at the root with the rest of the string 1010 so we move right left right left and reach c
+thus the entire message is bac
+given an alphabet of symbols and their relative frequencies how do we construct the best code
+huffman gave an algorithm for doing this and showed that the resulting code is indeed the best variable length code for messages where the relative frequency of the symbols matches the frequencies with which the code was constructed
+we will not prove this optimality of huffman codes here but we will show how huffman trees are constructed
+the algorithm for generating a huffman tree is very simple
+the idea is to arrange the tree so that the symbols with the lowest frequency appear farthest away from the root
+begin with the set of leaf nodes containing symbols and their frequencies as determined by the initial data from which the code is to be constructed
+now find two leaves with the lowest weights and merge them to produce a node that has these two nodes as its left and right branches
+the weight of the new node is the sum of the two weights
+remove the two leaves from the original set and replace them by this new node
+now continue this process
+at each step merge two nodes with the smallest weights removing them from the set and replacing them with a node that has these two as its left and right branches
+the process stops when there is only one node left which is the root of the entire tree
+here is how the huffman tree of figure two point eighteen was generated
+initial leaves
+merge
+merge
+merge
+merge
+merge
+merge
+final merge
+the algorithm does not always specify a unique tree because there may not be unique smallest weight nodes at each step
+also the choice of the order in which the two nodes are merged is arbitrary
+in the exercises below we will work with a system that uses huffman trees to encode and decode messages and generates huffman trees according to the algorithm outlined above
+we will begin by discussing how trees are represented
+leaves of the tree are represented by a list consisting of the symbol leaf the symbol at the leaf and the weight
+a general tree will be a list of a left branch a right branch a set of symbols and a weight
+the set of symbols will be simply a list of the symbols rather than some more sophisticated set representation
+when we make a tree by merging two nodes we obtain the weight of the tree as the sum of the weights of the nodes and the set of symbols as the union of the sets of symbols for the nodes
+since our symbol sets are represented as lists we can form the union by using the append procedure we defined in section two point two point one
+if we make a tree in this way we have the following selectors
+the procedures symbols and weight must do something slightly different depending on whether they are called with a leaf or a general tree
+these are simple examples of generic procedures which we will have much more to say about in sections two point four and two point five
+the following procedure implements the decoding algorithm
+it takes as arguments a list of zeros and ones together with a huffman tree
+the procedure decode one takes two arguments the list of remaining bits and the current position in the tree
+it keeps moving down the tree choosing a left or a right branch according to whether the next bit in the list is a zero or a one
+when it reaches a leaf it returns the symbol at that leaf as the next symbol in the message by cons ing it onto the result of decoding the rest of the message starting at the root of the tree
+note the error check in the final clause of choose branch which complains if the procedure finds something other than a zero or a one in the input data
+in our representation of trees each non leaf node contains a set of symbols which we have represented as a simple list
+however the tree generating algorithm discussed above requires that we also work with sets of leaves and trees successively merging the two smallest items
+since we will be required to repeatedly find the smallest item in a set it is convenient to use an ordered representation for this kind of set
+we will represent a set of leaves and trees as a list of elements arranged in increasing order of weight
+the following adjoin set procedure for constructing sets is similar to the one described in exercise two point sixty one however items are compared by their weights and the element being added to the set is never already in it
+the following procedure takes a list of symbol frequency pairs such as and constructs an initial ordered set of leaves ready to be merged according to the huffman algorithm
+define an encoding tree and a sample message
+use the decode procedure to decode the message and give the result
+the encode procedure takes as arguments a message and a tree and produces the list of bits that gives the encoded message
+encode symbol is a procedure which you must write that returns the list of bits that encodes a given symbol according to a given tree
+you should design encode symbol so that it signals an error if the symbol is not in the tree at all
+test your procedure by encoding the result you obtained in exercise two point sixty seven with the sample tree and seeing whether it is the same as the original sample message
+the following procedure takes as its argument a list of symbol frequency pairs and generates a huffman encoding tree according to the huffman algorithm
+make leaf set is the procedure given above that transforms the list of pairs into an ordered set of leaves
+successive merge is the procedure you must write using make code tree to successively merge the smallest weight elements of the set until there is only one element left which is the desired huffman tree
+the following eight symbol alphabet with associated relative frequencies was designed to efficiently encode the lyrics of 1950s rock songs
+a two na sixteen
+boom one sha three
+get two yip nine
+job two wah one
+use generate huffman tree to generate a corresponding huffman tree and use encode to encode the following message
+get a job
+sha na na na na na na na na
+get a job
+sha na na na na na na na na
+wah yip yip yip yip yip yip yip yip yip
+sha boom
+how many bits are required for the encoding
+what is the smallest number of bits that would be needed to encode this song if we used a fixed length code for the eight symbol alphabet
+suppose we have a huffman tree for an alphabet of n symbols and that the relative frequencies of the symbols are one two four ... 2n one
+sketch the tree for n equal five for n equal ten
+in such a tree how may bits are required to encode the most frequent symbol
+the least frequent symbol
+consider the encoding procedure that you designed in exercise two point sixty eight
+what is the order of growth in the number of steps needed to encode a symbol
+be sure to include the number of steps needed to search the symbol list at each node encountered
+to answer this question in general is difficult
+consider the special case where the relative frequencies of the n symbols are as described in exercise two point seventy one and give the order of growth of the number of steps needed to encode the most frequent and least frequent symbols in the alphabet

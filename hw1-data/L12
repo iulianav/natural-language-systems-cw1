@@ -1,0 +1,581 @@
+okay well we've been we've been looking at uh streams this signal processing way of putting systems together
+and remember the key idea is that we decouple the apparent order of events in our programs from the actual order of events in the computer
+and that means that we can start dealing with very long streams and only having to generate the elements on demand
+that sort of on demand computation is built in to the stream's data structure alright
+so if we have a very long stream we only compute what we need
+the things only get computed when we actually ask for them
+well what are examples of actually asking for them
+for instance we might we might ask for the nth element of a stream
+alright here's here's a procedure that computes the nth element of a stream alright
+an integer in the nth element of some stream s and we just recursively walk down the stream
+if n is zero we compute the head otherwise it's the nth the nth minus one element of the tail of the stream right
+that's sort of just like for lisp but the difference is those elements aren't going to get computer until we walk down taking successive nths alright
+so that's one way that the stream elements might get forced alright
+on another way here's a little procedure that prints a stream
+we say print a stream right
+so to print a stream s well what do we do
+we uh print the head of the stream and that'll cause the head to be computed and then we recursively print stream the tail of the stream and if we're already done maybe uh
+we have to return something about the message done
+okay and then so if you make a stream you could say here's this stream this very long stream and then you say print the stream and the elements of the stream will get computed successively as that print calls them
+they won't get all computed initially
+alright so in this way we can in this way we can deal with some very long streams
+well how long can a stream be
+well it could be infinitely long
+i mean let's look at an example here on the computer
+i could i could walk up to this computer and i could say uh how about we'll define how about the stream of integers
+starting with some number n the stream of positive integers starting with some number n and that's cons stream
+of n onto the integers from one more
+alright so there are the integers
+then i could say let's get all the integers
+define the stream of integers to be the integers starting with one
+and now if i say something like what's the uh
+what's the twentieth integer right it says twenty one because we start counting at zero okay
+or i can do more complicated things
+let me define a little predicate here
+uh how about define no seven
+it's going to test an integer and it's going to say it's not if i take the remainder of x by seven
+i don't get zero
+and then i can say define the integers with no sevens to be take all the integers and filter
+filter them to have no sevens alright
+so now i've got to assume all the integers that are not divisible by seven
+so if i say what's the
+what's the hundredth integer in the list not divisible by seven i get a hundred and seventeen or if i'd like to say i could say uh well gee what are all of them
+so i could say print print stream all the integers with no seven
+it goes off printing alright
+may have to wait a very long time to see them all okay
+well you can start asking gee you know is it really true that this data structure with the integers is really all the integers
+alright let me draw a picture of that program i just wrote
+right here's the right here's the definition of the integers again that i just typed in right
+it's a cons of the first integer onto the integer starting with the rest
+now we can make a picture of that and see what it looks like alright it's
+conceptually what i have is a box that's the integer starting with n
+it takes in some number n
+and it's going to return a stream of this infinite stream of all integers starting with n
+and what do i do
+well this is an integers from box
+what's it got in it
+well it takes in this n and it puts and it increments it
+and then it puts the result into recursively another integers from box takes the result of that and the original n and puts those together with a cons and forms a stream
+so that's a picture of that program i wrote
+and this is a but see these kind of diagrams we first saw draw by peter henderson the same guy who did the escher language and we called them henderson diagrams
+and the convention here is that you put these things together and uh the solid lines of things coming out are streams and dotted lines are ih are initial values going in
+so this one has the shape of it takes in some integer some initial value and outputs a stream right
+and again you can ask
+you know is it really is that data structure integers really all the integers alright or is it is it just something that's cleverly arranged so that whenever you look for an integer you find it there
+alright and that's sort of a philosophical question right
+if something if something is there whenever you look is it really there or not
+you know it's sort of the it's sort of the same sense in which in which the money in your savings account is in the bank right
+well well let me do another example uh gee we started the course with an algorithm from alexandria which was uh heron of alexandria's algorithm for computing the square root
+let's let's take it and look on another alexandrian algorithm
+this one is is aritosthenes' method for for computing all of the primes
+alright so this is called the sieve of aritosthenes and what you do is you you start out and you list all the integers say starting with two and then you take the first integer and you say oh that's prime
+and then you go look at the rest and you cross out all the things divisible by two
+so i cross out this and this and this and this takes a long time because i have to do it for all of the integers
+right
+so i i go through the entire list of integers alright crossing out the ones divisible by two and now when i finished with all of the integers
+i go back and look and say what am i left with
+well the first thing that starts there is three
+so three is a prime
+and now i go back through what i'm left with and i cross out all the things divisible by three so let's see nine and fifteen and twenty one and twenty seven and thirty three and so on
+i won't finish
+now you see what i'm left with and i the next one i have is five and i now i scan through the rest and i find the first one that's divisible by five
+i cross out from the remainder all the ones that are divisible by five
+and i do that and then i go through and find seven go through all the rest cross out things divisible by seven and i keep doing that forever and when i'm done what i'm left with is a list of all the primes alright
+so that's the that's the sieve of aritosthenes
+let's look at it as a as a computer program there's a procedure called sieve
+now i'll just write what i did
+alright i'll say to sieve some stream s
+i'm going to build a stream whose first element is the head of s
+remember i found always found the first thing i was left with and the rest of it is the result of
+taking the tail of s filtering it to throw away all of the things that are divisible by the head of s and now sieving the result
+alright that's just what i did
+and now to get the infinite stream of primes we just sieve all the integers starting from two alright
+let's let's try that alright
+we can actually actually do it
+let's see i typed in the definition of sieve before i hope
+so i could say something like define the primes
+right to be the result of sieving the integers
+starting with two alright
+so now i've got this list of primes
+that's all of the primes alright
+so for example what's the twentieth prime in that list
+alright seventy three
+see and that little pause was it was only at the point when i started asking for the twentieth prime is that it started computing right
+or i can say here
+let's look at all the primes hm
+right and there it goes computing all of the primes
+of course it'll take a while again if i want to look at all of them
+so let's stop it okay
+let me draw you a picture of that
+well i've got a picture of that
+what's that program really look like
+getting some practice with these diagrams i have a sieve box
+how does sieve work
+it takes in a stream
+it splits off the head from the tail and the first thing that's going to come out of this sieve is the head of the original stream
+then it also takes the head and uses that right it takes the stream it filters the tail and uses the head to filter for non divisibility takes the result of non divisibility and puts it through another another sieve box
+and puts the result together
+so you can think of the sieve as a filter but notice that it's an infinite recursive filter because inside the sieve box is another sieve box and inside that is another sieve box and another sieve box
+so you see we start getting some very powerful things
+we're starting to mix this signal processing view of the world with things like recursion that come from computation right
+and there are all sorts of interesting things you can do that are like this
+alright
+any questions
+okay let's take a break
+alright well we've been looking at a couple of examples of stream programming
+all the uh the stream procedures that we've looked at so far have the same kind of character
+we've been writing these these recursive procedures that kind of generate these stream elements one at a time and put them together in cons in cons streams
+so we've been thinking a lot about generators
+there's another way to think about stream processing and that's to focus not on on programs that sort of process this elements as you walk down the stream but on things that
+that kind of uh process the streams all at once let's see show you what i mean
+let me start by defining two two procedures that'll come in hand
+the first one's called add streams
+add streams takes takes two streams s one and s two and it's going to produce a stream whose elements are the consecutive sum are the uh corresponding sums
+right we just sort of add them element wise uh if either stream is empty we just return the other one otherwise we're going to make a new stream whose head is the sum of the two heads
+and whose tail is the result of recursively adding the tails
+alright so that'll produce the element y sum of streams and then another useful thing to have around is scale stream
+scale stream takes some constant number in stream s
+and it's going to produce the stream of elements of s multiplied by this constant and that's easy
+that's just a map of the the function of an element that multiplies it by the constant
+and we map that down the stream okay
+so given those two let me show you what i mean by programs that that operate on streams kind of all at once
+let's look at this
+suppose i write this i say define we'll call it ones
+to be cons stream of one onto ones
+what's that
+that's going to be an infinite stream of ones because the first thing is one and the tail of it is a thing whose first thing is one and whose tail is a thing whose first thing is one and so on and so on and so on
+so that's an infinite stream of ones
+and now using that let me give you another definition of the integers
+we can define the integers
+to be well the first integer we'll take to be one it's con stream of one onto the element wise sum
+onto add streams of the integers to ones
+okay
+the integers are a thing whose first element is one and the rest of them you get by taking those integers and incrementing each one by one
+so the second element of the integers is the first element of the integers incremented by one and the rest of that is the next one and the s and the third element of that is the same as second elem as the first element of the tail of the integers
+incremented by one which is the same as the first element of the original increment integers integr incremented by one and incremented by one again and so on okay
+that looks pretty suspicious
+see notice that it works because of delay
+see this looks like let's take a look at ones
+this looks like it couldn't ev even be processed because it's suddenly saying in order to know what ones is i say it's cons stream of something onto ones
+the reason that works is because of that very sneaky hidden delay in there
+because what this really is remember cons stream's just an abbreviation
+this really is cons of one onto delay of ones
+so how does that work
+you say i'm going to define ones first i see what ones is supposed to be defined as
+well ones is supposed to be defined as
+a cons whose first part is one and whose second part is well it's a promise to compute something that i don't worry about yet
+so it doesn't bother me that at the point i do this definition ones isn't defined
+having run the definition now ones is defined so that when i go and look at the tail of it it's defined
+that's very sneaky
+and then integer's the same way
+i can refer to integers here because hidden way down because of this cons stream
+it's the cons stream of one onto something that i don't worry about yet
+so i don't look at it and i don't notice that integers isn't defined at the point where i try and run the definition alright
+okay
+let me draw a picture of that integers thing because it's still it still maybe seems a little bit shaky
+what do i do
+uh i've got this stream of ones and that sort of comes in
+and goes into something into an adder
+that's going to be this add streams thing and that goes in
+that's going to put out the integers and the other thing that goes into the adder here is the integers
+so there's a little feedback loop
+and all i need to start it off is someplace i've got to stick that initial one
+right
+in a real signal processing thing this might be a delay element with that was initialized to one
+but there's a picture of of that ones program
+and in fact that looks a lot like if you've seen real signal block diagram things that looks a lot like like sort of accumulators finite state accumulators
+and in fact we can modify this a little bit to change this into something that integrates a stream or a finite state accumulator
+however you like to think about it
+so instead of the ones coming in and getting out the integers what we'll do is is say there's a stream s coming in
+and we're going to get out the integral of this successive value to that
+and it looks almost the same
+the only things we're going to do is when s comes in here before we just add it in we're going to multiply it by some number dt
+and now what we have here this is exactly the same thing
+we have a box which is an integrator
+and it takes in a stream s and uh instead of one here we can put the additional value for the integral
+and that one looks very very much like a like a signal processing block diagram program
+in fact here's the procedure that looks exactly like that right
+you take fun find the integral of a stream
+so integral's going to take a stream and produce a new stream and it takes in an initial value and some time constant
+and what do we do
+well we internally define this thing int and we make this internal name so we can feed it back loop it around itself
+and int is defined to be something that starts out at the initial value
+and the rest of it is gotten by adding together we take our input stream scale it by dt and add that to int
+and now what we return from all that the value of integral is this thing int and we use this internal definition syntax so we could write a little internal definition that refers to itself
+okay
+well all sorts of things we can do
+let's try this one
+how about the fibonacci numbers
+we can say define define fibs
+well what are the fibonacci numbers
+they're something that starts out with zero and the next one is one
+and the rest of the fibonacci numbers are gotten by adding the fibonacci numbers
+to their own tail alright
+so there's a there's a definition of the fibonacci numbers
+how does that work
+well we start off and someone say gee compute for us the fibonacci numbers and we're going tell you it starts out with zero and one
+and everything after the zero and one is gotten by summing two streams
+one is the fibs themselves and the other one is the tail of the fibs
+so if i know that these start out with zero and one i know that the fibs now start out with zero and one and the tail of the fibs start out with one
+so as soon as i know that i know that the next one here is zero plus one is one and that tells me that the next one here is one and the next one here is one and as soon as i know that i know that the next one is two right so the next one here is two and the next one here is two and this is three
+this one goes to three and this is five right
+so it's a perfectly sensible definition yeah
+there's a one line definition th and again could walk over to the computer and type that in exactly that and then say print stream the fibonacci numbers and they all come flying out
+see this is a lot like learning about recursion again
+see instead of thinking about recursive procedures we have recursively defined data objects
+but see that shouldn't surprise you at all because by now you should be coming to really believe that there's no difference really between procedures and data and in fact in some sense the underlying streams are
+are procedures sitting there although we don't think of them that way
+so the fact that we would have recursive procedures well then it should be natural that we we have recursive data too
+okay well this is all pretty pretty neat
+unfortunately there are there are problems that streams aren't going to solve
+let me let me show you one of them
+see in the same way let's imagine that we're building an analog computer to solve some differential equation
+like uh suppose you want to solve the equation y prime d y d t is y squared and i'm going to give you some initial value
+i'll tell you y of zero equal one and uh
+let's d let's say d t is equal to something
+now in the old days people built analog computers to solve these kinds of things and the way you do that is really simple
+you get yourself an integrator like that one integrator box and we put in the initial value
+y of zero is one
+and now if we feed something in and get something out we'll say gee what we're getting out is the answer and what we're going to feed in is the derivative and the derivative is supposed to be the square of the answer
+so if we take these values and map using square
+and if i feed this around right that's how i that's a little block diagram for an analog computer that solves this differential equation
+now what we'd like to do is write a stream program that looks exactly like that
+and what do i mean exactly like that
+well i'd say define y to be the integral of d y starting at one
+with point zero zero one as a time step
+and i'd like to say or that says this
+and then i'd like to say well d y is gotten by mapping the square along y so define d y to be map square along y
+so there's a a stream description of this analog computer
+and unfortunately it doesn't work and you can see why it doesn't work because when i come in and say define y to be the integral of d y
+it says oh the integral of what huh
+oh that's undefined
+so i can't write this definition before i've write written this one
+on the other hand if i try and write this one first it says oh i define y to be the map of square along what
+oh that's not defined yet
+so i can't write this one first and i can't write that one first
+so i can't can't quite play this game
+well is there a way out
+see we could do that with ones
+see over here we did this thing ones and we were able to define ones in terms of ones because of this delay that was built inside because cons stream had a delay
+now why is it sensible
+see why is it sensible for cons stream to built with this delay
+the reason is that cons stream can do a useful things without looking at its tail
+see if i say this is cons stream of one onto something without knowing anything about something
+i know that the stream starts off with one
+that's why it was sensible to build something like cons stream
+net so we put a delay in there and that allows us to have this sort of self referential definition
+well integrals a little bit the same way
+see notice for an integral i can let's go back and look at integral for a second
+see notice integral it makes sense to say what's the first thing in the integral without knowing the stream that you're integrating because the first thing in the integral is always going to be the initial value that you hand it
+so integral could be a procedure like cons stream
+you could define it and then even before it knows what it's supposed to be integrating it knows enough to say what its initial value is
+so we can make a smarter integral which says aha you're going to give me stream to integrate and an initial value but i really don't have to look at that stream that i'm supposed to integrate until you ask me to work down the stream
+in other words integral can be like cons stream
+it can expect that there's going to be a delay around its integrand and we can write that
+here's a procedure that does that
+another version of integral
+and this is almost like the previous one except the stream it's going to get in is going to expect to be a delayed object
+and how does this integral work
+well the little thing it's going to define inside of itself says i'm a cons stream the initial value's the initial value but only inside of that cons stream and then remember there's going to be hidden delay inside here
+only inside of that cons stream will i start looking at the delay what the actual delayed object is
+so my answer is the first thing's the initial value
+if anybody now asks me for my tail at that point i'm going to force that delayed object and i'll call that s and i do the add streams
+so this is this is an integral which is sort of like cons stream
+it's not going to actually try and try and see what you handed it as the thing to integrate until you look past the first element
+and if we do that then we can make this work
+all we have to do here is say define y to be the integral of
+of delay of y of delay of d y alright
+so y is going to be the integral of delay of d y starting at one and now this'll work because i type in the definition of y
+and it says i'm supposed to be the integral of uh something i don't care about right now because it's a delay and these thing
+now you define d y now y is defined
+so when i define d y it can see that definition for y
+everything's now started up
+both streams have their first element and then when i start mapping down looking at successive elements both y and d y are defined alright
+so there's a little game you can play that goes a little bit beyond just using the delay that's hidden inside streams
+questions
+okay let's take a break
+well just before the break i'm not sure if you noticed it but something nasty started to happen
+see we've been going along with these streams and divorcing divorcing time in the programs from time in the computers and all that
+all that divorcing got hidden inside the streams
+and then at the very end we saw that sometimes in order to really take advantage of this method you have to pull out other delays
+you have to write some explicit delays that are not hidden inside that cons stream
+and i did a very simple example with differential equations but if you have some very complicated system with all kinds of self loops it becomes very very difficult to see where you need those delays and if you leave them out by mistake it becomes very very difficult to see why the thing maybe isn't working
+so that's that's kind of a mess that by getting this power and allowing us to use delay we we end up with some very complicated programs sometimes because it can't all be hidden inside those streams
+well is there a way out of that
+yeah there is a way out of that
+we could change the language so that all procedures acted like cons stream so that every procedure automatically has an implicit delay around its arguments
+and what would that mean
+that would mean when you call a procedure the arguments wouldn't get evaluated
+instead they'd only be evaluated when you need them so they might be passed off to some other procedure which wouldn't evaluate them either
+so all these procedures would be passing promises around and then finally maybe when you finally got down to having to look at the value of something that was handed to a primitive operator we should actually start calling in all those promises
+if we did that see since everything would have a uniform delay then you wouldn't have to write any explicit delays because it would be automatically built into the way the language works
+or another way to say that technically what i'm describing is what's called if we did that our language would be so called normal order evaluation language
+versus what we've actually been working with which is called applicative order
+versus applicative order evaluation and remember the substitution model for applicative order
+it says when you go and evaluate a combination you find the values of all the pieces alright
+you evaluate the arguments and then you substitute them in the body of the procedure
+normal order says no don't do that
+what you do is effectively substitute in the body of the procedure but instead of evaluating the arguments you just put a promise to compute them there
+or another way to say that is you take the expressions for the arguments if you like and substitute them in the body of the procedure and go on and never really simplifying anything until you get down to a primitive operator
+so that would be a normal order language
+well why don't we do that
+see if we did we'd get all the advantages of delayed evaluation with none of the mess
+in fact if we did that and cons was just a delayed procedure that would make cons the same a cons stream
+we wouldn't need streams at all because lists would automatically be streams
+that's how lists would behave
+and all data structures would behave that way
+everything would behave that way right
+you'd never you'd never really do any computation until you actually needed the answer right
+you wouldn't have to worry about all these explicit annoying delays
+well why don't we do that
+first of all i should say people do do that
+there are some very very beautiful languages
+one of the one of the very nicest is language ba called miranda which is uh developed by david turner at the university of kent
+and that's how this language works
+it's normal order language and and its data structures which look like lists are actually streams and you write ordinary procedures in miranda and they they do these prime things and these eight queens things just without anything special
+it's all it's all built in there
+but there's a price
+remember how we go here
+we're we're decoupling time in the programs from time in the machines and if we put delay that sort of decouples it everywhere not just in streams
+remember what we're trying to do
+we're trying to think about programming as a way to specify processes and if we give up too much time out language becomes more elegant but it becomes a little bit less expressive
+there are certain distinctions that we can't draw
+one of them for instance is iteration
+remember let's remember this old procedure right
+iterative factorial that we looked at quite a long time ago right
+iterative factorial had a thing and it said there was a internal procedure and there was a state which was a product and a counter
+and we iterate that going around the loop and we said that was an iterative procedure because it didn't build up state because the reason it didn't build up state is because this iter that's called is just passing these things around to itself
+or in the substitution model that you can see in the substitution model that jerry did that an iterative procedure that state doesn't have to grow
+and in fact we said it doesn't so this is an iteration
+but now think about this exact same text if we had a normal order language
+what would happen is this would no longer be an iterative procedure
+and if you really think about the details of the substitution model which i'm not going to do there this expression would grow
+why would it grow
+it's because when iter calls itself it calls itself with this product
+if it's a normal order language that multiplication's not going to get done
+it's going to say i'm going to call myself with a promise to compute this product
+and now iter goes around again and i'm going to call myself with a promise to compute this product where now one of the one of the um factors is a promise
+and i call myself again and you write out the substitution model for that iterative process you'll see exactly the same growth in state all those promises that are getting remembered that have to get called in at the very end
+so one of the one of the disadvantages is that you can't really express iteration
+maybe that's a little theoretical reason why not but in fact people who are going trying to write real operating systems
+in these languages are running into exactly these kinds of problems like it's perfectly possible to implement a text editor in languages like these but after you work a while uh you suddenly have three megabytes of stuff which is which is
+i guess they call them the the dragging tail problem the people who are looking at these of stuff of promises that sort of haven't been called in because you couldn't quite express an iteration and one of the uh
+one of the research questions in these kinds of languages are figuring out the right compiler technology to get rid of the so called dragging tails
+it's not it's not simple
+but there's another there's another kind of more striking issue about why you just don't go ahead and make your language normal order and the reason is that normal order evaluation and side effects
+just don't mix
+they just don't go together very well
+some how you can't it's it's sort of you can't simultaneously go around trying to model objects with local state and change
+and at the same time do these normal order tricks of decoupling time
+let me let me just show you a really simple example very very simple
+suppose we had a normal order language and i'm going to start out in this language this is now normal order
+i'm going to define x to be zero
+it's just some variable and i'll initialize
+and now i'm going to define this little funny function which is an identity function and what it does it keeps track of the last time you called it using x
+so this is right
+so the identity of the n just uh returns n but it sets x to be n
+and now i'll find a little increment function right so there's a very little simple scenario
+now imagine i'm interacting with this in a normal order language and i type the following
+i say define y to be increment the identity function of three
+so y is going to be four right
+now i say what's x
+well x should've been the value that was remembered last when i called the identity function
+so you'd expect to say well x is three at this point but it's not because when i defined here y here
+what i really defined y to be to be increment of a promise to do this thing
+so i didn't look at y so that identity function didn't get run
+so if i write type in this definition and look at x i'm going to get zero
+now if i go look at y and say what's y say y is four looking at y that very active looking at y caused the identity function to be run
+and now x will get remembered as three
+so here x will be zero here x will be three
+that's a tiny little simple scenario but you can see what kind of a mess that's going to make for debugging interactive programs when you have normal order evaluation
+this is very confusing
+but it's very confusing for a very deep reason which is that the whole idea of putting in delays is that you throw away time
+that's why we can have these infinite processes
+since we've thrown away time we don't have to wait for them to run right
+we decouple the order of events in the computer from what we write in our programs but when we talk about state and set and change that's exactly what we do want control of
+so it's almost as if there's this fundamental mental contradiction in what you want and uh that brings us back to these these sort of philosophical mutterings about what is it that you're trying to model and how do you look at the world
+or sometimes this is called the uh the debate over functional programming a functional
+a so called purely functional language is one that just doesn't have any side effects
+since you have no side effects there's no assignment operator so there are no terrible cons consequences of it
+you can use a substitution like thing
+programs really are like mathematics and not l not like models in the real world
+not like objects in the real world
+there are a lot of wonderful things about functional language and since there's no time you never have any synchronization problems
+and if you want to put something into a parallel algorithm you can run those the pieces of that parallel process in any way you want right
+and those there's just never any synchronization to worry about and it's a very congenial environment for doing this
+the price is you give up assignment
+so a advocate of a functional language would say gee that's just a tiny price to pay
+you probably shouldn't use assignment most of the time anyway and if you just give up assignment you can you can be in this much much much much nicer world than this place with objects
+well what's the rejoinder to that
+remember remember how we got into this mess right we started trying to trying to model things that had local state
+so remember jerry's random number generator
+there was this random number generator that had some little state in it to compute the next random number and the next random number and the next random number
+and we wanted to hid that state away from the the cesaro compute pi process
+and that's why we needed set
+we wanted to package that state in modularly
+well a functional programming person would say well you're just all wet i mean you can write a perfectly good modular program it's just you're you're thinking about modularity wrong alright
+you're hung up in this next random number and the next random number and the next random number
+why don't you just say let's write a program let's write an enumerator which just generates an infinite stream of random numbers right
+and we can sort of have that stream all at once and that's going to be our source of random numbers and then if you like you can put that through some sort of processor which is uh i don't know a a cesaro test
+and that can do what it wants and what would come out of there would be a stream of a stream of
+of successive approximations approximations to pi so as we looked further down the stream
+we'd tug on this cesaro thing and it would pull out more and more random numbers and the further and further we looked down the stream the better an approximation we get to pi
+and we do exactly the same as the other computation except we're thinking about the modularity different
+we're saying imagine we had all those infinite stream of random numbers all at once
+and you can see the details of this of this procedure in the book
+quite similarly there are other things that we tend to get locked into on a this one and that one and the next one and the next one which don't have to be that way
+like you might think about a like a banking system alright
+just a very simple idea
+imagine we have a program that sort of represents a bank account
+right the bank account might have in it if we looked at this in a uh sort of message passing view of the world we'd say the bank account is an object that has some local state in there which is the balance say
+and a user using the system comes and sends a transaction request
+so the user sends a transaction request like deposits some money and the bank account maybe
+let's say the bank account always responds with what the current balance is
+alright so the user says let's deposit some money and the bank account sends back sends back a message which is the balance and the user says deposit some more and the bank account sends back a message
+and just like the random number generator you'd say gee we would like to use set
+we'd like to have balance be a piece of local state inside this bank account because we want to separate the state of the user from the state of the bank account
+well that's message process processing view
+there's a stream view of that thing which does the same thing without any set or side effects and the idea is again we don't think about anything having local state
+we think about the bank account as something that's going to process a stream of transaction requests
+so think about this bank account not as something that goes message by message but something that takes in a stream of transaction requests like maybe successive deposit amounts oh i don't know
+one two two four
+those might be successive amounts to deposit
+and then coming out of it is the successive balances
+one three five nine
+so we think of the bank account not as something that has state but something that acts sort of on the infinite stream of request but remember we've thrown away time so what we can do is if the user's here we can have this infinite stream of requests being generated one at a time
+coming from the user and this transaction stream coming back on a printer being printer one at a time and if we drew a little line here right there to the user the user couldn't tell that this system doesn't have state
+that looks just like the other one but there's not state in there
+and uh and by the way just to show you here's an actual implementation of this
+we'll call it make deposit account because you can only deposit
+it takes a initial balance and then a stream of deposits you might make and it what is it
+well it's just cons stream of the balance
+onto make a new account stream whose initial balance is the old balance plus the first thing in the deposit stream and whose rest right and whose make deposit account works on rest of which is the tail of the deposit stream
+so there's a there's sort of a a mess typic very typical message passage message passing object oriented thing that's done without side effects at all
+there are very many thing you can do this way
+well can you do everything without assignment
+should everybody go over to purely functional languages
+well don't know
+but there seem to be places where purely functional programming breaks down
+where it starts hurting is when you have things like this but you also mix it up with the other things that we had to worry about which are objects and sharing and two independent age agents being the same
+so one very typical one is suppose you want to extend this bank account
+so here's a bank account
+it's going to take in a alright bank accounts take in a stream of transaction requests and put out the streams of say balances or responses to that
+but suppose you want to model the fact that this is a joint bank account between two two independent people right
+so suppose uh i don't know
+suppose they're two people say bill and dave who have a joint bank account
+how would you model this
+well you might bill puts out a stream of transaction requests and dave puts out a stream of transaction requests and somehow they have to merge into this bank account
+so what you might do is write a little stream processing thing called merge which sort of takes these merges them together produces a single stream for the bank account
+now they're both talking to the same bank account
+that's all great but how do you write merge
+see what ih what's this procedure merge
+you want to do something that's reasonable
+uh your first guess might be to say well we'll take alternate requests from bill and dave see but what happens if uh you know suddenly in the middle of this thing dave goes away on vacation for two years alright then bill sort of is stuck
+so what you want to do is well it's hard to describe
+what you want to do is what people call a fair merge
+and the idea of fair merge is it sort of should do them alternately but if there's nothing waiting here it should take one twice
+notice i can't even say that without talking about time so one of the other active research areas in functional languages is inventing little things like fair merge and maybe some others which'll
+which'll take the places where i used to need side effects and objects and sort of sort of hide them away and some very well defined modules of the system so that all the problems of assignment don't sort of leak out all over the system but are are captured in some fairly well understood things
+okay
+more generally i think what you're seeing is that we're running across a ver what i think's a very basic problem in computer science which is how to how to define languages that somehow can talk about delayed evaluation
+but also be able to reflect this view that there are objects in the world
+how do we how do we somehow get both
+and i think that's a very hard problem and it may be that it's a very hard problem that has almost nothing to do with computer science that it really is a problem having to do with two very incompatible ways of looking at the world
+okay questions
+you mentioned earlier that um once you introduce assignment the general rule for for uh using the substitution model is you can't unless you're very careful you can't
+right
+is there a set of techniques or a set of um guidelines for localizing the effects of assignment so that you have the careful becomes defined
+mmm hmm
+i don't know
+uh let me think
+well certainly there was an assignment inside memoproc but that was sort of hidden away
+it ended up not making any difference
+part of the reason for that is once once this thing triggered that it had run and gotten an answer that answer'll never change
+so that was sort of a one time assignment
+so one very general thing you can do is if you only do what's called one time assignment you never change anything then you can do better
+one of the problems in this merge thing people have see if this is right
+i think it's true that with fair merge with just fair merge you can begin effectively simulating assignment in the rest of the language
+it seems like anything you do to go outside i don't i'm not quite sure that's true for fair merge but it's true of of a little bit more general things that people have been doing
+so it might be that any little bit you put in
+suddenly if they allow you to build arbitrary stuff it's almost as bad as having assignment all together
+but uh that's a that's an area that people are thinking about now
+i guess i don't see the problem here with merge if if uh you know in a sense if if i call bill if bill's a procedure then bill is going to increment the bank account and or or build the list
+it's going to put in the next element
+if i call dave twice in a row that will do that
+i'm not sure where fair merge has to be involved
+the problem is imagine these really as people
+see here i have a user who's sitting interacting with this bank account
+put in a request get an answer
+put in a request get an answer
+right
+but if the only way i can process requests is to alternate them from two people
+well why do we need to alternate them
+why don't i
+think of them as real people
+if this guy might go away for a year and your si
+right so wh
+and you're sitting here at the bank account window and you can't put in two requests because it's waiting for this guy
+why does it have to be waiting for one
+because it's trying to compute a function
+i have to define a function
+another way to say that is the answer to what comes out of this merge box is not a function of what goes in because
+see what the what would the function be
+suppose he puts in one one one one and he puts in two two two two
+what's the answer supposed to be
+it it's not good enough to say it's one two one two one two
+i understand but but when bill puts in one one goes in
+when dave puts in two twice two goes in twice
+when bill puts in
+right
+why why can't it be hooked to the time of the input the actual procedural
+because i don't have time
+see all i can say is i'm going to ulk i want to define a function
+i don't have time alright
+there's no concept if it's going to alternate except if nobody's there it's going to wait a while for him alright
+it's just going to say i have the stream of request
+the the timeless infinite streams of all the requests that dave would have made right
+and the timeless infinite stream of all the requests bill would have made and i want to operate on them
+see that's how this bank account is working
+and the problem is that these poor people who are sitting at the bank account windows have the un have the misfortune to exist in time alright
+they don't see their infinite stream of of all the requests they would have ever made
+they're waiting now and they want an answer right
+so if i mean if you're sitting there you know if this is the the screen operation on some time sharing system and it's working functionally you want an answer then when you type the character
+you don't want it to have to wait for everybody in the whole system to have typed one character before it can get around to service you
+so that's the problem
+i mean it's the fact that people live in time apparently
+if they didn't it wouldn't be a problem
+uh i'm afraid i missed the point of uh having no time and this uh banking transaction
+isn't time very important
+for instance um the sequence of events if if if dave takes out one hundred dollars and and
+the timing sequence should
+how do you treat the transactions as streams
+well that's the that's the thing i'm i'm saying
+you c this is an example where you can't
+you can't
+th what goes the point is what comes out of here is simply not a function of the stream going in here and the stream going in here
+it's a function of the stream going in here and the stream going in here and some kind of information about time which is precisely what a normal order language won't let you say
+in order to bring this back into a more functional perspective could we just explicitly time stamp all the inputs from bill and dave a and define fair merge to just be the sort on those time stamps of y
+yeah you could do that
+you could do that sort of thing
+another thing you could say is imagine that really what this function is is that it does a read every microsecond
+and then if there's none there that's considered an empty one
+that's about equivalent to what you said
+and yes you can do that but that's a kludge
+so you're so you're not it's not quite only implementation we're worried about
+we're we're worried about expressive power in the language and what we're running across is it's a real mismatch between what we can say easily and what we'd like to say
+it sounds like where we're getting hung up with that is the fact that it expects one input from both bill and dave
+it's not quite one but it's anything you define
+so you can say can go twice as often but if anything you predefine is no the right thing
+right and you can't decide it's some particular function of their input re input requests
+worse yet i mean worse yet there are things that even merge can't do
+i one thing you might want to do that's even more general is suddenly you you add somebody else to this bank account system
+you go and you add john to this bank account system
+and now there's yet another stream that's going to come into the picture at some time which you haven't pre specified
+so that's something even fair merge can't do and there are things called uh i forget
+mana managers or something
+that's a generalization of fair merge to allow that
+there's a whole sort of research discipline saying how far can you push this functional perspective by adding adding more and more mechanism
+and then how far does that go before the whole thing breaks down and you might've well be using set anyway
+couldn't you just set them up on automatic deposit
+no
+okay thank you

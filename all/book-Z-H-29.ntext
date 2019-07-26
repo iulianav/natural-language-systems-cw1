@@ -1,0 +1,641 @@
+in chapter one we stressed that computer science deals with imperative knowledge whereas mathematics deals with declarative knowledge
+indeed programming languages require that the programmer express knowledge in a form that indicates the step by step methods for solving particular problems
+on the other hand high level languages provide as part of the language implementation a substantial amount of methodological knowledge that frees the user from concern with numerous details of how a specified computation will progress
+most programming languages including lisp are organized around computing the values of mathematical functions
+expression oriented languages capitalize on the pun that an expression that describes the value of a function may also be interpreted as a means of computing that value
+because of this most programming languages are strongly biased toward unidirectional computations
+there are however radically different programming languages that relax this bias
+we saw one such example in section three point three point five where the objects of computation were arithmetic constraints
+in a constraint system the direction and the order of computation are not so well specified in carrying out a computation the system must therefore provide more detailed how to knowledge than would be the case with an ordinary arithmetic computation
+this does not mean however that the user is released altogether from the responsibility of providing imperative knowledge
+there are many constraint networks that implement the same set of constraints and the user must choose from the set of mathematically equivalent networks a suitable network to specify a particular computation
+the nondeterministic program evaluator of section four point three also moves away from the view that programming is about constructing algorithms for computing unidirectional functions
+in a nondeterministic language expressions can have more than one value and as a result the computation is dealing with relations rather than with single valued functions
+logic programming extends this idea by combining a relational vision of programming with a powerful kind of symbolic pattern matching called unification
+this approach when it works can be a very powerful way to write programs
+part of the power comes from the fact that a single what is fact can be used to solve a number of different problems that would have different how to components
+as an example consider the append operation which takes two lists as arguments and combines their elements to form a single list
+in a procedural language such as lisp we could define append in terms of the basic list constructor cons as we did in section two point two point one
+this procedure can be regarded as a translation into lisp of the following two rules the first of which covers the case where the first list is empty and the second of which handles the case of a nonempty list which is a cons of two parts
+for any list y the empty list and y append to form y
+for any u v y and z and y append to form if v and y append to form z
+using the append procedure we can answer questions such as
+find the append of and
+but the same two rules are also sufficient for answering the following sorts of questions which the procedure can't answer
+find a list y that append s with to produce
+find all x and y that append to form
+in a logic programming language the programmer writes an append procedure by stating the two rules about append given above
+how to knowledge is provided automatically by the interpreter to allow this single pair of rules to be used to answer all three types of questions about append
+contemporary logic programming languages have substantial deficiencies in that their general how to methods can lead them into spurious infinite loops or other undesirable behavior
+logic programming is an active field of research in computer science
+earlier in this chapter we explored the technology of implementing interpreters and described the elements that are essential to an interpreter for a lisp like language
+now we will apply these ideas to discuss an interpreter for a logic programming language
+we call this language the query language because it is very useful for retrieving information from data bases by formulating queries or questions expressed in the language
+even though the query language is very different from lisp we will find it convenient to describe the language in terms of the same general framework we have been using all along as a collection of primitive elements together with means of combination that enable us to combine simple elements to create more complex elements and means of abstraction that enable us to regard complex elements as single conceptual units
+an interpreter for a logic programming language is considerably more complex than an interpreter for a language like lisp
+nevertheless we will see that our query language interpreter contains many of the same elements found in the interpreter of section four point one
+in particular there will be an eval part that classifies expressions according to type and an apply part that implements the language's abstraction mechanism
+also a central role is played in the implementation by a frame data structure which determines the correspondence between symbols and their associated values
+one additional interesting aspect of our query language implementation is that we make substantial use of streams which were introduced in chapter three
+logic programming excels in providing interfaces to data bases for information retrieval
+the query language we shall implement in this chapter is designed to be used in this way
+in order to illustrate what the query system does we will show how it can be used to manage the data base of personnel records for microshaft a thriving high technology company in the boston area
+the language provides pattern directed access to personnel information and can also take advantage of general rules in order to make logical deductions
+the personnel data base for microshaft contains assertions about company personnel
+here is the information about ben bitdiddle the resident computer wizard
+each assertion is a list whose elements can themselves be lists
+as resident wizard ben is in charge of the company's computer division and he supervises two programmers and one technician
+here is the information about them
+there is also a programmer trainee who is supervised by alyssa
+all of these people are in the computer division as indicated by the word computer as the first item in their job descriptions
+ben is a high level employee
+his supervisor is the company's big wheel himself
+besides the computer division supervised by ben the company has an accounting division consisting of a chief accountant and his assistant
+there is also a secretary for the big wheel
+the data base also contains assertions about which kinds of jobs can be done by people holding other kinds of jobs
+for instance a computer wizard can do the jobs of both a computer programmer and a computer technician
+a computer programmer could fill in for a trainee
+also as is well known
+the query language allows users to retrieve information from the data base by posing queries in response to the system's prompt
+for example to find all computer programmers one can say
+the system will respond with the following items
+the input query specifies that we are looking for entries in the data base that match a certain pattern
+in this example the pattern specifies entries consisting of three items of which the first is the literal symbol job the second can be anything and the third is the literal list
+the anything that can be the second item in the matching list is specified by a pattern variable x
+the general form of a pattern variable is a symbol taken to be the name of the variable preceded by a question mark
+we will see below why it is useful to specify names for pattern variables rather than just putting <> into patterns to represent anything . the system responds to a simple query by showing all entries in the data base that match the specified pattern
+a pattern can have more than one variable
+for example the query
+will list all the employees' addresses
+a pattern can have no variables in which case the query simply determines whether that pattern is an entry in the data base
+if so there will be one match if not there will be no matches
+the same pattern variable can appear more than once in a query specifying that the same anything must appear in each position
+this is why variables have names
+for example
+finds all people who supervise themselves
+the query
+matches all job entries whose third item is a two element list whose first item is computer
+this same pattern does not match
+because the third item in the entry is a list of three elements and the pattern's third item specifies that there should be two elements
+if we wanted to change the pattern so that the third item could be any list beginning with computer we could specify
+for example
+matches the data
+with type as the list
+it also matches the data
+with type as the list and matches the data
+with type as the empty list
+we can describe the query language's processing of simple queries as follows
+the system finds all assignments to variables in the query pattern that satisfy the pattern that is all sets of values for the variables such that if the pattern variables are instantiated with the values the result is in the data base
+the system responds to the query by listing all instantiations of the query pattern with the variable assignments that satisfy it
+note that if the pattern has no variables the query reduces to a determination of whether that pattern is in the data base
+if so the empty assignment which assigns no values to variables satisfies that pattern for that data base
+give simple queries that retrieve the following information from the data base
+a
+all people supervised by ben bitdiddle
+b
+the names and jobs of all people in the accounting division
+c
+the names and addresses of all people who live in slumerville
+simple queries form the primitive operations of the query language
+in order to form compound operations the query language provides means of combination
+one thing that makes the query language a logic programming language is that the means of combination mirror the means of combination used in forming logical expressions and or and not
+we can use and as follows to find the addresses of all the computer programmers
+the resulting output is
+in general
+is satisfied by all sets of values for the pattern variables that simultaneously satisfy query one ... queryn
+as for simple queries the system processes a compound query by finding all assignments to the pattern variables that satisfy the query then displaying instantiations of the query with those values
+another means of constructing compound queries is through or
+for example
+will find all employees supervised by ben bitdiddle or alyssa p
+hacker
+in general
+is satisfied by all sets of values for the pattern variables that satisfy at least one of query one ... queryn
+compound queries can also be formed with not
+for example
+finds all people supervised by ben bitdiddle who are not computer programmers
+in general
+is satisfied by all assignments to the pattern variables that do not satisfy query one
+the final combining form is called lisp value
+when lisp value is the first element of a pattern it specifies that the next element is a lisp predicate to be applied to the rest of the ( instantiated ) elements as arguments
+in general
+will be satisfied by assignments to the pattern variables for which the predicate applied to the instantiated arg one ... argn is true
+for example to find all people whose salary is greater than thirty dollars 0 hundred we could write
+formulate compound queries that retrieve the following information
+a
+the names of all people who are supervised by ben bitdiddle together with their addresses
+b
+all people whose salary is less than ben bitdiddle's together with their salary and ben bitdiddle's salary
+c
+all people who are supervised by someone who is not in the computer division together with the supervisor's name and job
+in addition to primitive queries and compound queries the query language provides means for abstracting queries
+these are given by rules
+the rule
+specifies that two people live near each other if they live in the same town
+the final not clause prevents the rule from saying that all people live near themselves
+the same relation is defined by a very simple rule
+the following rule declares that a person is a wheel in an organization if he supervises someone who is in turn a supervisor
+the general form of a rule is
+where conclusion is a pattern and body is any query
+we can think of a rule as representing a large set of assertions namely all instantiations of the rule conclusion with variable assignments that satisfy the rule body
+when we described simple queries ( patterns ) we said that an assignment to variables satisfies a pattern if the instantiated pattern is in the data base
+but the pattern need n't be explicitly in the data base as an assertion
+it can be an implicit assertion implied by a rule
+for example the query
+results in
+to find all computer programmers who live near ben bitdiddle we can ask
+as in the case of compound procedures rules can be used as parts of other rules or even be defined recursively
+for instance the rule
+says that a staff person is outranked by a boss in the organization if the boss is the person's supervisor or ( recursively ) if the person's supervisor is outranked by the boss
+define a rule that says that person one can replace person two if either person one does the same job as person two or someone who does person 1's job can also do person 2's job and if person one and person two are not the same person
+using your rule give queries that find the following
+a
+all people who can replace cy d
+fect
+b
+all people who can replace someone who is being paid more than they are together with the two salaries
+define a rule that says that a person is a big shot in a division if the person works in the division but does not have a supervisor who works in the division
+ben bitdiddle has missed one meeting too many
+fearing that his habit of forgetting meetings could cost him his job ben decides to do something about it
+he adds all the weekly meetings of the firm to the microshaft data base by asserting the following
+each of the above assertions is for a meeting of an entire division
+ben also adds an entry for the company wide meeting that spans all the divisions
+all of the company's employees attend this meeting
+a
+on friday morning ben wants to query the data base for all the meetings that occur that day
+what query should he use
+b
+alyssa p
+hacker is unimpressed
+she thinks it would be much more useful to be able to ask for her meetings by specifying her name
+so she designs a rule that says that a person's meetings include all whole company meetings plus all meetings of that person's division
+fill in the body of alyssa's rule
+c
+alyssa arrives at work on wednesday morning and wonders what meetings she has to attend that day
+having defined the above rule what query should she make to find this out
+by giving the query
+alyssa p
+hacker is able to find people who live near her with whom she can ride to work
+on the other hand when she tries to find all pairs of people who live near each other by querying
+she notices that each pair of people who live near each other is listed twice for example
+why does this happen
+is there a way to find a list of people who live near each other in which each pair appears only once
+explain
+we can regard a rule as a kind of logical implication if an assignment of values to pattern variables satisfies the body then it satisfies the conclusion
+consequently we can regard the query language as having the ability to perform logical deductions based upon the rules
+as an example consider the append operation described at the beginning of section four point four
+as we said append can be characterized by the following two rules
+for any list y the empty list and y append to form y
+for any u v y and z and y append to form if v and y append to form z
+to express this in our query language we define two rules for a relation
+which we can interpret to mean x and y append to form z
+the first rule has no body which means that the conclusion holds for any value of y
+note how the second rule makes use of dotted tail notation to name the car and cdr of a list
+given these two rules we can formulate queries that compute the append of two lists
+what is more striking we can use the same rules to ask the question which list when append ed to yields this is done as follows
+we can also ask for all pairs of lists that append to form
+the query system may seem to exhibit quite a bit of intelligence in using the rules to deduce the answers to the queries above
+actually as we will see in the next section the system is following a well determined algorithm in unraveling the rules
+unfortunately although the system works impressively in the append case the general methods may break down in more complex cases as we will see in section four point four point three
+the following rules implement a next to relation that finds adjacent elements of a list
+what will the response be to the following queries
+define rules to implement the last pair operation of exercise two point seventeen which returns a list containing the last element of a nonempty list
+check your rules on queries such as and
+do your rules work correctly on queries such as
+the following data base traces the genealogy of the descendants of ada back to adam by way of cain
+formulate rules such as if s is the son of f and f is the son of g then s is the grandson of g and if w is the wife of m and s is the son of w then s is the son of m that will enable the query system to find the grandson of cain the sons of lamech the grandsons of methushael
+in section four point four point four we will present an implementation of the query interpreter as a collection of procedures
+in this section we give an overview that explains the general structure of the system independent of low level implementation details
+after describing the implementation of the interpreter we will be in a position to understand some of its limitations and some of the subtle ways in which the query language's logical operations differ from the operations of mathematical logic
+it should be apparent that the query evaluator must perform some kind of search in order to match queries against facts and rules in the data base
+one way to do this would be to implement the query system as a nondeterministic program using the amb evaluator of section four point three
+another possibility is to manage the search with the aid of streams
+our implementation follows this second approach
+the query system is organized around two central operations called pattern matching and unification
+we first describe pattern matching and explain how this operation together with the organization of information in terms of streams of frames enables us to implement both simple and compound queries
+we next discuss unification a generalization of pattern matching needed to implement rules
+finally we show how the entire query interpreter fits together through a procedure that classifies expressions in a manner analogous to the way eval classifies expressions for the interpreter described in section four point one
+a pattern matcher is a program that tests whether some datum fits a specified pattern
+for example the data list matches the pattern with the pattern variable x bound to
+the same data list matches the pattern with x and z both bound to and y bound to c
+it also matches the pattern with x bound to a and y bound to b
+however it does not match the pattern since that pattern specifies a list whose second element is the symbol a
+the pattern matcher used by the query system takes as inputs a pattern a datum and a frame that specifies bindings for various pattern variables
+it checks whether the datum matches the pattern in a way that is consistent with the bindings already in the frame
+if so it returns the given frame augmented by any bindings that may have been determined by the match
+otherwise it indicates that the match has failed
+for example using the pattern to match given an empty frame will return a frame specifying that x is bound to a and y is bound to b
+trying the match with the same pattern the same datum and a frame specifying that y is bound to a will fail
+trying the match with the same pattern the same datum and a frame in which y is bound to b and x is unbound will return the given frame augmented by a binding of x to a
+the pattern matcher is all the mechanism that is needed to process simple queries that do n't involve rules
+for instance to process the query
+we scan through all assertions in the data base and select those that match the pattern with respect to an initially empty frame
+for each match we find we use the frame returned by the match to instantiate the pattern with a value for x
+the testing of patterns against frames is organized through the use of streams
+given a single frame the matching process runs through the data base entries one by one
+for each data base entry the matcher generates either a special symbol indicating that the match has failed or an extension to the frame
+the results for all the data base entries are collected into a stream which is passed through a filter to weed out the failures
+the result is a stream of all the frames that extend the given frame via a match to some assertion in the data base
+in our system a query takes an input stream of frames and performs the above matching operation for every frame in the stream as indicated in figure four point four
+that is for each frame in the input stream the query generates a new stream consisting of all extensions to that frame by matches to assertions in the data base
+all these streams are then combined to form one huge stream which contains all possible extensions of every frame in the input stream
+this stream is the output of the query
+to answer a simple query we use the query with an input stream consisting of a single empty frame
+the resulting output stream contains all extensions to the empty frame
+this stream of frames is then used to generate a stream of copies of the original query pattern with the variables instantiated by the values in each frame and this is the stream that is finally printed
+the real elegance of the stream of frames implementation is evident when we deal with compound queries
+the processing of compound queries makes use of the ability of our matcher to demand that a match be consistent with a specified frame
+for example to handle the and of two queries such as
+we first find all entries that match the pattern
+this produces a stream of frames each of which contains a binding for x
+then for each frame in the stream we find all entries that match
+in a way that is consistent with the given binding for x
+each such match will produce a frame containing bindings for x and person
+the and of two queries can be viewed as a series combination of the two component queries as shown in figure four point five
+the frames that pass through the first query filter are filtered and further extended by the second query
+figure four point six shows the analogous method for computing the or of two queries as a parallel combination of the two component queries
+the input stream of frames is extended separately by each query
+the two resulting streams are then merged to produce the final output stream
+even from this high level description it is apparent that the processing of compound queries can be slow
+for example since a query may produce more than one output frame for each input frame and each query in an and gets its input frames from the previous query an and query could in the worst case have to perform a number of matches that is exponential in the number of queries
+though systems for handling only simple queries are quite practical dealing with complex queries is extremely difficult
+from the stream of frames viewpoint the not of some query acts as a filter that removes all frames for which the query can be satisfied
+for instance given the pattern
+we attempt for each frame in the input stream to produce extension frames that satisfy
+we remove from the input stream all frames for which such extensions exist
+the result is a stream consisting of only those frames in which the binding for x does not satisfy
+for example in processing the query
+the first clause will generate frames with bindings for x and y
+the not clause will then filter these by removing all frames in which the binding for x satisfies the restriction that x is a computer programmer
+the lisp value special form is implemented as a similar filter on frame streams
+we use each frame in the stream to instantiate any variables in the pattern then apply the lisp predicate
+we remove from the input stream all frames for which the predicate fails
+in order to handle rules in the query language we must be able to find the rules whose conclusions match a given query pattern
+rule conclusions are like assertions except that they can contain variables so we will need a generalization of pattern matching called unification in which both the pattern and the datum may contain variables
+a unifier takes two patterns each containing constants and variables and determines whether it is possible to assign values to the variables that will make the two patterns equal
+if so it returns a frame containing these bindings
+for example unifying and will specify a frame in which x y and z must all be bound to a
+on the other hand unifying and will fail because there is no value for y that can make the two patterns equal
+the unifier used in the query system like the pattern matcher takes a frame as input and performs unifications that are consistent with this frame
+the unification algorithm is the most technically difficult part of the query system
+with complex patterns performing unification may seem to require deduction
+to unify and for example the algorithm must infer that x should be y should be b and z should be c
+we may think of this process as solving a set of equations among the pattern components
+in general these are simultaneous equations which may require substantial manipulation to solve
+for example unifying and may be thought of as specifying the simultaneous equations
+these equations imply that
+which in turn implies that
+a equal a y equal b c equal z
+and hence that
+in a successful pattern match all pattern variables become bound and the values to which they are bound contain only constants
+this is also true of all the examples of unification we have seen so far
+in general however a successful unification may not completely determine the variable values some variables may remain unbound and others may be bound to values that contain variables
+consider the unification of and
+we can deduce that and a equal z but we cannot further solve for x or y
+the unification does n't fail since it is certainly possible to make the two patterns equal by assigning values to x and y
+since this match in no way restricts the values y can take on no binding for y is put into the result frame
+the match does however restrict the value of x
+whatever value y has x must be
+a binding of x to the pattern is thus put into the frame
+if a value for y is later determined and added to the frame the previously bound x will refer to this value
+unification is the key to the component of the query system that makes inferences from rules
+to see how this is accomplished consider processing a query that involves applying a rule such as
+to process this query we first use the ordinary pattern match procedure described above to see if there are any assertions in the data base that match this pattern
+the next step is to attempt to unify the query pattern with the conclusion of each rule
+we find that the pattern unifies with the conclusion of the rule
+resulting in a frame specifying that person two is bound to and that x should be bound to person one
+now relative to this frame we evaluate the compound query given by the body of the rule
+successful matches will extend this frame by providing a binding for person one and consequently a value for x which we can use to instantiate the original query pattern
+in general the query evaluator uses the following method to apply a rule when trying to establish a query pattern in a frame that specifies bindings for some of the pattern variables
+unify the query with the conclusion of the rule to form if successful an extension of the original frame
+relative to the extended frame evaluate the query formed by the body of the rule
+notice how similar this is to the method for applying a procedure in the eval / apply evaluator for lisp
+bind the procedure's parameters to its arguments to form a frame that extends the original procedure environment
+relative to the extended environment evaluate the expression formed by the body of the procedure
+the similarity between the two evaluators should come as no surprise
+just as procedure definitions are the means of abstraction in lisp rule definitions are the means of abstraction in the query language
+in each case we unwind the abstraction by creating appropriate bindings and evaluating the rule or procedure body relative to these
+we saw earlier in this section how to evaluate simple queries in the absence of rules
+now that we have seen how to apply rules we can describe how to evaluate simple queries by using both rules and assertions
+given the query pattern and a stream of frames we produce for each frame in the input stream two streams
+a stream of extended frames obtained by matching the pattern against all assertions in the data base and
+a stream of extended frames obtained by applying all possible rules
+appending these two streams produces a stream that consists of all the ways that the given pattern can be satisfied consistent with the original frame
+these streams are now all combined to form one large stream which therefore consists of all the ways that any of the frames in the original input stream can be extended to produce a match with the given pattern
+despite the complexity of the underlying matching operations the system is organized much like an evaluator for any language
+the procedure that coordinates the matching operations is called qeval and it plays a role analogous to that of the eval procedure for lisp
+qeval takes as inputs a query and a stream of frames
+its output is a stream of frames corresponding to successful matches to the query pattern that extend some frame in the input stream as indicated in figure four point four
+like eval qeval classifies the different types of expressions ( queries ) and dispatches to an appropriate procedure for each
+there is a procedure for each special form and one for simple queries
+the driver loop which is analogous to the driver loop procedure for the other evaluators in this chapter reads queries from the terminal
+for each query it calls qeval with the query and a stream that consists of a single empty frame
+this will produce the stream of all possible matches
+for each frame in the resulting stream it instantiates the original query using the values of the variables found in the frame
+this stream of instantiated queries is then printed
+the driver also checks for the special command assert which signals that the input is not a query but rather an assertion or rule to be added to the data base
+for instance
+the means of combination used in the query language may at first seem identical to the operations and or and not of mathematical logic and the application of query language rules is in fact accomplished through a legitimate method of inference
+this identification of the query language with mathematical logic is not really valid though because the query language provides a control structure that interprets the logical statements procedurally
+we can often take advantage of this control structure
+for example to find all of the supervisors of programmers we could formulate a query in either of two logically equivalent forms
+or
+if a company has many more supervisors than programmers it is better to use the first form rather than the second because the data base must be scanned for each intermediate result ( frame ) produced by the first clause of the and
+the aim of logic programming is to provide the programmer with techniques for decomposing a computational problem into two separate problems what is to be computed and how this should be computed
+this is accomplished by selecting a subset of the statements of mathematical logic that is powerful enough to be able to describe anything one might want to compute yet weak enough to have a controllable procedural interpretation
+the intention here is that on the one hand a program specified in a logic programming language should be an effective program that can be carried out by a computer
+control is effected by using the order of evaluation of the language
+we should be able to arrange the order of clauses and the order of subgoals within each clause so that the computation is done in an order deemed to be effective and efficient
+at the same time we should be able to view the result of the computation as a simple consequence of the laws of logic
+our query language can be regarded as just such a procedurally interpretable subset of mathematical logic
+an assertion represents a simple fact
+a rule represents the implication that the rule conclusion holds for those cases where the rule body holds
+a rule has a natural procedural interpretation to establish the conclusion of the rule establish the body of the rule
+rules therefore specify computations
+however because rules can also be regarded as statements of mathematical logic we can justify any inference accomplished by a logic program by asserting that the same result could be obtained by working entirely within mathematical logic
+a consequence of the procedural interpretation of logic programs is that it is possible to construct hopelessly inefficient programs for solving certain problems
+an extreme case of inefficiency occurs when the system falls into infinite loops in making deductions
+as a simple example suppose we are setting up a data base of famous marriages including
+if we now ask
+we will get no response because the system does n't know that if a is married to b then b is married to a
+so we assert the rule
+and again query
+unfortunately this will drive the system into an infinite loop as follows
+the system finds that the married rule is applicable that is the rule conclusion successfully unifies with the query pattern to produce a frame in which x is bound to mickey and y is bound to who
+so the interpreter proceeds to evaluate the rule body in this frame in effect to process the query
+one answer appears directly as an assertion in the data base
+the married rule is also applicable so the interpreter again evaluates the rule body which this time is equivalent to
+the system is now in an infinite loop
+indeed whether the system will find the simple answer before it goes into the loop depends on implementation details concerning the order in which the system checks the items in the data base
+this is a very simple example of the kinds of loops that can occur
+collections of interrelated rules can lead to loops that are much harder to anticipate and the appearance of a loop can depend on the order of clauses in an and or on low level details concerning the order in which the system processes queries
+another quirk in the query system concerns not
+given the data base of section four point four point one consider the following two queries
+these two queries do not produce the same result
+the first query begins by finding all entries in the data base that match and then filters the resulting frames by removing the ones in which the value of x satisfies
+the second query begins by filtering the incoming frames to remove those that can satisfy
+since the only incoming frame is empty it checks the data base to see if there are any patterns that satisfy
+since there generally are entries of this form the not clause filters out the empty frame and returns an empty stream of frames
+consequently the entire compound query returns an empty stream
+the trouble is that our implementation of not really is meant to serve as a filter on values for the variables
+if a not clause is processed with a frame in which some of the variables remain unbound the system will produce unexpected results
+similar problems occur with the use of lisp value the lisp predicate can't work if some of its arguments are unbound
+see exercise four point seventy seven
+there is also a much more serious way in which the not of the query language differs from the not of mathematical logic
+in logic we interpret the statement not p to mean that p is not true
+in the query system however not p means that p is not deducible from the knowledge in the data base
+for example given the personnel data base of section four point four point one the system would happily deduce all sorts of not statements such as that ben bitdiddle is not a baseball fan that it is not raining outside and that two plus two is not four
+in other words the not of logic programming languages reflects the so called closed world assumption that all relevant information has been included in the data base
+louis reasoner mistakenly deletes the outranked by rule from the data base
+when he realizes this he quickly reinstalls it
+unfortunately he makes a slight change in the rule and types it in as
+just after louis types this information into the system dewitt aull comes by to find out who outranks ben bitdiddle
+he issues the query
+after answering the system goes into an infinite loop
+explain why
+cy d
+fect looking forward to the day when he will rise in the organization gives a query to find all the wheels
+to his surprise the system responds
+why is oliver warbucks listed four times
+ben has been generalizing the query system to provide statistics about the company
+for example to find the total salaries of all the computer programmers one will be able to say
+in general ben's new system allows expressions of the form
+where accumulation function can be things like sum average or maximum
+ben reasons that it should be a cinch to implement this
+he will simply feed the query pattern to qeval
+this will produce a stream of frames
+he will then pass this stream through a mapping function that extracts the value of the designated variable from each frame in the stream and feed the resulting stream of values to the accumulation function
+just as ben completes the implementation and is about to try it out cy walks by still puzzling over the wheel query result in exercise four point sixty five
+when cy shows ben the system's response ben groans oh no my simple accumulation scheme wo n't work
+what has ben just realized
+outline a method he can use to salvage the situation
+devise a way to install a loop detector in the query system so as to avoid the kinds of simple loops illustrated in the text and in exercise four point sixty four
+the general idea is that the system should maintain some sort of history of its current chain of deductions and should not begin processing a query that it is already working on
+describe what kind of information is included in this history and how the check should be made
+define rules to implement the reverse operation of exercise two point eighteen which returns a list containing the same elements as a given list in reverse order
+can your rules answer both and
+beginning with the data base and the rules you formulated in exercise four point sixty three devise a rule for adding greats to a grandson relationship
+this should enable the system to deduce that irad is the great grandson of adam or that jabal and jubal are the great great great great great grandsons of adam
+check your rules on queries such as and
+section four point four point two described how the query system works
+now we fill in the details by presenting a complete implementation of the system
+the driver loop for the query system repeatedly reads input expressions
+if the expression is a rule or assertion to be added to the data base then the information is added
+otherwise the expression is assumed to be a query
+the driver passes this query to the evaluator qeval together with an initial frame stream consisting of a single empty frame
+the result of the evaluation is a stream of frames generated by satisfying the query with variable values found in the data base
+these frames are used to form a new stream consisting of copies of the original query in which the variables are instantiated with values supplied by the stream of frames and this final stream is printed at the terminal
+here as in the other evaluators in this chapter we use an abstract syntax for the expressions of the query language
+the implementation of the expression syntax including the predicate assertion to be added and the selector add assertion body is given in section four point four point four point seven
+add rule or assertion is defined in section four point four point four point five
+before doing any processing on an input expression the driver loop transforms it syntactically into a form that makes the processing more efficient
+this involves changing the representation of pattern variables
+when the query is instantiated any variables that remain unbound are transformed back to the input representation before being printed
+these transformations are performed by the two procedures query syntax process and contract question mark
+to instantiate an expression we copy it replacing any variables in the expression by their values in a given frame
+the values are themselves instantiated since they could contain variables
+the action to take if a variable cannot be instantiated is given by a procedural argument to instantiate
+the procedures that manipulate bindings are defined in section four point four point four point eight
+the qeval procedure called by the query driver loop is the basic evaluator of the query system
+it takes as inputs a query and a stream of frames and it returns a stream of extended frames
+it identifies special forms by a data directed dispatch using get and put just as we did in implementing generic operations in chapter two
+any query that is not identified as a special form is assumed to be a simple query to be processed by simple query
+type and contents defined in section four point four point four point seven implement the abstract syntax of the special forms
+the simple query procedure handles simple queries
+it takes as arguments a simple query together with a stream of frames and it returns the stream formed by extending each frame by all data base matches of the query
+for each frame in the input stream we use find assertions to match the pattern against all assertions in the data base producing a stream of extended frames and we use apply rules to apply all possible rules producing another stream of extended frames
+these two streams are combined to make a stream of all the ways that the given pattern can be satisfied consistent with the original frame
+the streams for the individual input frames are combined using stream flatmap to form one large stream of all the ways that any of the frames in the original input stream can be extended to produce a match with the given pattern
+and queries are handled as illustrated in figure four point five by the conjoin procedure
+conjoin takes as inputs the conjuncts and the frame stream and returns the stream of extended frames
+first conjoin processes the stream of frames to find the stream of all possible frame extensions that satisfy the first query in the conjunction
+then using this as the new frame stream it recursively applies conjoin to the rest of the queries
+the expression
+sets up qeval to dispatch to conjoin when an and form is encountered
+or queries are handled similarly as shown in figure four point six
+the output streams for the various disjuncts of the or are computed separately and merged using the interleave delayed procedure from section four point four point four point six
+the predicates and selectors for the syntax of conjuncts and disjuncts are given in section four point four point four point seven
+not is handled by the method outlined in section four point four point two
+we attempt to extend each frame in the input stream to satisfy the query being negated and we include a given frame in the output stream only if it cannot be extended
+lisp value is a filter similar to not
+each frame in the stream is used to instantiate the variables in the pattern the indicated predicate is applied and the frames for which the predicate returns false are filtered out of the input stream
+an error results if there are unbound pattern variables
+execute which applies the predicate to the arguments must eval the predicate expression to get the procedure to apply
+however it must not evaluate the arguments since they are already the actual arguments not expressions whose evaluation will produce the arguments
+note that execute is implemented using eval and apply from the underlying lisp system
+the always true special form provides for a query that is always satisfied
+it ignores its contents and simply passes through all the frames in the input stream
+always true is used by the rule body selector to provide bodies for rules that were defined without bodies
+the selectors that define the syntax of not and lisp value are given in section four point four point four point seven
+find assertions called by simple query takes as input a pattern and a frame
+it returns a stream of frames each extending the given one by a data base match of the given pattern
+it uses fetch assertions to get a stream of all the assertions in the data base that should be checked for a match against the pattern and the frame
+the reason for fetch assertions here is that we can often apply simple tests that will eliminate many of the entries in the data base from the pool of candidates for a successful match
+the system would still work if we eliminated fetch assertions and simply checked a stream of all assertions in the data base but the computation would be less efficient because we would need to make many more calls to the matcher
+check an assertion takes as arguments a pattern a data object ( assertion ) and a frame and returns either a one element stream containing the extended frame or the empty stream if the match fails
+the basic pattern matcher returns either the symbol failed or an extension of the given frame
+the basic idea of the matcher is to check the pattern against the data element by element accumulating bindings for the pattern variables
+if the pattern and the data object are the same the match succeeds and we return the frame of bindings accumulated so far
+otherwise if the pattern is a variable we extend the current frame by binding the variable to the data so long as this is consistent with the bindings already in the frame
+if the pattern and the data are both pairs we ( recursively ) match the car of the pattern against the car of the data to produce a frame in this frame we then match the cdr of the pattern against the cdr of the data
+if none of these cases are applicable the match fails and we return the symbol failed
+here is the procedure that extends a frame by adding a new binding if this is consistent with the bindings already in the frame
+if there is no binding for the variable in the frame we simply add the binding of the variable to the data
+otherwise we match in the frame the data against the value of the variable in the frame
+if the stored value contains only constants as it must if it was stored during pattern matching by extend if consistent then the match simply tests whether the stored and new values are the same
+if so it returns the unmodified frame if not it returns a failure indication
+the stored value may however contain pattern variables if it was stored during unification
+the recursive match of the stored pattern against the new data will add or check bindings for the variables in this pattern
+for example suppose we have a frame in which x is bound to and y is unbound and we wish to augment this frame by a binding of x to
+we look up x and find that it is bound to
+this leads us to match against the proposed new value in the same frame
+eventually this match extends the frame by adding a binding of y to b
+x remains bound to
+we never modify a stored binding and we never store more than one binding for a given variable
+the procedures used by extend if consistent to manipulate bindings are defined in section four point four point four point eight
+if a pattern contains a dot followed by a pattern variable the pattern variable matches the rest of the data list just as one would expect with the dotted tail notation described in exercise two point twenty
+although the pattern matcher we have just implemented does n't look for dots it does behave as we want
+this is because the lisp read primitive which is used by query driver loop to read the query and represent it as a list structure treats dots in a special way
+when read sees a dot instead of making the next item be the next element of a list it makes the next item be the cdr of the list structure
+for example the list structure produced by read for the pattern could be constructed by evaluating the expression and that for could be constructed by evaluating the expression
+thus as pattern match recursively compares car s and cdr s of a data list and a pattern that had a dot it eventually matches the variable after the dot against a sublist of the data list binding the variable to that list
+for example matching the pattern against will match type against the list
+apply rules is the rule analog of find assertions
+it takes as input a pattern and a frame and it forms a stream of extension frames by applying rules from the data base
+stream flatmap maps apply a rule down the stream of possibly applicable rules and combines the resulting streams of frames
+apply a rule applies rules using the method outlined in section four point four point two
+it first augments its argument frame by unifying the rule conclusion with the pattern in the given frame
+if this succeeds it evaluates the rule body in this new frame
+before any of this happens however the program renames all the variables in the rule with unique new names
+the reason for this is to prevent the variables for different rule applications from becoming confused with each other
+for instance if two rules both use a variable named x then each one may add a binding for x to the frame when it is applied
+these two x's have nothing to do with each other and we should not be fooled into thinking that the two bindings must be consistent
+rather than rename variables we could devise a more clever environment structure however the renaming approach we have chosen here is the most straightforward even if not the most efficient
+here is the apply a rule procedure
+the selectors rule body and conclusion that extract parts of a rule are defined in section four point four point four point seven
+we generate unique variable names by associating a unique identifier with each rule application and combining this identifier with the original variable names
+for example if the rule application identifier is seven we might change each x in the rule to x seven and each y in the rule to y seven
+the unification algorithm is implemented as a procedure that takes as inputs two patterns and a frame and returns either the extended frame or the symbol failed
+the unifier is like the pattern matcher except that it is symmetrical variables are allowed on both sides of the match
+unify match is basically the same as pattern match except that there is extra code to handle the case where the object on the right side of the match is a variable
+in unification as in one sided pattern matching we want to accept a proposed extension of the frame only if it is consistent with existing bindings
+the procedure extend if possible used in unification is the same as the extend if consistent used in pattern matching except for two special checks marked *** in the program below
+in the first case if the variable we are trying to match is not bound but the value we are trying to match it with is itself a ( different ) variable it is necessary to check to see if the value is bound and if so to match its value
+if both parties to the match are unbound we may bind either to the other
+the second check deals with attempts to bind a variable to a pattern that includes that variable
+such a situation can occur whenever a variable is repeated in both patterns
+consider for example unifying the two patterns and in a frame where both x and y are unbound
+first x is matched against y making a binding of x to y
+next the same x is matched against the given expression involving y
+since x is already bound to y this results in matching y against the expression
+if we think of the unifier as finding a set of values for the pattern variables that make the patterns the same then these patterns imply instructions to find a y such that y is equal to the expression involving y
+there is no general method for solving such equations so we reject such bindings these cases are recognized by the predicate depends on
+on the other hand we do not want to reject attempts to bind a variable to itself
+for example consider unifying and
+the second attempt to bind x to y matches y against y
+this is taken care of by the equal clause of unify match
+depends on is a predicate that tests whether an expression proposed to be the value of a pattern variable depends on the variable
+this must be done relative to the current frame because the expression may contain occurrences of a variable that already has a value that depends on our test variable
+the structure of depends on is a simple recursive tree walk in which we substitute for the values of variables whenever necessary
+one important problem in designing logic programming languages is that of arranging things so that as few irrelevant data base entries as possible will be examined in checking a given pattern
+in our system in addition to storing all assertions in one big stream we store all assertions whose car s are constant symbols in separate streams in a table indexed by the symbol
+to fetch an assertion that may match a pattern we first check to see if the car of the pattern is a constant symbol
+if so we return all the stored assertions that have the same car
+if the pattern's car is not a constant symbol we return all the stored assertions
+cleverer methods could also take advantage of information in the frame or try also to optimize the case where the car of the pattern is not a constant symbol
+we avoid building our criteria for indexing into the program instead we call on predicates and selectors that embody our criteria
+get stream looks up a stream in the table and returns an empty stream if nothing is stored there
+rules are stored similarly using the car of the rule conclusion
+rule conclusions are arbitrary patterns however so they differ from assertions in that they can contain variables
+a pattern whose car is a constant symbol can match rules whose conclusions start with a variable as well as rules whose conclusions have the same car
+thus when fetching rules that might match a pattern whose car is a constant symbol we fetch all rules whose conclusions start with a variable as well as those whose conclusions have the same car as the pattern
+for this purpose we store all rules whose conclusions start with a variable in a separate stream in our table indexed by the symbol <>
+add rule or assertion is used by query driver loop to add assertions and rules to the data base
+each item is stored in the index if appropriate and in a stream of all assertions or rules in the data base
+to actually store an assertion or a rule we check to see if it can be indexed
+if so we store it in the appropriate stream
+the following procedures define how the data base index is used
+a pattern will be stored in the table if it starts with a variable or a constant symbol
+the key under which a pattern is stored in the table is either <> or the constant symbol with which it starts
+the index will be used to retrieve items that might match a pattern if the pattern starts with a constant symbol
+what is the purpose of the let bindings in the procedures add assertion and add rule
+what would be wrong with the following implementation of add assertion
+hint recall the definition of the infinite stream of ones in section three point five point two
+the query system uses a few stream operations that were not presented in chapter three
+stream append delayed and interleave delayed are just like stream append and interleave except that they take a delayed argument
+this postpones looping in some cases
+stream flatmap which is used throughout the query evaluator to map a procedure over a stream of frames and combine the resulting streams of frames is the stream analog of the flatmap procedure introduced for ordinary lists in section two point two point three
+unlike ordinary flatmap however we accumulate the streams with an interleaving process rather than simply appending them
+the evaluator also uses the following simple procedure to generate a stream consisting of a single element
+type and contents used by qeval specify that a special form is identified by the symbol in its car
+they are the same as the type tag and contents procedures in section two point four point two except for the error message
+the following procedures used by query driver loop specify that rules and assertions are added to the data base by expressions of the form
+here are the syntax definitions for the and or not and lisp value special forms
+the following three procedures define the syntax of rules
+query driver loop calls query syntax process to transform pattern variables in the expression which have the form symbol into the internal format
+that is to say a pattern such as is actually represented internally by the system as
+this increases the efficiency of query processing since it means that the system can check to see if an expression is a pattern variable by checking whether the car of the expression is the symbol <> rather than having to extract characters from the symbol
+the syntax transformation is accomplished by the following procedure
+once the variables are transformed in this way the variables in a pattern are lists starting with <> and the constant symbols are just the symbols
+unique variables are constructed during rule application by means of the following procedures
+the unique identifier for a rule application is a number which is incremented each time a rule is applied
+when query driver loop instantiates the query to print the answer it converts any unbound pattern variables back to the right form for printing using
+frames are represented as lists of bindings which are variable value pairs
+louis reasoner wonders why the simple query and disjoin procedures are implemented using explicit delay operations rather than being defined as follows
+can you give examples of queries where these simpler definitions would lead to undesirable behavior
+why do disjoin and stream flatmap interleave the streams rather than simply append them
+give examples that illustrate why interleaving works better
+why does flatten stream use delay explicitly
+what would be wrong with defining it as follows
+alyssa p
+hacker proposes to use a simpler version of stream flatmap in negate lisp value and find assertions
+she observes that the procedure that is mapped over the frame stream in these cases always produces either the empty stream or a singleton stream so no interleaving is needed when combining these streams
+a
+fill in the missing expressions in alyssa's program
+b
+does the query system's behavior change if we change it in this way
+implement for the query language a new special form called unique
+unique should succeed if there is precisely one item in the data base satisfying a specified query
+for example
+should print the one item stream
+since ben is the only computer wizard and
+should print the empty stream since there is more than one computer programmer
+moreover
+should list all the jobs that are filled by only one person and the people who fill them
+there are two parts to implementing unique
+the first is to write a procedure that handles this special form and the second is to make qeval dispatch to that procedure
+the second part is trivial since qeval does its dispatching in a data directed way
+if your procedure is called uniquely asserted all you need to do is
+and qeval will dispatch to this procedure for every query whose type is the symbol unique
+the real problem is to write the procedure uniquely asserted
+this should take as input the contents of the unique query together with a stream of frames
+for each frame in the stream it should use qeval to find the stream of all extensions to the frame that satisfy the given query
+any stream that does not have exactly one item in it should be eliminated
+the remaining streams should be passed back to be accumulated into one big stream that is the result of the unique query
+this is similar to the implementation of the not special form
+test your implementation by forming a query that lists all people who supervise precisely one person
+our implementation of and as a series combination of queries is elegant but it is inefficient because in processing the second query of the and we must scan the data base for each frame produced by the first query
+if the data base has n elements and a typical query produces a number of output frames proportional to n then scanning the data base for each frame produced by the first query will require n two / k calls to the pattern matcher
+another approach would be to process the two clauses of the and separately then look for all pairs of output frames that are compatible
+if each query produces n / k output frames then this means that we must perform n two / k two compatibility checks a factor of k fewer than the number of matches required in our current method
+devise an implementation of and that uses this strategy
+you must implement a procedure that takes two frames as inputs checks whether the bindings in the frames are compatible and if so produces a frame that merges the two sets of bindings
+this operation is similar to unification
+in section four point four point three we saw that not and lisp value can cause the query language to give wrong answers if these filtering operations are applied to frames in which variables are unbound
+devise a way to fix this shortcoming
+one idea is to perform the filtering in a delayed manner by appending to the frame a promise to filter that is fulfilled only when enough variables have been bound to make the operation possible
+we could wait to perform filtering until all other operations have been performed
+however for efficiency's sake we would like to perform filtering as soon as possible so as to cut down on the number of intermediate frames generated
+redesign the query language as a nondeterministic program to be implemented using the evaluator of section four point three rather than as a stream process
+in this approach each query will produce a single answer and the user can type try again to see more answers
+you should find that much of the mechanism we built in this section is subsumed by nondeterministic search and backtracking
+you will probably also find however that your new query language has subtle differences in behavior from the one implemented here
+can you find examples that illustrate this difference
+when we implemented the lisp evaluator in section four point one we saw how to use local environments to avoid name conflicts between the parameters of procedures
+for example in evaluating
+there is no confusion between the x in square and the x in sum of squares because we evaluate the body of each procedure in an environment that is specially constructed to contain bindings for the local variables
+in the query system we used a different strategy to avoid name conflicts in applying rules
+each time we apply a rule we rename the variables with new names that are guaranteed to be unique
+the analogous strategy for the lisp evaluator would be to do away with local environments and simply rename the variables in the body of a procedure each time we apply the procedure
+implement for the query language a rule application method that uses environments rather than renaming
+see if you can build on your environment structure to create constructs in the query language for dealing with large systems such as the rule analog of block structured procedures
+can you relate any of this to the problem of making deductions in a context as a method of problem solving

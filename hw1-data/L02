@@ -1,0 +1,592 @@
+hi
+you've seen that the job of a programmer is to design processes that accomplish particular goals such as finding the square roots of numbers or other sorts of things that you might want to do
+we haven't introduced anything else yet
+of course the way in which a programmer does this s by constructing spells which are constructed out of procedures and expressions and that these spells are uh somehow direct a process to accomplish the goal that was intended by the programmer
+in order for the programmer to do this effectively he has to understand the relationship between the particular things that he writes these particular spells and the behavior of the process that he's attempting to control
+so what we're going to do in this lecture is we're going to establish that connection is as clear a way as possible
+what we will particularly do is understand how particular patterns of procedures and expressions cause particular patterns of execution
+particular behaviors from the processes
+let's get down to that
+i'm going to start with a very simple program
+this is a program to compute the sum of the squares of two numbers
+and we'll define sum of the squares of x and y to be the sum of the square of x
+i'm going to write it that way and the square of y
+where where the square the square of x is the product of x and x
+now supposing i were to say something to this like to this system after having defined these things of the form the sum of the squares of three and four
+i am hoping that i will get out a twenty five because the square of three is nine the square of four is sixteen and twenty five is the sum of those
+well how does that happen
+if we're going to understand processes and how we control them then we have to have a mapping from the mechanism of this of this procedure into into the way in which these processes behave
+what we're going to have is a formal or semiformal mechanical model whereby you understand how a machine could in fact in principle do this whether or not the actual machine really does what i'm about to tell you is completely irrelevant at this moment
+in fact this is an engineering model
+in the a same way that electrical resistor we write down a model v equals i r it's approximately true
+it's not really true
+if i put enough current through the resistor it goes boom
+so it's the cur the voltage is not always proportional to the current
+but for some purposes the model is appropriate
+in particular the model we're going to describe now which i call the substitution model is the simplest model that we have for understanding how procedures work and how processes work okay how procedures yield processes and that substitution model will be accurate for most of the things we'll be dealing with in the next few days
+but eventually it will become impossible to sustain the illusion that that's the way the machine works and we'll go to other more more specific and particular models that will show more detail
+ok
+well the first thing of course is we say what are the things we have here
+we have some cryptic symbols
+and these cryptic symbols are made out of pieces
+they're kinds of expressions
+so let's write down here the kinds of expressions there are
+and we have and so far i see things like numbers i see things like symbols like that
+we have seen things before like lambda expressions but they're not here
+i'm going to lave them out
+lambda expressions
+we'll worry about them later
+things like definitions
+things like conditionals
+and finally things like combinations
+these kinds of expressions are i'll worry about later
+these are these are special forms
+they're particular rules for each of these
+i'm going to tell you however rules for doing the general case
+how does one evaluate a combination
+because in fact over here all i have are combinations and some symbols and numbers
+and the simple things like a number well it will evaluate to itself
+in the model i will have for you the symbols will disappear
+they they won't be there at the time when you need them when you need to get at them
+so the only thing i really have to explain to you is how do we evaluate combinations
+ok let's see
+so first i want to get first slide
+ok here is the rule for evaluating an application ok
+what we have is i a rule that says to evaluate a combination there are two parts three parts to the rule
+the combination has three has several parts
+it has operators and it has operands
+the operator re returns into a procedure
+if we evaluate the operator we will get a procedure
+and you saw for example how i'll type plus at the machine and out came compound procedure something or other
+ok
+and the operands produce arguments
+once we've gotten the operator to evaluated to get a procedure and the argument's evaluated to get arguments the operand's evaluated to get arguments we apply the procedure to the arguments by copying the body of the procedure which the expression that the procedure is defined in terms of
+it a what is it supposed to do
+substituting the argument supplied for the formal parameters of the procedure ok the formal parameters being the names defined by the declaration of the procedure then we evaluate the resulting new body the body result by resulting from copying the old body with the substitutions made
+ok
+it's a very simple rule
+and we're going to do it very formally for a little while because for the next few few lectures what i want you do is you say if i don't understand something if i don't understand something be very mechanical and do this
+so let's see
+let's consider our particular evaluations the one we were talking about before
+the sum of the squares of three and four
+ok
+well what does that mean
+it says take t well i can find out what sum of squares is it's some procedure
+and i'm not going to worry about the representation and i'm not going to write it on the blackboard for you
+and i have the three represent some number but i'm if i have to repeat repeat that number i can't tell you the number the number itself is some abstract thing
+there's a numeral which represents it which i'll call three and i'll use that in my substitution
+and four ok is also a number
+i'm going to substitute three for x and four for y in the body of this procedure that you see over here
+here's the body of the procedure it corresponds to this this combination which is an addition
+hm
+so what that reduces to as a reduction step we call it it's the sum of the square of three and the square of four
+now what's the next step i have to do here
+i say well i have to evaluate this
+according to my rule which you just saw on that sl overhead or slide ok
+what we had was that we have to evaluate the operands and here are the operands here's one and here's the next operand and we have to evaluate the procedure
+the order doesn't matter
+ok
+and then we're going to apply the procedure which is plus and magically somehow that's going to produce the answer because i'm not going to tell you i'm not going to open up plus and look inside of it
+however in order to evaluate the operand let's pick some arbitrary order and do them
+i'm going to go from right to left
+well in order to evaluate this operand i have to evaluate the parts of it by the same rule
+and the parts are i have to find out what square is it's some procedure which has a formal parameter x
+and also square the th i have an operand which is four ok which i have to substitute for x in the body of square
+so the next step is basically to say that this is the sum of the square of three and the product of four and four
+of course i could open up asterisk if i liked no the multiplication operation but i'm not going to do that i'm going to consider that primitive
+so and of course at any level of detail if you look inside this machine you're going to find that there's multiple levels below that that you don't know about
+ok
+but one of the things we have to learn how to do is ignore details
+under the the key to understanding complicated things to know what not to look at and what not to compute an what not to think
+so we're going to stop this one here and say oh yes this is the product of two things ok
+we're going to do it now
+so this is nothing more than the sum of square of three and sixteen and now i have another co another thing i have to evaluate
+but that square of three well it's the same thing that's the sum of the product of three and three and sixteen
+which is the sum of nine and sixteen which is twenty five
+so now you see the basic method of doing substitution
+and as i've i warn you that this is not a perfect description of what the computer does
+but it's a good enough description for the reasons for the problems that we're going to have in the next few lectures that you should think of this religiously
+ok
+this is how the machine works for for now
+later it will get more detailed
+ok
+now of course i made a specific choice of the order of evaluation here
+there are other possibilities
+if we go back to this to the telestrater here and look at the substitution rule we see that i evaluated the operator to get the procedures and i evaluated the operands to get the argument first before i do the application
+it's entirely possible and there are alternate rules called normal order evaluation whereby you can do the substitution of the expressions which are the are the operator operands for the formal parameters inside the body first
+and you'll get also the same answer
+but right now for concreteness and because this is the way our machine really does it i'm going to give you this rule which has a particular order
+but that order is to some extent arbitrary too
+in the long run in the long run there are some reasons why you might pick one order or another and we'll get to that later in this subject
+ok well now the only other thing i have to tell you about just to understand what's going on is let's look at the rule for conditionals
+conditionals are very simple and i'd like to examine this ok
+a conditional is something that has is if there's also cond of course but i'm going to give names to the parts of the expression
+there's a predicate which the thing that either true or false and there's a consequent which is the thing you do if the predicate is true and there's an alternative which is the thing you do if the predicate is false
+it's important by the way to get names for to get names for the parts of things or the parts of expressions
+one of the things that every sorcerer will tell you is if you have the name of a spirit you have power over it
+so you have to learn these names so that we can discuss these things ok
+so here we have a predicate a consequent and an alternative
+and using such words we see that an if expression the problems you evaluate to the predicate expression if that yields true then you then go on to evaluate the consequent otherwise you evaluate the alternative expression
+so i'd like to illustrate that now in the context of a particular of a particular uh little program
+going to write down a program which you're going to see many times
+this is the sum of x and y done by what's called piano arithmetic which is all we're doing is incrementing and decrementing
+and we're going to see this for a little bit
+it's a very important program
+if x equals zero then the result is y
+otherwise this is the sum of the decrement of x and the increment of y
+we're going to look at this a lot more in the in in the future
+let's look at the overhead
+so here we have this procedure and we're going to look at how we do the substitutions the sequence of substitutions
+ok
+well i'm going to try to add together three and four
+well using the first rule that i showed you we substitute three for x and four for y in the body of this procedure
+the body of the procedure is the thing that begins with if and finishes over here
+so what we get is of course if three is zero then the result is four
+otherwise it's the sum of the decrement of three and the increment of four
+but i'm not going to worry about these yet because three is not zero
+so the answer is not four
+therefore are this this this if reduces to an evaluation of the expression the sum of the decrement of three and the increment of four
+continuing with my evaluation the increment i presume to be primitive and so i get a five there ok
+and then the decrement is also primitive and i get a two
+and so i've changed the problem into a simpler problem
+instead of adding three to four ok i'm adding two to five
+the reason why this is a simpler problem is because i'm counting down on x and eventually then x will be zero
+so so much for the substitution rule
+in general i'm not going to write down intermediate steps when using substitutions having to do with ifs because they just expand things com to too complicated
+what we will be doing is saying oh yes the sum of three and four resu re results in the sum of two and five it reduces to the sum of two in five which in fact reduces to the sum of one and six which reduces to the sum of zero and seven over here which reduces to a seven
+ok
+and that's what we're going to be seeing
+are there any questions for the first segment yet
+yes
+uh you're using one plus and minus one plus are those primitive operations defined
+yes
+one of the things you're going to be seeing in this subject is i'm going to with without thinking about it introduce more and more primitive operations
+there's presumable some large library of primitive operations somewhere ok but it doesn't mater that they're primitive
+there may be some manual what lists them all
+if i tell you what they do you should say oh yes i know what they do
+so one of them is the decrementer minus one plus and the other operation's increment which is one plus
+thank you that's the end of the first segment
+all right
+now that we have a reasonably mechanical way of understanding how a uh program made out of procedures and ex expressions evolves a process
+i'd like to develop some intuition about how particular programs evolve particular processes what the shapes of programs have to be in order to get particularly shaped processes
+now this is a question about really pre visualizing as a word from photography
+i used to be interested in photography a lot and one of the things you discover when you start trying to learn about photography is that you say gee i'd like to be a creative photographer
+now i know the rules i push buttons and i adjust the aperture and things like that
+but the key to being a creative person partly is to be able to do analysis at some level to say
+how do i know what it is that i'm going to get on the film before i push the button
+can i imagine in my mind the resulting image very precisely and clearly
+ok
+as a consequence of the particular framing of the aperture i choose of the focus and thing like that
+that's part of the art of doing this sort of thing
+and a lot of that involves you learning a lot of that involves things like test strips
+you take very simple images that have varying degrees of density in them for example and examine what those look like on a piece of paper when you print them out
+you find out what is the range of contrasts that you can actually see
+and what in a real scene would correspond to the various levels and zones that you have of density in an image
+well today i want to look at some very particular test strips and i suppose one of them i see here is up on the telestrater so we should switch to that
+it is very important very important pair of programs understanding what's going on in the evolution of a process by the execution of a program
+what we have here are two procedures that are almost identical
+you almost no difference between them at all
+it's a few characters that distinguish them
+these are two ways of adding numbers together
+the first one which you see here ok
+the first one is the sum of two numbers just what we did before is if the first one is zero then the answer is the second one otherwise it's the sum of the decrement of the first and the increment of the second
+and you may think of that as being having two piles
+having two piles
+and the way i'm adding these numbers together to make a third pile is by moving marbles from one to the other
+nothing more than that
+and eventually when i run out of one then the other is the sum
+however the second procedure here doesn't do it that way
+it says if the first number is zero then the answer is the second otherwise it's the increment of the sum of the decrement of the first number and the second
+so what this says is add together the decrement of the first number and the second a simpler problem no doubt and then change that result to increment it
+and so this means that if you think about this in terms of piles it means that i'm holding in my hand the things to be added later and then i'm going to add them in as i've slowly decrease one pile to zero i've got what's left here and then i'm going to add them back
+two different ways of adding
+the nice thing about these two programs is that they're almost identical
+the only thing is where i put the increment
+a couple of characters moved around
+now i want to understand i want to understand the kind of behavior we're going to get from each of these programs
+just to get them firmly in your mind i i'm usually don't want to be this careful but just to get them firmly in your mind i'm going to write the programs again on the blackboard and i'm going to evolve a process
+and you're going to see what happens
+we're going to look at the shape of the process as a consequence of the program
+so the program we started with is this
+the sum of x and y says if x is zero then the result is y
+otherwise it's the sum of the decrement of x and the increment of y
+now supposing we wish to do this addition of three and four
+the sum of three and four
+well what is that
+it says though i have to substitute the arguments for the formal parameters in the body
+i'm doing that in my mind
+and i say oh yes three is substituted for x but three is not zero so i'm going to go directly to this part and write down the write down the simplified consequent here because i'm really interested in the behavior of addition
+well what is that
+that therefore turns into the sum of two and five
+in other words i've reduced this problem to this problem
+then i reduce this problem to the sum of one and six and then going around again once i get the sum of zero and seven
+and that's one where x equals zero so the result is y and so i write down here a seven
+so this is the behavior of the process evolved by trying to add together three and four with this program
+for the other program which is over here i will define the sum of x and y
+and what is it
+if x is zero then the result is y almost the same otherwise the increment of the sum of the decrement of x and y
+no
+i don't have my balance right in front of me
+ok well let's do it now
+the sum of three and four
+well this is actually a little more interesting
+of course three is not zero as before so the result that results in the increment of the sum of the decrement of x
+which is two and four which is the sum the increment of the sum of one and f whoops
+the increment of the increment
+what i have to do now is compute what this means
+i have to evaluate this
+oh but that is the result of sum taking two and four for x and y here oh but that is the increment of the sum of one and four which is well now i have to expand this
+ok
+ah but that's the increment of the increment of the increment of the sum of zero and four ok
+ah but now i'm beginning to find things i can do
+the increment of the increment of the increment of well the sum of zero and four is four
+the increment of four is five
+this is the increment of the increment of five which is the increment of six which is seven
+two different ways of computing sums
+now let's see
+these processes have very different shapes
+i want you to feel these shapes
+it's the feeling for these shapes that matters
+what's some things we can see about this
+well somehow this is sort of straight
+it goes this way straight
+this right edge doesn't vi vary particularly in size whereas this one i see that this thing gets bigger and then it gets smaller
+so i don't know what means yet but what are we seeing
+we're seeing here that somehow these increments are expanding out and then contracting back
+i'm building up a bunch of them to do later
+i can't do them now
+ok
+there's things to be deferred
+well let's see
+i can imagine an abstract machine there's some physical machine perhaps that could be built do it which in fact executes these programs exactly as i tell you substituting character strings in like this
+such a machine the number of such steps is an approximation of the amount of time it takes
+so this way is time
+and the and the width of the thing is how much i have to remember in order to continue the process this much is space
+and what we see here is a process that takes a time which is proportional to the argument x ok
+because if i made x larger by one then i'd have an extra line
+hm
+so this is a process which is space sorry time the time of this process is what we say order of x
+that means it's proportional to x by some constant of proportionality
+and i'm not particularly interested in what that constant is
+the other thing we see here is that the amount of space this takes up is constant
+it's proportional to one
+so the space complexity of this is order of one
+we have a name for such a process
+such a process is called an iteration
+and what matters here is not is not that some particular machine i designed here and talked to you about and called a substitution machine or whatever substitution model managed to do this in constant space
+what really matters is this tells us abound
+any machine could do this in constant space
+this algorithm represented by this procedure is executable in constant space
+now of course i'm ignor the model is ignoring some things standard sorts of things like numbers that are bigger take up more space and so in
+but that's a level of abstraction at which i'm cutting off
+how you represent numbers i'm considering every number to be the same size
+ok
+and numbers grow slowly in the amount of space they take up in their size
+now this algorithm is different in its complexity hm
+as we can see here this algorithm has a time complexity which is also proportional to the input argument x
+that's because if i were to add one to three if i add made a larger problem which is larger by one here then i'd add a line at the top and i'd add a line at the bottom
+and the fact is a constant amount mo like this is twice as many lines as that is not interesting at the level of detail i'm talking about right now
+so this is a time complexity order of the input argument x
+and space complexity well this is more interesting
+i happen to have some i happen to have some overhead which you see over here which is constant approximately
+constant overhead
+but then i have something which increases and decreases and it's proportional to the input argument x
+the input argument x is three that's why there are three def deferred increments sitting around here see
+so the space complexity here is also order x ok
+and this kind of process named for the kind of process this is a recursion
+a linear recursion i will call it because of the fact that it's proportional to the input argument in both time and space
+this could have been a linear iteration
+we say what's the essence of this matter
+ok this matter isn't so obvious
+maybe there are other models by which we can describe the differences between iterative and recursive processes because this is hard now
+remember we have those are both recursive definitions
+what we're seeing there are both recursive definitions definitions that refer to the thing being defined in the definition
+but they lead to different shaped processes
+and there's nothing special about a about the fact that definition is recursive that leads to a recursive process
+ok
+let's think of another model
+i'm going to talk to you about bureaucracy
+bureaucracy is sort of interesting
+here we see on the on a slide an iteration
+an iteration is sort of a fun kind of process
+imagine that there is fellow called g j a g j s that stands for me ok
+and he's got a problem
+he wants to add together three and four
+that's this fellow here wants to add together three and four
+well the way he's doing to do it he's lazy is he's going to find somebody else to help him do it
+they way he finds someone else to he finds someone else to help him do it and says well give me the answer to three and four and return the result to me
+he makes a little piece of paper and says here here's a piece of paper you'd solve this problem and give the result back to me
+ok
+now this guy of course is lazy too
+he doesn't want to see this piece of paper again
+mm hmm
+he says oh yes produces a new problem which is the sum of two and five and reser turn the result back to g j s
+i don't want to see it again
+this guy does not want to see this piece of paper
+ok
+and then this fellow gives the gives the uh makes a new problem which is the addition of sum of one and six and he says well he gives it to this fellow and says produce it produce that answer and return it to gjs
+and then that produces a problem which is to add together zero and seven and put the re give the result to gjs
+this fellow finally just says oh yeah the answer is seven and sends it back to gjs
+that's what iteration is
+by contrast a recursion is a slightly different kind of process
+hm
+this one involves more bureaucracy
+it keeps more people busy
+it keeps more people employed
+perhaps it's better for that reason
+but here it is i want the answer to the problem three and four so i give a make a piece of paper that says give the result back to me
+give it to this fella
+this fella says oh yes i will remember that i have to add later and i want to get the answer to the problem two plus four give it to give it to ha uh give that one to harry and have the result sent back to me i'm joe
+when the answer comes back from harry which is a six i will then do the increment and give that seven back to gjs
+so there are more pieces of paper outstanding in the recursive process than the iteration
+there's another way to think about what an iteration is and the difference between iteration and recursion
+you see the question is how much stuff is under the table
+something if i were to stop supposing i were to kill this computer right now ok
+and at this point i lose its lose the state of affairs
+ok
+well i can continue the computation from this point because everything i need to continue the computation is in the variables that were defined in the procedure that the the programmer wrote for me
+an iteration is a system that has all of its state in explicit variables
+whereas the recursion is not quite the same
+if i were to lose this pile of junk over here and all i was left with was the sum of one and four that's not enough information to continue the process of computing out the seven from the original problem of adding together three and four
+besides the in the the information that's in the variables of the the the formal parameters of the program there is also information under the table belonging to the computer which is what things have been deferred for later
+and of course uh there's a physical analogy to this which is in uh in differential equations for example when we talk about something like drawing a circle ok
+try to draw a circle
+you make that out of a differential equation which says the change in my state as a function of my current state
+so if my current state corresponds to particular values of y and x then i can compute from them a derivative which says how the state must change
+hm
+and in fact this you can see that this chan draws a circle because uh if the if i happen to be say at this place over here at at uh at one zero for example on this graph
+then it means that the derivative of derivative of a y is x which we see over here that's one so i'm going up and the derivative eh of the x is minus y which means i'm going backwards
+ok
+i'm actually doing nothing at this point then i start going backwards like that as x increa as y increases
+so this is the how that's how you make a circle and the interesting thing to see is a little a little program that will draw a circle by this method
+actually this won't draw a circle because it's a forward euler integrator and will eventually spiral out and all that
+but all big draw a circle before it starts spiraling ok
+however what we see here is two state variables x and y
+and there's an iteration that says in order to circle given an x and y what i want to circle with the next values of x and y being the old value of x decremented by y times d t where d t is the time step
+and uh and the old value of y being incremented by x times d t giving me the new values of x and y
+so now you have a feeling for at least two different kinds of processes that can be evolved by almost the same program
+and with a little bit of perturbation analysis like this how you change a program a little bit and see how the process changes that's how we get some intuition
+pretty soon we're going to use that intuition to build big hairy complicated systems
+thank you
+well you've just seen simple perturbational analysis of some programs
+i took a program that was very similar to another program and looked at them both and saw how they evolved processes
+wanna should give you some variety by showing you some other processes and shapes they may they may have
+again we're going to take very simple things programs that you wouldn't want to ever write they would be the probably the worst way of computing some of the things we're going to compute
+well i'm just going to show you these things for the purpose of feeling out what a program how a program represents itself as the rule for the eva the evolution of a process
+so let's consider a a a fun thing the fibonacci numbers
+you probably know about the fibonacci numbers
+uh somebody i can't remember who uh was interested in the in the growth of piles of rabbits and for some reason or other they the piles of rabbits tend to grow exponentially as we know
+and we have a nice model for this process is that we start with two numbers zero and one and then every number after this is the sum of the two previous
+so we have here a one then the sum of these two is two the sum of those two is three the sum of these two is five the sum of those two is eight the sum of those two is thirteen
+this is uh twenty one thirty four fifty five et cetera
+if we start numbering these numbers say this is the zeroth one and the first one and the second one and the third one and fourth one et cetera this is the tenth one the tenth fibonacci number
+these numbers grow very fast see
+just like rabbits
+why rabbits grow this way i'm not going to hazard a guess
+now i'm going to try to write for you the very simplest program that computes fibonacci numbers
+it's uh what i want is a program that given an n will produce for me fibonacci of n
+ok
+i'll write it right here
+i want the fibonacci of n which means the this is the n and this fibonacci of n and here's the con story
+if n is less than two then the result is n because that's what these are
+that's how you start it up
+otherwise the result is the sum of fib of n minus one
+and the fibonacci number n minus two
+right
+so this is a very simple direct specification of the description of fibonacci numbers that i gave you when i introduced those numbers
+they represent the recurrence relation in the simplest possible way
+now how do we use such a thing
+let's draw this process
+let's figure out what this does
+let's consider something very simple by computing fibonacci of four
+to compute fibonacci of four what do i do
+well it says i have it's not less than two
+therefore it's the sum of two things
+well in order to compute that i have to compute then fibonacci of three and fibonacci of two
+hm
+in order to compute fibonacci of three i have to compute fibonacci of two and fibonacci of one
+in order to compute fibonacci of two i have to computer fibonacci of one and fibonacci of zero
+in order to compute fibonacci of one well the answer is one that's from the from the base case of this recursion
+and in order to compute fibonacci of zero well that answer is zero from the same base case
+and here a one and fibonacci of two is really the sum of fibonacci of one an fib of zero and in order to compute that i get a one and here i've got a zero
+i've built a tree
+now we can observe some things about this tree
+we could see why this is an extremely bad way to compute fibonacci numbers
+because in order to compute fibonacci of four i have to computer fibonacci of two sub tree twice
+ok
+in fact in order to add one more supposing i want to do fibonacci of five what i really have to do then is compute fibonacci of four plus fibonacci of three but fibonacci of three sub tree has already been built
+ok
+this is a pre prescription for a process that's exponential in time
+to add one i have to multiply by something because i take a proportion of the existing thing and add it to itself
+to add one more step
+so this is a thing whose time complexity is order of actually it turns out to be fibonacci of n
+this is a thing that grows exactly as fibonacci numbers
+it's a horrible thing
+you wouldn't want to do it
+the reason why the time has to grow that way is because we're presuming in the model the substitution model that i gave you which i'm not giving formally here
+i so as now spit it out in a simple way but presuming that everything is done sequentially that every one of these nodes in this tree has to be examined
+ok
+and so since the number of nodes in this tree grows exponentially because i add a proportion of the existing nodes to the nodes i already have to add one then i've already then i know i've got an exponential explosion here
+now let's see if we can think of how much space this takes up
+well it's not so bad
+it depends upon how much we have to remember in order to continue this thing running
+well that's not so hard
+it says gee in order to know where i am in this tree i have to have a path back to the root
+in other words in order to look consider the path i would have to execute this
+i say oh yes i'm going to down here i don't care which direction i go i have to x of it do this i have to then do this i have to traverse this tree in this sort of funny way so i'm going to walk this nice little path i come back to here
+well i've got to remember where i'm going to be next
+got to keep that in mind
+so i have to know what i've done i have to know what's left
+in order to compute fibonacci the number fibonacci of four at some point i'm going to have to be down here
+and i remember i have to remember that i have to go back to here and then go back to there and do an addition and then go back to here and do an addition it's something i haven't touched yet
+the amount of space that takes up is the path the longest path
+now how how long it is
+and that grows as n
+so the space because that's the length of the deepest through the line through the tree
+space is order of n
+it's a pretty bad process
+now one thing i want you to see from this is a feeling of what's going on here
+why are there how is this program related to this process
+well what are we seeing here
+there really are only two sorts of things this program does
+this program consists of two rules if you will
+one rule that says fibonacci of n is the sum of which you see over here which is a node that shapes like this
+it says that i break up something into two parts
+under one some condition under some condition over here if n is greater than two ok
+then the node breaks up into two parts
+less than two
+no greater than two
+yes
+the other possibility is i'd have a reduction that looks like this ok
+and that's this case
+if it's less than two the answer is n itself
+so what we're seeing here is that the process that got built locally at every place is an instance of this rule
+here's once instance of the rule
+here's another instance of the rule
+and the reason why people think of programming as being hard of course if because you're writing down a general rule which is going to be used for lots of instances that a particular instance is that each particular is to control each particular instance for you right
+you've got to write down something that's uh general and in terms of variables and you have to think of all the things that could possibly fit in all of those variables and all of those have to lead to the process you want to li to work
+locally you're you have to break up your process into things that can be represented in terms of these very specific local rules
+well let's see
+fibonacci's is of course not much fun
+yes they are
+you get something called the golden ratio and and maybe you'll see a lot of that some time
+but let's talk about another thing
+there is a uh a famous game called the towers of hanoi because i want to teach you have to think about things recursively
+the problem is is this one
+ok
+i have a bunch of discs and i have bunch of spikes
+and it's rumored that somewhere in the orient there is a sixty four high tower and the job of various monks or something is to move these spikes in some complicated pattern so eventually they'll eventu these discs so eventually i move all of the all of the uh discs from one spike to the other
+and if they're sixty four high and gonna take two to the sixty fourth moves than it's a long time
+the claim that the universe ends when when this is done
+but let's see
+the way in which you would construct a recursive process is by wishful thinking
+you have to believe ok
+so the idea supposing i want to move this pile from here to here
+from spike one to spike two
+ok
+well that's not so hard
+see supposing somehow by some magic because i've got a simpler problem i move the three high pile to here
+i can only move one disc at a time so i donify you how i did it
+but supposing i could do that ok
+well then i could just pick up this disc and move it here and now i have a fa simple problem
+i have to move a three high tower to here
+this is no problem
+so by two moves of a three ma high tower plus one move of a single object i can move the tower from here to here
+now whether or not this is it's not obvious in any deep way that this works
+and why
+you know why is it the case that i can presume maybe that i can move the three high tower
+hmmm
+well the answer is because i'm always counting down
+and eventually i get down to a zero high tower and a zero high tower requires no moves
+so let's write the algorithm for that
+it's very easy
+i'm going to ne label these towers with numbers but it doesn't matter what they're labels with
+and the problem is to move an n high tower from a a spike called from to a spike called to with a particular spike called spare
+that's what we're going to do
+using the using the algorithm i had formerly described to you move of an n high tower from from to to with a spare
+well i've got two cases
+and this is a case analysis just like it is in in all the other things we've done
+if n is zero then i'm going to put out some answers done we'll say
+but i don't know what that means ok
+because we'll never use that answer for anything
+we're going to do these moves
+else i'm going to do a move move a tower of height less than n the decrement of n height
+now i'm going to move it to the spare tower
+the whole idea now is to move this from here to here to the spare tower so from from to spare using to as a spare tower
+ok
+later somewhere later i'm going to move that same n high tower after i've done this
+i'm going to move than same n minus one high tower from the spare tower to the to tower using the from tower as my spare
+ok
+so i the spare tower to the to tower using the from as a spare
+right
+all i have to do now is when i've gotten into this condition between these two moves of the whole tower if i've got it into that condition now i just have to move one one one disc
+ok
+so i'm going to say to you some things are printing a move and i don't care how it works
+from to to
+now you see the reason why i'm bringing this up at this moment is this is a almost identical program to this one in some sense right
+it's not computing the same mathematical quantity it's not exactly the same tree but it's going to produce a tree
+the general way of making these moves is going to lead to a lead to an exponential tree
+well let's do this four high ok
+now i have my little crib sheet here otherwise i get confused
+well what i'm going to put in is the question of move the tower of height four from one to spike two using spike three as a spare
+that's all i'm really going to do
+and let's let's just do it i'm not going to worry about writing the trace of this you can do that yourself ok
+but it's very simple
+i'm going to move disc one to disc three
+and how did i get to move disc one to disc three how do i know that
+well i suppose i have to look at the trace a little bit ok
+what am i doing here
+well i mean this is not n is not zero
+so i'm going to look down here
+this is going to require doing two moves
+i'm only going to look at the first one
+it's going to require moving now why do i have move tower it makes it harder for me
+move ok
+i'm going to move a three high tower from the from d the from place which is four to the spare which is two using three as my
+no using using uh from yes i'm sorry ok
+from two from one to one to three using two as my spare that's right
+ok
+and then there's another move over here afterwards
+ok
+but now i say oh yes that requires moving a two high tower from one to two using three as a spare
+i took all the sayings
+and that's going to require me moving a one high tower from one to three using two as a spare
+right
+well i meant there's lots of other things to be done
+so i moved my one high tower ok from one to three using two as a spare which i didn't do anything with
+well this thing just proceeds very simply
+um i move a disc from one to two then i move this disc from three to two ok
+and i don't really want to do it but i move from one to three then i move uh two to one all right
+then i move two to three then uh one to three one to two ok
+three to two three to one uh all this got worked out beforehand of course two to one uh three to two uh one to three ok
+oh one to three excuse me thank you
+one to two
+ok
+and then three to two
+whew
+now what i'd like you to think about ok
+you just saw a recursive algorithm for doing this and it takes exponential time of course
+now i don't know if there's any algorithm that doesn't take exponential time it has to
+if i'm doing one operation and i can only move one thing at a time there's no algorithm that's not going to take exponential time
+but can you write an iterative algorithm rather than a recursive algorithm for doing this
+one of the little sort of things i'd like you to think about ok
+can you write one can you write one that in fact is doesn't doesn't break this problem into sub problems the way i described but rather proceeds step a step at a time using a a more local rule
+ok
+that might be fun
+thank you so much for the third segment
+are there questions
+what's a simpler way to uh reduce the two year recursion problem
+how do you save immediate work we have done in computing the fibona
+oh well that's in fact one way that's one of the ways to do it is what you just said
+you said i save the intermediate work
+ok
+well um let me tell you this again we'll se later but suppose it's the case that any time i compute anything any one of these fibonacci numbers i remember the table it takes only linear time to look up the answer
+then if i ever see it again instead of doing the expansion to the tree i look it up
+i've just transformed my problem into a problem that's much simpler
+now of course there are other ways to do this as well
+that was called memorization you'll see it some time later in this term
+but um i suppose there is a very simple linear time and in fact iterative model for computing fibonaccis and that's another thing you should sit down and work out
+ok
+that's important
+it's important to see how to do this
+i want you to practice

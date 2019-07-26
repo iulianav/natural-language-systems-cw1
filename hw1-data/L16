@@ -1,0 +1,602 @@
+all right well we've seen how the uh query language works
+now let's talk about how it's implemented
+and you already pretty much can guess what's going on there
+at the bottom of it there's a pattern matcher
+and we looked at a pattern matcher when we did the rule based uh control language
+just to remind you here's some sample patterns
+right this is a pattern that will match any list of three things of which the first is a and the second is c and the middle one can be anything
+so in this little pattern matching syntax there's only one distinction you make
+there's either literal things or variables and variables begin with question mark
+right so this matches any list of three things of which the first is a and the second is c
+this one matches any list of three things of which the first is the symbol job the second can be anything and the third is a list of two things of which the first is the symbol computer and the second can be anything
+and this one this next one matches any list of three things and the only difference is here the third list the first is the symbol computer and then there's some rest of the list
+so this means two elements and this means arbitrary number
+and our language implementation isn't even going to have to worry about implementing this dot because that's automatically done by lisp's reader
+remember matches also have some consistency in them
+this matches a list of three things of which the first is a and the second and third can be anything but they have to be the same thing
+they're both called x
+and this matches a list of four things of which the first is the fourth and the second's the same as the third
+and this last one matches any list that begins with a and the first thing is a and the rest can be anything
+all right
+so that's just a review of pattern matcher syntax that you've already seen
+and remember that's implemented by some procedure called match and match takes a pattern and some data and a dictionary
+and what match match asks the question is there any way to match the patt this pattern against this data object subject to the bindings that are already in this dictionary
+so for instance if we're going to match the pattern x y y x against the data a b b a subject to a dictionary that says x equals a then the matcher would say
+yes that's consistent these match and it's consistent with what's in the dictionary to say that x equals a and the result of the match is the extended dictionary that says x equals a and y equals b
+so a matcher takes in pattern data dictionary puts out an extended dictionary if it matches or if it doesn't match says that it fails
+so for example if i used the same pattern here if i say does x y y x match a b b a
+with the dictionary uh y equals a then the matcher would put out fail
+ok
+well you've already seen the code for a pattern matcher so i'm not going to go over it but it's the it's the same thing we've been doing before
+right so y you saw that in the system on rule based control it's essentially the same matcher
+in fact i think the the syntax is a little bit simpler because we're not worrying about arbitrary constants and expressions and things
+there's just variables and constants
+ok well given that what's a primitive query
+a primitive query is going to be a rather complicated thing
+it's going to be let's think about the query uh job of x is d dot y
+that's a query we might type in
+that's going to be implemented in the system so we'll think of it as this little box
+here's the primitive query
+and what this little box is going to do is take in two streams and put out a stream
+so the shape of a primitive query is that it's a thing where two streams come in and one stream goes out
+what these streams are going to be is down here is the database
+so we imagine all of the things in the database sort of sitting there in a stream and this thing sucks on them
+so what are some things that might be in the database
+oh uh the job of the job of alyssa is something and some other job is something
+so imagine all of the facts in the database sitting there in the stream
+and that's what comes in here
+what comes in here is a stream of dictionaries
+so one particular dictionary might say uh might say y equals programmer
+now what the query does when it gets in a dictionary from this stream it finds all possible ways of matching the query against whatever's coming in from the database
+it looks at the query as a pattern matches it against any fact from the database or all fa all possible ways of of finding a match in the database with respect to this dictionary that's coming in
+so for for each fact in the database it calls the matcher using the pattern diction pattern fact and dictionary and every time it gets a good match it puts out the extended dictionary
+so for example if this one comes in and it finds a match out will come a dictionary that in this case'll have gee y equals programmer and x equals something
+all right y is programmer x is something and d is whatever it found and that's all
+and of course it's going to try this for every fact in the dictionary so it might find lots of them
+it might find another one that says y equals programmer and x equals and d equals
+ok
+so that's so for one frame coming in it might put out for one dictionary coming in it might put out a lot of dictionaries
+or uh it might put out none
+right it might have something that wouldn't match like uh x equals foo
+that this one might not match anything in which case nothing will go into this stream corresponding to this frame
+or what you might do is put in an empty frame and an empty frame says try matching all ways find all possible ways of matching the query against something in the database subject to no previous restrictions
+and if you think about what that means that's just the computation that's done when you type in a query right off
+it tries to find all matches
+so a primitive query sets up this mechanism and what the language does when you type in a query at the top level it takes this mechanism feeds in one single empty dictionary
+and then for each thing that comes out takes the original query and instantiates the result with all the different dictionaries producing a new stream of of instantiated patterns here
+and that's what gets printed on the terminal
+right so that's the basic that's the basic mechanism going on there
+well why is that so complicated
+probably can think of a lot a lot simpler ways to arrange this match for a primitive query rather than having all of these streams floating around
+and the answer is you probably guess already the answer is it this thing extends elegantly to uh implement the means of combination
+so for instance suppose i don't only want to do this
+i don't want to say who uh give me everybody's job description
+suppose i want to say i want to say and the job of x is d dot y and the supervisor of x is z
+now supervisor of x is z is going to be another primitive query that has the same shape
+it's going to take in a stream of data objects a stream of initial dictionaries which are the restrictions to try and use when you match and it's going to put out a stream of dictionaries
+so that's what this primitive query looks like
+and how do i implement the and
+well it's simple
+i just hook them together
+i take the output of this one and i put that to the input of that one and i take the dictionary here and i fan it out
+and then you see how that's going to work because what's going to happen is a frame will now come in here which has a binding for x y and d and then when this one gets it it'll say
+oh gee subject to these restrictions which now already have values in the dictionary for y and x and d it looks in the database and says gee can i find any supervisor facts
+and if it finds any out will come dictionaries which have bindings for y and x and d and z now
+and then notice that the mat the w because the frames coming in here have these restrictions that's the thing that assures that when you do the and this x will mean the same thing as that x
+because the time by the time something comes floating in here x has a value that you have to match against consistently
+and then you remember from the code from the matcher there was something in the way the matcher did dictionaries that arranged consistent matches
+so there's and
+the important point to notice is the general shape
+see look at what happened
+the and of two queries say p and q
+here's p and q
+the and of two queries well it looks like this
+each query takes in a stream from the database a stream of inputs and puts out a stream of outputs
+and the important point to notice is that if i draw a box around this thing and say this is and of p and q then that box has exactly the same overall shape
+right it's something that takes in a stream from the database see where it's going to get fanned out inside but from the outside you don't see that it takes an input stream and it puts out an output stream
+right so this is and
+and then similarly or would look like this
+or would although i didn't show you examples of or or would say can i find all ways of matching p or q
+so i'll have p and q
+each'll have their shape
+and the way or is implemented is i'll take my database stream i'll fan it out i'll put one into p and one into q
+i'll take my initial query stream coming in and fan it out
+so i'll get look at all the answers i might get from p and all the answers i might get from q and i'll put them through some sort of thing that appends them or merges the result into one stream
+and that's what'll come out
+and this whole thing from the outside is or
+and again you see it has the same overall shape when looked at from the outside
+ok
+what's not
+not works kind of the same way
+if i have some query p some right if i have p i take the i take the primitive query for p here i'm going to implement not p
+and not's just going to act as a filter
+i'll take in the database and my original my stream of dictionaries coming in and what not p will do is it will filter it'll filter these guys
+and the way it'll filter it it'll say when i get in a dictionary here i'll find all the matches and if i find any i'll throw it away
+and if i don't find any matches to something coming in here i'll just pass that through
+so not is a pure filter
+all right
+so and is if you think of these sort of uh electrical resistors or something and is is series combination and or is parallel combination and then not is not going to extend any dictionaries at all
+it's just going to filter out
+it's going to throw away the ones for which it finds finds a way to match
+and lisp value is sort of the same way the filter's a little m more complicated it applies the predicate
+ok
+the major point to notice here and it's a major point we've looked at before is this idea of closure
+right
+the things that we build as means of combination have the same overall structure as the primitive things that we're combining
+so the and of two things when looked at from the outside has the same shape and what that means is that this box here could be an an and or an or or a not or something because it has the same shape to interface to the things to the larger things
+right it's the same thing that allowed us to get complexity in the escher picture language or allows you to immediately build up these complicated structures just out of pairs right
+it's closure
+right and that's the thing that allowed me to do what by now you took for granted when i said gee there's a query which is and of job and salary and i said oh there's another one which is and of job of sal and not of something
+and the fact the fact i could do that is a direct consequence of this closure principle
+ok
+let's break and then we'll go on
+where does the dictionary come from
+the dictionary comes initially from what you type in so when you start this up the first thing it does it's set up this whole structure it puts in one empty dictionary
+and if all you have is one primitive query then what'll come out is a bunch of dictionaries with things filled in
+the general situation that i have here is when this is in the middle of some nest of comp combined things
+so by the time let's look at the picture over here this supervisor query gets in some dictionary where did this one come from
+this dictionary came from the fact that i'm looking at the output of this primitive query
+so maybe to be very specific if i literally typed in just this query at the top level this and what would actually happen is it would build this structure and start up this whole thing with one empty dictionary
+and now this one would process and a whole bunch of dictionaries would come out with x ys and and ds in them
+run it through this one so now there's this str that's the input to this one this one would now put out some other stuff
+and if this itself were buried in some more some larger thing like a like an or of something then that would go go feed into the next one
+so the so you initially get only one empty dictionary when you start it but as you're in the middle of processing these compound things that's where these cascades of dictionaries start getting generated
+dictionaries only result uh uh or come about as a result of using the queries
+or do they stay s do they become they stay someplace in in space like the database does
+are these temporary items
+they're created temporarily in the matcher where they they're someplace in storage
+initially someone creates a thing called the empty dictionary that gets initially fed to this match procedure and then the match procedure builds some dictionaries and they get passed on and on
+ok so they'll go away after the match
+they'll they'll go away when no one needs them again yeah
+um it appears that the and performs some redundant searches of the database
+if the first clause matched on say the third element and not on the first two elements the second the second clause is going to look at those first two elements again discarding them because they don't match the matches already in the dictionary
+would it make sense to carry the data element from the database along with the dictionary
+yeah
+yeah there are well in general there are other ways to arrange this search
+and there's some analysis that you can do
+i think there's a problem in the book which talks about a different way that you can cascade and to eliminate various kinds of redundancies
+this one is meant to be was mainly meant to be very simple so you can see how they fit together
+but you're quite right there're redundancies here that you can get rid of
+that's that's another reason why this language is somewhat slow
+there're a lot smarter things you can do
+we're just trying to show you a very simple in principle implementation
+did you model this language on prolog or did it just come out looking like prolog
+well
+well gerry insulted a whole bunch of people yesterday so i might as well say that the mit attitude towards prolog is something that people did in about 1971 and decided that it wasn't really the right thing and stopped
+so we we modeled this on on the uh the sort of natural way that this thing was done in about 1971 except at that point we didn't do it with streams
+and then we after we were using it for about six months we discovered that it had all these problems some of which i'll talk about later and we said gee prolog must have fixed those and then we found out that it didn't
+so this does about the same thing as prolog
+does prolog use streams
+no
+prolog in the speci in what it how it behaves it behaves a lot like prolog
+prolog uses a backtracking strategy
+but the other thing that's really good about prolog that makes it a usable thing is that there's a really very very you know there's a very very well engineered compiler technology that makes it run fast
+so although you saw the merge you know spitting out these answers very very slowly a real prolog will run very very fast because even though it's sort of doing this what the real work that went into prolog is you know a very very excellent compiler effort
+all right let's take a break
+we've looked at the primitive queries and the ways that streams are used to implement the the means of combination right and and or and not
+now let's go on to the means of abstraction
+remember those the means of abstraction in this language are rules
+so z is a boss in division d if there's some x who has a job in division d and z is the supervisor of x
+right that's what it means for someone to be a boss
+so and and in effect if you think about what we're doing with relation to this there's the query we wrote the job of x is in d and the supervisor of x is in is z
+what we in effect want to do is take this whole mess and draw a box around it and say this whole thing right inside the box is boss of z in division d
+that's in effect what we want to do
+so for instance if we've done that and we want to check whether or not it's true that ben bitdiddle is a boss in the computer division so if i want to say boss boss of ben bitdiddle in the computer division imagine typing that in as a query to the system
+in effect what we want to do is set up a dictionary here which has z bound to ben bitdiddle and d bound to computer
+right
+where'd that dictionary come from
+let's look at the slide for one second
+that dictionary came from matching the query that said boss of ben bitdiddle in computer onto the conclusion of the rule boss of z in d
+right so we match the query to the conclusion of the rule
+that gives us a dictionary
+and that's the thing that we would now like to put into this whole big thing and process and see if anything comes out the other side
+and if anything comes out right it'll be true
+that's the basic idea
+so in general the way we implement a rule is we match the conclusion of the rule against something we might want to be check it's true
+that match gives us a dictionary and with respect to that dictionary we we process the body of the rule
+ok
+well that's really all there is except for well except for two technical points
+right the first technical point is that i might have said something else
+i might have said who's a boss in the computer division
+so i might say boss of who in computer division
+and if i did that what i would really like to do in effect is not is start up this dictionary with a match that sort of says well d is computer and z is whatever who is
+and our matcher won't quite do that
+that's not quite matching a pattern against data
+it's matching two patterns and sort of saying are they consistent or not
+or what ways make them consistent
+in other words what we need is not quite a pattern matcher but something a little bit more general called a unifier
+and a unifier is a slight generalization of a pattern matcher
+what a unifier does is take two patterns and say what's the most general thing you can substitute for the variables in those two patterns to make them satisfy the pattern simultaneously
+let me give you an example
+if i have the pattern two element list which is x and x so this says i have a two element list where both elements are the same and otherwise i don't care what they are and i unify that against the pattern that says there's a two element list and the first one is a and something and c and the second one is a and b and z
+then what the unifier should tell me is oh yeah in that dictionary x has to be a b c and y has to be b and z has to be c
+those are the restrictions i'd have to put on the values of x y and z to make these two unify
+or in other words to make this match x and make this ma and make this match x
+so the unifier should be able to deduce that
+but the unifier may right there're more complicated things
+i might have said something a little bit more complicated
+i might have said there's a list with two elements and they're both the same and they should unify against something of this form and the unifier should be able to deduce from that right that y would have to be b y would have to be b because these because these two are the same so y's got to be b and v here would have to be a and z and w can be anything but they have to be the same thing and x would have to be b followed by a followed by whatever w is or whatever z is which is the same
+so you see the unifier somehow has to deduce things to unify these patterns
+so you might think there's some kind of magic deduction going on but there's not
+a unifier is basically a very simple modification of a pattern matcher and if you look in the book you'll see something like like three or four lines of code added to the pattern matcher you just saw to handle the symmetric case
+you remember the pattern matcher mi has a place where it says is this variable matching a constant
+and if so it checks in the dictionary
+there's only one other clause in the unifier which says is this variable matching a variable
+in which case you go look in the dictionary and see if that's consistent with what's in the dictionary
+so all the the quote deduction that's in this language if you sort of look at it sort of sits in the rule applications which if you look at that sits in the unifier which if you look at that under a microscope sits essentially in the pattern matcher
+there's there's no magic at all going on in there
+and the the quote deduction that you see is just the fact that there's this recursion which is unwinding the the matches bit by bit
+so it looks like this thing is being very clever but in fact it's not being very clever at all
+there are cases where a unifier might have to be clever and let me show you one more
+suppose i said suppose i want to unify a list of two elements x and x with a thing that says it's y followed by a dot y
+now if you think of what that would have to mean it would have to mean that x had better be the same as y but also x had better be the same as a list whose first element is a and whose rest is y
+and if you think about what that would have to mean it would have to mean that y is the infinite list of as
+in some sense in order to s in order to do that unification i have to solve the fixed point equation uh cons of cons of a to y is equal to y
+and in general i wrote a very simple one really doing unification might have to solve an arbitrary fixed point equation f of y equals y
+and basically you can't do that and make the thing finite all the time
+so how does how does the logic language handle that
+uh the answer is it doesn't
+it just punts
+and there's a little check in the unifi in the unifier which says oh is this one of the hard cases which when i go to match things would involve solving a fixed point equation
+and in this case i will throw up my hands
+and if th if that check were not in there what would happen in most cases is that the unifier would just go into an infinite loop
+and uh other logic programming languages work like that
+so there's really no magic
+the easy case is done in the matcher the hard case is not done at all
+and that's that's about the state of this technology
+ok well now let me let me just say again formally how rules work now that i talked about unifiers
+so the official definition is that to apply a rule we well let's start using some words we've used before
+let's talk about sticking dictionaries into these big boxes of of query things as evaluating these large queries relative to an environment or a frame
+see we can think of that dictionary what's the dictionary after all
+it's a bunch of meanings for symbols
+that's what we've been calling frames or environments
+what does it mean to to do some processing relevant to an e an eval to an environment that's what we've been calling evaluation
+so we can say the way that you apply a rule is to evaluate the rule body relative to an environment that's formed by unifying the rule conclusion with the given query
+and the thing i want you to notice is the complete formal similarity to the metacircular evaluator or the substitution model
+to apply a procedure we evaluate the procedure body relative to an environment that's formed by binding the procedure parameters to the arguments
+there's a complete formal similarity there between rules rule application and procedure application even though these things were very very different
+and again you have the eval apply loop
+right
+eval and apply
+so in general i might be processing some combined expression that'll turn into a rule application which will generate some dictionaries or frames or environments whatever you want to call them from match which will then be the input to some big compound thing like this
+this has piece of t pieces of it may have other rule applications
+and the whole you have essentially the same cycle even though there's nothing here at all that looks like procedures
+it really has to do with the fact that you've built a language whose means of combination and abstraction unwind in certain ways
+and then in general what happens at the very top level you might have rules in your database also so things in these database might be rules right ways to check that things are true
+so it might come in here and have to do a rule check and then there's some control structure which says well you look at some rules and you look at some data elements and you look at some rules and data elements and these fan out and out and out
+so it becomes essentially impossible to say what order it's looking at these things in whether it's breadth first or depth first or anything and it's even more impossible because the actual order is somehow buried in the delays of the streams
+so what's very hard to tell from this is the order in which it's scanned but what's true is because you're looking at the stream view is that all of them eventually get looked at
+ok
+let me just mention one tiny technical problem
+uh suppose i'd i'd said over here suppose i'd tried saying boss of y is computer
+then a funny thing would happen
+as i stuck a dictionary with uh with y in here i might get conf this y is not the same as as that y which was the other piece of somebody's job description
+so if i really only did literally what i said we'd get some variable conflict problems
+so i lied to you a little bit
+notice that problem is exactly a problem we've run into before
+it is precisely the need for local variables in a language right
+then when i square when i have the sum of squares that x had better not be that x
+and that's exactly the same as as this y had better not be that y
+and we know how to solve that
+we built that was this whole environment model and we build chains of frames and all sorts of things like that
+there's a much more brutal way to solve it
+in the query language we didn't even do that
+we did something completely brutal
+we said every time you apply a rule rename consistently all the variables in the rule to some new unique names that won't that won't conflict with anything
+and if you look at the r that's conceptually simpler but really brutal and not particularly efficient
+but notice we could have got ridden we could have got rid of all our environment structures if we defined for procedures in lisp the same thing
+if every time we applied a procedure and did the substitution model we renamed all the variables in the procedure then we never would have had to worry about local variables because they would never arise
+ok
+well that would be inefficient
+and it's inefficient here in the query language too but we did it to keep it simple
+and let's break for questions
+when you started this session section you emphasized how powerful um our eval apply eval model was that we could use it for any language and then you said we were going to have this language which is so different
+it turns out that this language as you just pointed out is very much the same
+i'm wondering if you're arguing that all languages end up coming down to this you can apply a rule or apply a procedure some kind of apply
+i would say that pretty much any language where you really are building up these means of combination and giving them simpler names and you're saying anything of the sort like here's a general kind of expression like how to square something right almost anything that you would call a procedure if that's got to have parts you have to unwind those parts
+you have to have some kind of organization which says when i look at the abstract variables or tags or whatever you want to call them that might stand for particular things you have to keep track of that and that's going to be something like an environment
+and then if you say this part can have parts which i have to unwind you've got to have something like this cycle
+and lots of lots of languages have that character
+as lo when they sort of get put together in this way this language again really is different because there's nothing like procedures on the outside
+when you go below the surface and you see the implementation of course it starts looking the same but from the outside it's a very different worldview
+you're not computing functions of inputs
+you mentioned earlier that um when y when you build all of these rules in pattern matcher and with the delayed action streams you really have no way to know uh in what order things are evaluated
+right
+and that would indicate then that you should only express declarative knowledge that's true for all time no time sequence built into it otherwise these things would all
+yes
+yes
+the question is this really is set up for doing declarative knowledge and as i presented it and i'll i'll sh i'll show you some of the the ugly warts under this after the break as i presented it it's just doing logic
+and in principle if it were logic it wouldn't matter what order it's getting done in
+and and it's quite true when you start doing things where you have side effects like adding things to the database and taking things out and we'll see some others you you lose that kind of control
+so for example contrasting with prolog say prolog has various features where you really exploit the order of evaluation
+and people write prolog programs that way
+that turns out to be very complicated in prolog although if you're an expert prolog progr programmer you can do it
+however here i don't think you can do it at all
+it's very complicated
+because you really are giving up control over any prearranged order of trying things
+now that would indicate then that you have a functional mapping and when you started out this lecture you said that um we expressed the part of knowledge which is a relation and we don't
+well there's a pun on functional right there's functional in the sense of side no side effects and not depending on what order is going on and then there's functional in the sense of mathematical function which means input and output and it's just that pun that you're making i think
+i'm a little unclear on what you're doing with these two statements the two boss statements
+is the first one a uh statement building up the the database and the second one a query
+no
+or
+ok
+i'm sorry
+what i meant here if i'd types something like this in as a query i should have given an example way at the very beginning
+if i type in uh you know job ben bitdiddle computer wizard what the processing will do is if it finds a match it'll find a match to that exact thing and it'll type out job ben bitdiddle computer wizard
+if it doesn't find a match it won't find anything
+so one way t what i should have said is the way you use the query language to check whether something is true remember that's one of the things you want to do in logic programming is you type in your query and either that comes out or it doesn't
+so what i was trying to illustrate here i wanted to give start with a very simple example before talking about unifiers
+so what i should have said if i just wanted to check whether this is true i could type that in and see if anything came out
+and then the second one
+the second one would be a real query
+query yeah
+what would come out see it would go in here say with who and in would go a frame that says uh z is bound to who and d is bound to computer
+and this would pass through and then by the time it got out of here who would pick up a binding
+ok
+on the uh unifying thing there um ok i still am not sure what happens wha with who and z
+ok
+ok if you're unifying the rule here says ok so you said you can't make question mark equal to question mark who
+right right that's what the matcher can't do
+but what a unifier what this'll mean to a unifier is that there's an environment with three variables
+d here is computer
+z is whatever who is
+so if later on in the matcher routine it said for example who has to be three then when i looked up in the dictionary it'll say oh z is three because it's the same as who
+and that's in some sense the only thing you need to do to extend the unifier to a matcher
+ok
+because it looked like when you were telling how to unify it looked like you had put the things together in such a way that you'd actually solve and have a value for both of them and
+that's
+looks like now is that you're actually passing a dictionary with the
+that's right
+variables and the variables are linked
+right it only looks like you're solving for both of them because you're sort of looking at the whole solution at once
+if you sort of watch the thing getting built up recursively it's merely this
+ok so you you do pass off that dictionary with two
+right
+variables
+that's right
+ok
+and linked
+right
+it just looks like an ordinary dictionary
+ok
+when you talk about doing you said that there may be some cases or some forms that you cannot you are not able to unify them
+right
+can you just by building the rules or uh writing the forms uh know in advance if you're going to be able to solve to get unification or not
+i mean can you add some properties either to the rules itself or to the formula that you're writing so that you avoid the problem of uh not finding unification
+well i mean you can agree i think to write in a fairly restricted way where you won't run into it
+see because what you're getting see the place where you get into problems is when you well again you're trying to match things like like that against things where where these have structure where uh a y b y something
+so this is the kind of place where you might where you're going to get into trouble
+and
+so you can detect it syntactically
+so you can you can kind of watch your rules and the kinds of things that you're writing
+so
+so that's a problem that the the builder of the database has to be concerned
+it's probably either not quite the builder of the database the person who's expressing the rules or the builder of the database
+what the unifier actually does is you can check at the next level down
+when you actually get to the unifier and you'll see in the code where it looks up in the dictionary
+if it sort of says what does y have to be
+oh does y have to be something that contains a y as its expression
+at that point the unifier can say oh my god i'm trying to find a fixed solve a fixed point equation i'll give up here
+you mention you make the distinction between the rules and the database
+doesn't aren't the rules added to the database
+yes
+yes i i should have said that
+one way to think about rules is that they're just other things in the database
+right so if you want to check they're things that have to be checked that are in the database
+they're kind of virtual facts that are in the database
+but in that explanation you made a differe differentiation between the database and the rules itself
+yeah i probably should not have done that
+the only reason to do that is in terms of the implementation
+when you look at the implementation there's a part which says check check either primitive assertions in the database or check rules and then reason why you the real reason why you can't tell what order things are going to come out in is that the rule the rules database and the data database sort of get merged in a in a kind of delayed evaluation way
+and so the that's what makes the order very complicated
+ok let's break
+we've just seen how the logic language works and how rules work
+now let's turn to a a more profound question
+what do these things mean
+that brings us to the the subtlest most devious part of this whole query language business and that is that it's not quite what it seems to be
+and and or and not and the logical implication of rules are not really the and and or and not and logical implication of logic
+let me give you an example of that
+certainly if we have two things in logic it ought to be the case that uh and of of p and q is the same as and of q and p and that or of p and q is the same as or of q and p
+but let's let's look here
+here's an uh here's an example
+let's talk about somebody outranking somebody else in this in our little database organization
+we'll say s is outranked by b if or if either the supervisor of s is b or there's some middle manager here that supervisor of s is m and m is outranked by b
+right so there's one way to define rule outranked by
+or we can write exactly the same thing except at the end at the bottom here we reversed the order of these two clauses
+and certainly if this were logic those ought to mean the same thing
+however in our particular implementation if you say something like like who's outranked by ben bitdiddle
+what you'll find is that this rule will work perfectly well and generate answers whereas this rule will go into an infinite loop
+and the reason for that is that this one'll come in and say oh who's outranked by by ben bitdiddle
+find an s find an s which is outranked by b where b is ben bitdiddle which is going to have in it a subproblem oh gee find an m such that m is outranked by b by ben bitdiddle with no restrictions on m
+so this'll say in order to solve this problem i solve exactly the same problem and then after i've solved that i'll check for a supervisor relationship whereas this one won't get into that because before it tried to find this outranked by it'll already have had a restriction on m here
+all right
+so these two things which ought to mean the same in fact one goes into an infinite loop one goes one does not
+uh that's a very extreme case of a general thing that you'll find in logic programming that if you start changing the order of the things in ands or ors you'll find tremendous differences in efficiency
+and we just saw you know an infinitely big difference in efficiency an infinite loop
+and there're similar things having to do with the order in which you enter rules
+the order in which it happens to look at rules in the database may vastly change the efficiency with which it gets out answers or in fact send it into an infinite loop for some orderings
+and this is this whole thing has to do with the fact that you're checking these rules in some order and some rules may lead to really long paths of implication
+others might others might not
+and you don't know a priori which ones are good and which ones are bad
+and there's a whole bunch of research having to do with that mostly having to do with thinking about making parallel implementations of logic programming languages
+and in some sense what you'd like to do is check all rules in parallel and whichever ones sort of get answers you bubble them up
+and if some go down infinite deductive chains well you just you know memory is cheap and processors are cheap and you just let them buzz for as long as you want
+there's a deeper problem though in comparing comparing this logic language t language to real logic
+the the example i just showed you it uh went into an infinite loop maybe but at least it didn't give the wrong answer
+there's an actual deeper problem when we start comparing you know seriously comparing this logic language with real classical logic
+so let's let's sort of review some real classical logic
+uh let's see
+i say all humans are mortal
+right so that's pretty classical logic
+and then maybe we'll continue in the in the very best best classical tradition
+we'll say uh all let's make it really classical all greeks are human
+all right
+and what how's the syllogism go
+socrates is a greek
+and then what do you write here
+i think three dots
+l classical logic
+therefore we'll end the syllogism socrates is mortal
+ok so there's some there's some real honest classical logic
+let's let's compare that with a classical logic database
+right
+so here's a classical logic database
+socrates is a greek
+plato's a greek
+zeus is a greek and zeus is a god
+and uh any e all humans are mortal
+right to show that something is mortal it's enough to show that it's human
+all humans are fallible
+and uh all greeks are human is not quite right
+this says that all greeks who are not gods are human
+right so to show something's human it's enough to show it's a greek and not a god
+and the address of any greek god is mount olympus
+right so there's a little little classical logic database
+and indeed that would work work fairly well
+if we go up if we type that in and say uh you know is socrates mortal
+or is socrates fallible
+or mortal
+it'll say yes
+is plato mortal and fallible it'll say ye yes
+if we say is zeus mortal
+it won't find anything
+right and it'll work perfectly well
+however suppose we want to extend this
+let's define what it means for someone to be a perfect being
+i don't know if you we'll say rule a perfect being and i think this is right if you're up on your medieval scholastic philosophy i believe the perfect beings are ones who were neither mortal nor fallible
+so and not mortal x not fallible x
+right so we'll define this system to teach it what a perfect being is and now what we're going to do is uh ask for the address of all the perfect beings
+so and the address of x is y and x is perfect
+ok so what we're generating here is the world's most exclusive mailing list
+right we're asking for the address of all the perfect beings
+we might have typed this in or we might type in this
+we'll say and perfect of x and the address of x is y
+well suppose we type all that in and we try this query
+this query is going to give us an answer
+this query will say yeah mount olympus
+this query in fact is going to give us nothing
+it'll say no addresses of perfect beings
+now why is that
+why is there a difference
+this is not an infinite loop question
+this is a different answer question
+reason is that if you remember the implementation of not not acted as a filter
+not said i'm going to take some possible dictionaries some possible frames some possible answers and filter out the ones that happen to satisfy some condition
+and that's how i implement not
+if you think about what's going on here i'll build this query box where an address piece the output of an address piece gets fed into a into a perfect piece
+what'll happen is the address piece'll set up some things of everyone whose address i know
+those'll get filtered by the nots inside perfect here
+so i'll throw out the ones which don't happen to be which happen to be either mortal or fallible
+in the other order what happens is i set this up start it up with an empty frame
+the perfect in here doesn't find any things for the nots to filter so nothing comes out here at all
+right
+and that's there's sort of nothing there that gets fed into the address thing
+so there i don't get an answer
+and the rea and again the reason for that is not isn't ger generating anything
+not's only throwing out things
+and if i never start it up with anything there's nothing for it to throw out
+so out of this thing i get the wrong answer
+how could you fix that
+well there're ways to fix that
+so you might say well that's just sort of stupid
+why why are you just doing all your not stuff at the the beginning
+the right way to implement not is to realize that when you have conditions like like not you should generate all your answers first and then with each of these dictionaries pass along gee at the very end i'll do filtering
+and there are implica there are implementations of logic languages that work like that that solve this particular problem
+however there's a more profound problem which is which one of these is the right answer
+is it mount olympus or is it nothing
+so you might say you might say it's mount olympus because after all zeus is in that database and zeus was neither mortal nor fallible
+right so you might say zeus ought to satisfy not say not mortal zeus or not fallible zeus
+but let's actually look at that database
+just look at it
+there's no way how does it know that zeus is not fallible
+there's nothing in there about that
+what's in there is that humans are fallible
+right how does it know that zeus is not mortal
+there's nothing in there about that
+it just said i don't have any rule which see the only way i can deduce something is mortal is if it's human and that's all it really knows about mortal
+and in fact if you remember your your classical mythology you know that the greek gods were mortal were not mortal but fallible
+right so the answer is is not in in the rules there
+see why does it deduce that
+right see socrates would certainly not have made this error of logic
+what not means in this language is is not not
+it's not the not of logic
+what not means in this language is not deducible from things in the database as opposed to not true
+and that's a very big difference
+subtle but big
+so in fact this is perfectly happy to say not anything that it doesn't know about
+so if you ask it is it not true that zeus likes chocolate ice cream it'll say sure it's not true
+or anything else
+anything it doesn't know about right not means means not deducible from the things you've told me
+and a world where you're identifying not deducible with in fact not true this is called the closed world assumption
+right
+closed world assumption
+anything that i cannot deduce from what i know is not true
+right if i don't know anything about x then x isn't true
+that's very dangerous
+see from a logical point of view first of all it doesn't really make sense because if i don't know anything about x i'm willing to say not x but am i willing to say not not x
+well sure i don't know anything about that either maybe
+so not not x is not necessarily the same as x and so on and so on and so on
+so there's no there's some sort of funny bias in there
+right
+so that's that's sort of funny
+the second thing if you start building up you know real reasoning programs based on this i mean think how dangerous that is
+right you're saying right y right you're saying i know i'm in a position to deduce everything true that's relevant to this problem
+see i'm i'm reasoning and built into my reasoning mechanism is the assumption that anything that i don't know can't possibly be relevant to this problem
+right
+there are a lot of big you know a lot of big organizations that work like that right like most uh right most corporate marketing divisions work like that
+and you know the you know the consequences of that
+right so it's very dangerous to start really typing in these big logical implication systems and and going on what they say because they have this really limiting assumption built in
+right so you have to be very very careful about that
+and that's a deep problem
+that's not a problem about we could make a little bit cleverer implementation and do the filters and organize the the infinite loops to make them go away
+it's a different kind of problem
+it's a different semantics
+so i think i think to wrap this up it's fair to say that logic programming i think is is a terrifically exciting idea
+i mean the idea that you you can bridge this gap from the imperative to the declarative that you can start talking about relations and really get tremendous power by by going above the abstraction of what's my input and what's my output and link to logic
+the problem is it's it's uh a goal that i think has yet to be realized and probably one of the you know the very very most interesting research questions going on now in languages is how do you somehow make a real logic language
+and secondly how do you bridge the gap from this world of logic and relations to the worlds of to the worlds of more traditional languages and somehow combine the power of both
+ok let's break
+uh couldn't you solve that last problem by having extra rules tha that imply it
+i mean the problem here is you have the definition of something but you don't have the definition of its opposite
+if you include in the database something that says um something implies mortal x something else implies not mortal x haven't you basically solved the problem
+the que but the issue is do you put a finite number of those in
+if you're if if things are specified always in pairs
+but but the question is then what do you do about deduction
+so y so you can specify nots but the problem is in a big system it turns out that might not might not be a finite number of things
+there there're also there're also two there're sort of two issues
+partly it might not be finite
+partly it might be that's not what you want
+so for a good example would be suppose i want to do connectivity
+i want to reason about connectivity
+and i tell you i'm going to tell you there's four things a and b and c and d
+and i'll tell you a's connected to d a's connected to b and uh c's connected to to d
+and now i'll tell you is a connected to d
+right that's the question
+there's an example where i would like something like the closed world assumption
+that's a tiny toy
+but a lot of times i want to be able to say something like anything that i haven't told you assume is not tr is not true
+so it's not as simple as you only want to put in explicit nots all over the place
+it's that sometimes it really isn't clear what you what you even want
+that having to specify both everything and not everything is too precise and then you get down into into problems there
+but there are there are a lot of approaches that you know that explicitly put in nots and reason based on that
+so it's a very good idea
+it's just that it's just that then it starts becoming a little cumbersome in the very large problems you'd like to use
+i'm not sure how how directly related to your argument this is but one of your points was that uh that one of the dangers of the closed world is you never really know all the things that are there
+you never really know all the parts to it
+isn't that a major problem with any programming
+i always write programs where i i assume that i've got all the cases and so i them all or whatever and then i somewhere down the road i find out that i didn't check for one of them
+well well sure it's true but the problem here is it's that assumption which is the thing that you're making if you believe you're identifying this with logic
+so you're you're quite right it's a it's a situation you're never in
+the problem is if you're starting to believe that what this is doing is logic and you look at the rules you write down and say what can i deduce from them
+you have to be very careful to remember that not means something else
+and it means something else based on an assumption which is probably not true
+do i understand you correctly that you cannot fix this problem without killing off all possibilities of in inference through altering not
+without no that's not quite that's not quite right
+there are other there are ways to do logic of real nots
+there're actually ways to do that
+but they're very inefficient as far as anybody knows
+and they're much more they don't th the quote inference in here is built into this unifier and this pattern matching unification algorithm
+there're ways to automate real logical reasoning but it's not based on that
+and logic programming languages don't tend to do that because it's very inefficient as far as anybody knows
+all right thank you

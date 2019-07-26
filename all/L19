@@ -1,0 +1,306 @@
+last time we took a look at an explicit control evaluator for lisp and that bridged the gap between all these high level languages like lisp and the query language and all of that stuff bridged the gap between that and a conventional register machine
+and in fact you can think of the explicit control evaluator either as say the code for a lisp interpreter if you wanted to implement it in the assembly language of some conventional register transfer machine or if you like you can think of it as the microcode of some machine that's going to be specially designed to run lisp
+in either case what we're doing is we're taking a machine that speaks some low level language and we're raising the machine to a high level language like lisp by writing an interpreter
+so for instance here conceptually here conceptually is a a special purpose machine for computing factorials
+right takes in five and puts out one twenty
+and what this special purpose machine is is actually a lisp interpreter that's configured itself to run factorials because you've fed into it a description of the factorial machine
+right so that's what an interpreter is
+it configures itself to emulate a machine whose description you run you read in
+now inside the lisp interpreter what's that well that might be a general regular language interpreter that configures itself to behave like a lisp interpreter because you put in a whole bunch of instructions
+in register language this is the explicit control evaluator
+and then it also has some sort of library library of primitive operators and lisp operations and all sorts of things like that
+that's the general strategy of interpretation and the point is what we're doing is we're writing an interpreter to raise the machine to the level of the programs that we want to write
+well there's another strategy a different one which is compilation
+compilation's a little bit different
+here here we might have produced a special purpose machine for computing factorials starting with some sort of machine that speaks register language except we're going to do a different strategy
+we'll take our factorial program we'll use that as the source code into a compiler
+what the compiler will do is translate that factorial program into some register machine language and this will now be not the explicit control evaluator for lisp
+this will be some register language for computing factorials right so this is the translation of that
+that will go into some sort of loader which will combine this code with code selected from the library to do things like primitive multiplication and then will produce a load module which configures the register language machine to be a special purpose factorial machine
+so that's a different strategy an interpretation we're raising the machine to the level of our language like lisp
+in compilation we're taking our program and lowering it to the language that's spoken by the machine
+well how do these two strategies compare
+the compiler can't produce code that will execute more efficiently
+the essential reason for that is that if you if you think about the register operations that are running okay the interpreter has to produce register operations which in principle are going to be general enough to execute any lisp procedure
+whereas the compiler only has to worry about producing a special bunch of register operations for for doing the particular lisp procedure that you've compiled
+or another way to say that is that the interpreter is a general purpose simulator that when you read in a lisp procedure then goes can simulate the program described by that by that procedure
+so the interpreter is worrying about making a general purpose simulator whereas the compiler in effect is configuring the thing to be the machine that the interpreter would've been simulating
+so the compiler can be faster
+ok
+ok on the other hand the interpreter's a nicer environment for debugging and the reason for that is that we've got the source code actually there
+we're interpreting it
+that's what we're working with
+and we also have the library around
+so the interpreter the library sitting there is part of the interpreter
+the compiler only pulls out from the library what it needs to run the program
+so if you're if you're in the middle of debugging and you might like to write a little extra program to examine some run time data structure or to produce some computation that you didn't think of when you wrote the program
+the interpreter can do that perfectly well whereas the compiler can't
+so there are sort of dual dual advantages
+the compiler will produce code that executes faster
+the interpreter's a better environment for debugging and most lisp systems end up having both
+end up being configured so you have an interpreter that you use when you're developing your code then you can speed it up by compiling and very often you can arrange that compiled code and interpreted uh code can call each other
+we'll see how to do that that's not hard
+ok in fact the way we'll in the compiler we're going to make the way we'll arrange for compiled code and interpreted code to enca to call each other is that we'll have the compiler use exactly the same register conventions as the interpreter
+all right well the idea of a
+of a compiler is very much like the idea of an interpreter or an evaluator
+it's the same thing
+so the evaluator walks over the code and performs some register operations
+that's what we did yesterday
+well the compiler essentially would like to walk over the code and produce the register operations that the evaluator would have done were it evaluating the thing
+right and that gives us a model for how to implement a 0th order compiler
+right a very bad compiler but essentially a compiler
+a model for doing that is you just take the evaluator you run it over the code but instead of executing the actual operations you just save them away and that's your compiled code
+so let me give you an example of that
+all right suppose we're going to compile suppose we want to compile the expression f of x
+so let's assume that we've got f of x in the x register and something in the environment register and now imagine starting up the evaluator
+well it looks at the expression and it sees that it's an application and it branches to a place in the evaluator code we saw called ev application
+and then it begins it stores away the operands and un ev and then it's going to put the the operator in x then it's going to go recursively evaluate it
+that's the process that we walked through and if you start looking at the code you start seeing some register operations
+you see a sign to un ev the operands assigned to x the operator save the environment generate that and so on
+it's
+well if we look on the overhead here we can see we can see those operations starting to be produced
+here's sort of the first real operation that the evaluator would have done
+it pulls the operands out of the x register and assigns it to un ev
+and then it assigns something to the expression register and it saves continue and it saves in and all i'm doing here is writing down the register assignments that the evaluator would've done in executing that code and can zoom out a little bit
+all together there are about nineteen operations there
+and this will be the piece of code up until the point where the evaluator branches off to apply dispatch
+and in fact in this compiler we're not going to worry about apply dispatch at all
+we're going to have every we're going to have both interpreted code and compile code always evaluate procedures always apply procedures by going to apply dispatch and that will easily allow interpreted code and compiled code to call each other
+ok
+well in principle that's all we need to do
+now you just run the evaluators
+the compiler's a lot like the evaluator
+you run it except that it stashes away these operations instead of actually executing them
+well that's not quite true
+there's only one little lie in that
+what you have to worry about it if you have a predicate right if you have some kind of test you want to do obviously at the point when you're compiling it you don't know which branch of these of a conditional like this you're going to do right
+so you can't say which one the evaluator would have done
+so all you do there is is very simple
+you compile both branches so you compile a structure that looks like this
+that'll compile into something that says the code the code for p and it puts its result in say the val register so you walk the interpreter over the predicate and make sure the result would go into the val register
+and then you compile an instruction that says branch if if val is true um to a place we'll call label one then we we'll put the code for d so walk the interpreter over b and then go to put in an instruction that says go to the next thing whatever whatever was supposed to happen after this thing was done
+we'll put in that instruction and here you put label one and here you put the code for a and you put goto next thing
+so that's how you treat a conditional
+you generate a little block like that
+and other than that this 0th order compiler is the same as the evaluator
+it's just stashing away the instructions instead of executing them
+that seems pretty simple but we've gained something by that
+see already that's going to be more efficient than the evaluator because if you watch the evaluator run it's not only generating the register operations we wrote down it's also doing things to decide which ones to generate
+so the very first thing it does say here for instance is go do some tests and decide that this is an application and then branch off to the place that handles applications
+in other words what the evaluator is doing is simultaneously analyzing the code to see what to do and running these operations and when you if you run the evaluator a million times that analysis phase happens a million times
+whereas in the compiler it's happened once and then you just have the register operations themselves
+ok that's a zeroth order compiler but it is a wretched wretched compiler
+it's really dumb
+all right let's go back and look at this overhead so you look at some of the operations this thing is doing
+we're supposedly looking at the operations and interpreting f of x
+now look here what it's doing
+for example here it assigns to exp the operator in fetch of exp
+but see there's no reason to do that because this is the compiler knows that the opera the operator of fetch of exp is f right here
+so there's no reason why this instruction should say that
+it should say well assign to exp f or in fact you don't need exp at all
+there's no reason it should have the exp at all
+what did exp get used for
+well if we come down here we're going to assign to val look up the stuff in exp in the environment so what we really should do is get rid of the exp register altogether and just change this instruction to say assign to val look up the variable value of the symbol f in the environment
+similarly back up here we don't need un ev at all because we know what the operands of fetch of exp are for this piece of code
+it's the list x
+so in some sense you don't want unev and exp at all so what they really are in some sense those aren't registers of the actual machine that's supposed to run
+those are registers that have to do with arranging the thing that can simulate that machine
+so they're always going to hold expressions which from the compiler's point of view are just constants so can be put right into the code
+so you can forget about all the operations worrying about exp and unev and just use those constants
+similarly again if we go back and look here there are things like assign to continue eval args
+now that has nothing to do with anything
+that was just the evaluator keeping track of where it should go next right to evaluate the arguments in some application
+but of course that's irrelevant to the compiler because uh the analysis phase will have already done that
+so this is completely irrelevant
+so a lot of these assignments to continue have not to do where the running machine is supposed to continue in keeping track of its state
+it has to do with where the evaluator analysis should continue and those are completely irrelevant so we can get rid of them
+ok
+all right
+ok
+ok well if we simply do that make those kinds of optimizations get rid of worrying about exp and unev and get rid of uh these irrelevant register assignments to continue then we can take this literal code all right these er nineteen instructions that the evaluator would have done and then replace them let's look at the slide replace them by get rid of about half of them
+all right and again this is just sort of filtering what the evaluator would have done by getting rid of the irrelevant stuff
+and you see for instance here where the evaluator said assign val look up variable value fetch of exp here we have put in the constant f here we have put in the constant x
+so there's a little better compiler
+it's uh it's still pretty dumb
+it's still doing a lot of dumb things
+again if we go look at the slide again look at the very beginning here we see a save the environment assign something to the val register and restore the environment
+where'd that come from
+that came from the evaluator back here saying oh i'm uh in the middle of evaluating an application
+so i'm going to recursively call eval dispatch
+so i'd better save the thing i'd need later which is the environment
+this was the result of recursively calling a val dispatch
+it was evaluating the symbol f in that case and it came back from the val dispatch restored the environment
+but in fact the actual thing it ended up doing in the evaluation is not going to hurt the environment at all so there's no reason to be saving the environment and restoring the environment here
+all right similarly uh here i'm saving the argument list
+that's a piece of the argument evaluation loop saving the argument list and here you restore it but the actual thing that you ended up doing didn't trash the argument list
+so there was no reason to save it
+so another way to another way to say that is that the evaluator has to be maximally pessimistic because as far from its point of view it's just going off to evaluate something so it had better save what it's going to need later
+but once you've done the analysis the compiler is in a position to say well what actually did i need to save
+and doesn't need to do any doesn't need to be as careful as the evaluator because it knows what it actually needs
+well in any case if we do that and eliminate all those redundant saves and restores then we can get it down to this
+you see there are actually only three reason only three instructions that we actually need down from the initial eleven or so or the initial the initial twenty or so in the original one
+ok and that's just saying of those register operations which ones did we actually need
+all right
+let me just sort of summarize that in another way just to show you in a little better picture
+here's a picture of starting this is looking at all the saves and restores
+so here's the expression f of x and then this traces through on the bottom here the various places in the evaluator that were passed when the evaluation happened and then here here you see arrows
+arrow down means a register saved so the first thing that happened is the environment got saved
+and over here the environment got restored
+and these and so there are all the pairs of stack operations
+now if you go ahead and say well let's remember that we don't that unev for instance is a completely useless register
+and if we use the constant structure of the code we we don't need we don't need to save unev
+we don't need unev at all
+and then depending on how we set up the discipline of the of calling of calling other things that apply we may or may not need to save continue
+that's the first step i did
+and then we can look and see what's actually what's actually needed
+see we don't didn't really need to save env or cross evaluating f because it wouldn't it wouldn't trash it
+so if we take advantage of that and see the evaluation of f here doesn't really need to worry about hurting env and similarly the evaluation of x here the when the evaluator did that it said oh i'd better preserve the function register around that because i might need it later and i'd better preserve the argument list
+right whereas the compiler is now in a position to know well we didn't really need to save do those saves and restores
+so in fact all of the stack operations done by the evaluator turned out to be unnecessary or overly pessimistic and the compiler's in a position to know that
+ok
+well that's the basic idea
+all right we take the evaluator we eliminate the things that you don't need that in some sense have nothing to do with the compiler at all just the evaluator and then you see which stack operations were unnecessary and that's the basic structure of the the compiler that's described in the book
+let me just show you how the example's a little bit too simple to see how how you actually save a lot
+let's look at a little bit more complicated expression
+let f of g of x and 1
+and i'm not going to go through all the code
+there's a there's a fair pile of it
+i think there there's something like sixteen pairs of registry saves and restores as the evaluator walks through that
+here's a diagram of them
+and so you see what's going on
+you start out by the evaluator says oh i'm about to do an application i'll preserve the environment i'll restore it here
+then i'm about to do the first operand
+here it recursively goes to the evaluator
+the evaluator says oh this is an application i'll save the environment do the operator of that combination restore it here
+this save this restore matches that save and so on
+there's unev here which turns out to be completely unnecessary
+continue's getting bumped around here
+the function register is getting saved across the first operand across the operands
+all sorts of things are going on
+but if you say well what are those really were the business of the compiler as opposed to the evaluator you get rid of a whole bunch and then on top of that if you say things like uh the evaluation of f doesn't hurt the environment register or simply looking up the symbol x you don't have to protect the function register against that
+right so you come down to just a couple of pairs here
+and still you can do a little better
+look what's going on here with the environment register
+the environment register comes along and says oh here's a combination
+this evaluator by the way doesn't know anything about g so here it says so it says uh i'd better save the environment register because evaluating g might be some arbitrary piece of code that would trash it
+and i'm going to need it later after this argument for doing the second argument so that's why this one didn't go away because the compiler made no assumptions about what g would do
+on the other hand if you look at what the second argument is that's just looking up one
+that doesn't need this environment register so there's no reason to save it so in fact you can get rid of that one too
+and from this whole pile of register operations if you simply do a little bit of reasoning like that you get down to i think just two pairs of saves and restores
+and those in fact could go away further if you knew something about g
+ok
+all right so again the general idea is that the reason the compiler could be better is that the interpreter doesn't know what it's about to encounter
+it has to be maximally pessimistic in saving things to protect itself
+the compiler only has to deal with what actually had to be saved and there are two reasons that something might not have to be saved
+one is that what you're protecting it against in fact didn't trash the register like it was just a variable lookup and the other one is that the thing that you were saving it for might turn out not to actually need it
+so those are the two basic pieces of knowledge that the compiler could take advantage of in making the code more efficient
+ok
+ok let's break for questions
+you kept saying that the uneval register or unev register didn't need to be used at all
+does that mean that you could just have a six register machine or is that in these particular examples it didn't need to be used
+for the compiler you could generate code for the six register five right because exp goes away also assuming yeah you can get rid of both exp and unev because see those are data structures of the evaluator
+those are all things that would be constants from the point of view of the compiler
+the only thing is this particular compiler is set up so that interpreted code and compiled code can co exist so the way to think about it is is maybe you build a chip which is the evaluator
+and what the compiler might do is generate code for that chip
+just wouldn't use two of the registers
+all right let's take a break
+we just looked at what the compiler is supposed to do
+now let's very briefly look at how this gets accomplished
+and i'm going to give no details
+there's a giant pile of code in the book that gives all the details but what i want to do is just show you the essential idea here
+worry about the details some other time
+let's imagine that we're compiling an expression that looks like there's some operator and there are two arguments
+now the what's the code that the compiler should generate
+well first of all it should recursively go off and compile the operator
+so it says i'll compile the operator and where i'm going to need that is to be in the function register eventually so i'll compile some instructions that i'll compile the operator and end up with the result in the function register
+the next thing it's going to do another piece is to say well i have to compile the first argument so it calls itself recursively and let's say the result will go into val and then what it's going to need to do is start setting up the argument list so it'll say assign to argl cons of fetch so it generates this literal instruction
+fetch of val onto empty list
+ok however and it might have to work it's g when it gets here it's going to need the environment
+it's going to need whatever environment was here in order to do this evaluation of the first argument
+so it has to ensure that the compilation of this operand or it has to protect the function register against whatever might happen in the compilation of this operand so it puts a note here and says oh this piece should be done preserving the environment register
+similarly here after it gets done compiling the first operand it's going to say i'd better compile i'm going to need to know the environment for the second operand so it puts a little note here saying yeah this is also done preserving env
+all right so now it goes on and says well the next chunk of code is the one that's going to compile the second argument and uh let's say it'll compile it with a targeted to val as they say
+and then it'll generate the literal instruction building up the argument list
+so it'll say assign to argl cons of the new value it just got onto the old argument list
+however in order to have the old argument list it better have arranged that the argument list didn't get trashed by whatever happened in here
+so it puts a little note here and says well this has to be done preserving argl
+right now it's got the argument list set up and it's all ready to goto apply dispatch which generates this literal instruction
+because now it's got the arguments in argl and the operator in fun but it's only got the operator in fun if it had insured that this block of code didn't trash what was in the function register so it puts a little note here and says oh yes all this stuff here had better be done preserving the function register
+so that's the little so when it starts sticking so basically what the what the compiler does is append a whole bunch of code sequences
+see what it's got in it is little primitive pieces of things like how to look up a symbol how to do a conditional
+those are all little pieces of things and then it appends them together in this sort of discipline so the basic means of combining things is to append two code sequences
+that's what's going on here and it's a little bit tricky
+the idea is that it appends two code sequences taking care to preserve a register so the actual append operation looks like this
+what it wants to do is say if here's what it means to append two code sequences so if sequence one needs register i should change this
+append sequence one to sequence two preserving some register
+now we say and so it's clear that sequence one comes first
+so if if sequence two needs the register and sequence one modifies the register then the instructions that the compiler spits out are save the register and here's the code
+you generate this code save the register and then you put out the recursively compiled stuff for sequence one and then you restore the register and then you put out the recursively compiled stuff for sequence two
+all right that's in the case where you need to do it
+sequence two actually needs the register and sequence one actually clobbers it
+so that's sort of if
+otherwise all you spit out is sequence one followed by sequence two
+so that's the basic operation for sticking together these bits of code fragments these bits of instructions into a sequence
+and you see from this point of view the difference between the interpreter and the compiler in some sense is that where the compiler has these preserving notes and says maybe i'll actually generate the saves and restores and maybe i won't the interpreter being maximally pessimistic always has a save and restore here
+that's that's the essential difference
+ok
+well in order to do this of course the compiler needs some theory of uh what code sequences need and modify registers
+so the tiny little fragments that you put in like the basic primitive code fragments say what are the operations that you do when you when you look up a variable what are the sequence of things that you do when you compile a constant or apply a function
+those have little notations in there about what they need and what they modify
+so the the bottom level data structures i'll say this a code sequence to the compiler looks like this
+it has the actual sequence of instructions and then along with it there's the there's the set of registers modified
+and then there's the set of registers needed
+so that's the information the compiler has that it draws on in order to be able to do this operation
+and where do those come from
+well those come from you might expect for the very primitive ones we're going to put them in by hand and then when we combine two sequences we'll figure out what these things should be
+so for example a very primitive one uh let's see how about doing a register assignment so a primitive sequence might say oh it's code fragments its code instruction is assigned to r1 fetch of r2
+so this is an example
+that might be an example of a sequence of instructions and along with that it'll say oh what i need to uh remember is that that modifies r1 and that it needs r2
+so there when you're first building this compiler you put in little fragments of stuff like that and now when it combines two sequences
+right if i'm going to combine let's say sequence one that modifies a bunch of registers m1 and needs a bunch of registers n1
+and i'm going to combine that with sequence two that modifies a bunch of registers m2 and needs a bunch of registers n2 then well we can reason it out
+the new code fragment sequence one followed by sequence two well what's it going to modify
+the things it'll modify are the things that are modified either by sequence one or sequence two
+so the union of these two sets are what the new thing modifies and then you say well what is this what registers is it going to need
+it's going to need the things that are first of all needed by sequence one
+so what it needs is sequence one and then well not quite all of the ones that are needed by sequence two
+what it needs are the the ones that are needed by sequence two that have not been set up by sequence one so it's sort of the union of the things that sequence two needs minus the ones that sequence one modifies because it worries about setting them up
+all right so there's the basic structure of the compiler
+the way you do register optimizations is you have some strategies for what needs to be preserved
+that depends on a data structure well it depends on the operation of what it means to put things together preserving something
+that depends on knowing what what registers are needed and modified by these code fragments
+that depends on having little data structures which say a code sequences is the actual instructions what they modify and what they need
+that comes from at the primitive level building it in and there's all at the primitive level it's going to be completely obvious what something needs and modifies
+plus this particular way that says when i build up bigger ones here's how i generate the new set of registers modified and the new set of registers needed
+and that's the whole well i shouldn't say that's the whole thing
+that's the whole thing except for about thirty pages of details in the book but it is a perfectly reada usable rudimentary compiler
+let me kind of show you what it does
+suppose we start out with recursive factorial
+and these slides are going to be much too small to read
+i just want to flash through the code and show you about how much it is
+that starts out with here's a first block of it where it compiles a procedure entry and does a bunch of assignments and this thing is basically up through the part where it sets up to do the predicate and test whether the predicate's true
+the second part is what results from in the recursive call to fact of n minus 1 and this last part is coming back from that and then taking care of the constant case so that's about how much code it would produce for factorial
+we could make this compiler much much better of course
+the main way we could make it better is to allow the compiler to make any assumptions at all about what happens when you call a procedure
+so this compiler for instance doesn't even know say that multiplication is a is something that could be coded in line
+instead it sets up this whole mechanism goes to apply dispatch
+that's a tremendous waste because what you do every time you go to apply dispatch is you have to cons up this argument list because it's a very general thing you're going to
+and any real compiler of course you're going to have registers for holding arguments and you're going to start preserving and saving the way you use those registers similar similar to the same strategy here
+so that's the that's probably the very main way that this particular compiler in the book could be fixed
+there are other things like looking up variable values and uh making more efficient primitive operations and all sorts of things
+essentially a good lisp compiler can absorb an arbitrary amount of effort and probably one of the reasons that lisp is slow with compare to languages like fortran is that if you look over history at the amount of effort that's gone into building lisp compilers
+it's nowhere near the amount of effort that's gone into fortran compilers and maybe that's something that'll that'll change over the next couple of years
+ok let's break
+questions
+one of the very first classes i don't know if it was during class or after class you showed me the say add addition has a has a primitive that we don't see ampersand and or something like that
+is that is that because uh if you're doing in line code you'd want to uh just do it for two you can just do it for two operators operands
+but if you if you had more operands you'd want to do something special
+yeah this you're looking at the in the actual scheme implementation there's a plus and a plus is some operator and then if you go look inside the code for plus you see something called i forget ampersand plus or something like that
+and what's going on there is that particular kind of optimization because see general plus takes an arbitrary number of arguments
+so the most general plus says oh if i have an argument list i'd better i'd better cons it up in some list and then figure out how many there were or something like that
+that's terribly inefficient especially since most of the time you're probably adding two numbers you don't want to really have to cons this argument list
+so what you'd like to do is build the code for plus with a bunch of entries so most of what it's doing is the same
+however there might be a special entry that you'd go to if you knew there were only two arguments and those you'll put in registers
+they won't be in an argument list and you won't have to cons
+and that's how a lot of these things work
+ok let's take a break

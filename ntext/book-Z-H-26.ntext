@@ -1,0 +1,366 @@
+our evaluator for lisp will be implemented as a lisp program
+it may seem circular to think about evaluating lisp programs using an evaluator that is itself implemented in lisp
+however evaluation is a process so it is appropriate to describe the evaluation process using lisp which after all is our tool for describing processes
+an evaluator that is written in the same language that it evaluates is said to be metacircular
+the metacircular evaluator is essentially a scheme formulation of the environment model of evaluation described in section three point two
+recall that the model has two basic parts
+one
+to evaluate a combination evaluate the subexpressions and then apply the value of the operator subexpression to the values of the operand subexpressions
+two
+to apply a compound procedure to a set of arguments evaluate the body of the procedure in a new environment
+to construct this environment extend the environment part of the procedure object by a frame in which the formal parameters of the procedure are bound to the arguments to which the procedure is applied
+these two rules describe the essence of the evaluation process a basic cycle in which expressions to be evaluated in environments are reduced to procedures to be applied to arguments which in turn are reduced to new expressions to be evaluated in new environments and so on until we get down to symbols whose values are looked up in the environment and to primitive procedures which are applied directly
+this evaluation cycle will be embodied by the interplay between the two critical procedures in the evaluator eval and apply which are described in section four point one point one
+the implementation of the evaluator will depend upon procedures that define the syntax of the expressions to be evaluated
+we will use data abstraction to make the evaluator independent of the representation of the language
+for example rather than committing to a choice that an assignment is to be represented by a list beginning with the symbol set we use an abstract predicate assignment to test for an assignment and we use abstract selectors assignment variable and assignment value to access the parts of an assignment
+implementation of expressions will be described in detail in section four point one point two
+there are also operations described in section four point one point three that specify the representation of procedures and environments
+for example make procedure constructs compound procedures lookup variable value accesses the values of variables and apply primitive procedure applies a primitive procedure to a given list of arguments
+the evaluation process can be described as the interplay between two procedures eval and apply
+eval takes as arguments an expression and an environment
+it classifies the expression and directs its evaluation
+eval is structured as a case analysis of the syntactic type of the expression to be evaluated
+in order to keep the procedure general we express the determination of the type of an expression abstractly making no commitment to any particular representation for the various types of expressions
+each type of expression has a predicate that tests for it and an abstract means for selecting its parts
+this abstract syntax makes it easy to see how we can change the syntax of the language by using the same evaluator but with a different collection of syntax procedures
+for self evaluating expressions such as numbers eval returns the expression itself
+eval must look up variables in the environment to find their values
+for quoted expressions eval returns the expression that was quoted
+an assignment to a variable must recursively call eval to compute the new value to be associated with the variable
+the environment must be modified to change the binding of the variable
+an if expression requires special processing of its parts so as to evaluate the consequent if the predicate is true and otherwise to evaluate the alternative
+a lambda expression must be transformed into an applicable procedure by packaging together the parameters and body specified by the lambda expression with the environment of the evaluation
+a begin expression requires evaluating its sequence of expressions in the order in which they appear
+a case analysis is transformed into a nest of if expressions and then evaluated
+for a procedure application eval must recursively evaluate the operator part and the operands of the combination
+the resulting procedure and arguments are passed to apply which handles the actual procedure application
+here is the definition of eval
+for clarity eval has been implemented as a case analysis using cond
+the disadvantage of this is that our procedure handles only a few distinguishable types of expressions and no new ones can be defined without editing the definition of eval
+in most lisp implementations dispatching on the type of an expression is done in a data directed style
+this allows a user to add new types of expressions that eval can distinguish without modifying the definition of eval itself
+apply takes two arguments a procedure and a list of arguments to which the procedure should be applied
+apply classifies procedures into two kinds it calls apply primitive procedure to apply primitives it applies compound procedures by sequentially evaluating the expressions that make up the body of the procedure
+the environment for the evaluation of the body of a compound procedure is constructed by extending the base environment carried by the procedure to include a frame that binds the parameters of the procedure to the arguments to which the procedure is to be applied
+here is the definition of apply
+when eval processes a procedure application it uses list of values to produce the list of arguments to which the procedure is to be applied
+list of values takes as an argument the operands of the combination
+it evaluates each operand and returns a list of the corresponding values
+eval if evaluates the predicate part of an if expression in the given environment
+if the result is true eval if evaluates the consequent otherwise it evaluates the alternative
+the use of true in eval if highlights the issue of the connection between an implemented language and an implementation language
+the if predicate is evaluated in the language being implemented and thus yields a value in that language
+the interpreter predicate true translates that value into a value that can be tested by the if in the implementation language the metacircular representation of truth might not be the same as that of the underlying scheme
+eval sequence is used by apply to evaluate the sequence of expressions in a procedure body and by eval to evaluate the sequence of expressions in a begin expression
+it takes as arguments a sequence of expressions and an environment and evaluates the expressions in the order in which they occur
+the value returned is the value of the final expression
+the following procedure handles assignments to variables
+it calls eval to find the value to be assigned and transmits the variable and the resulting value to set variable value to be installed in the designated environment
+definitions of variables are handled in a similar manner
+we have chosen here to return the symbol ok as the value of an assignment or a definition
+notice that we cannot tell whether the metacircular evaluator evaluates operands from left to right or from right to left
+its evaluation order is inherited from the underlying lisp if the arguments to cons in list of values are evaluated from left to right then list of values will evaluate operands from left to right and if the arguments to cons are evaluated from right to left then list of values will evaluate operands from right to left
+write a version of list of values that evaluates operands from left to right regardless of the order of evaluation in the underlying lisp
+also write a version of list of values that evaluates operands from right to left
+the evaluator is reminiscent of the symbolic differentiation program discussed in section two point three point two
+both programs operate on symbolic expressions
+in both programs the result of operating on a compound expression is determined by operating recursively on the pieces of the expression and combining the results in a way that depends on the type of the expression
+in both programs we used data abstraction to decouple the general rules of operation from the details of how expressions are represented
+in the differentiation program this meant that the same differentiation procedure could deal with algebraic expressions in prefix form in infix form or in some other form
+for the evaluator this means that the syntax of the language being evaluated is determined solely by the procedures that classify and extract pieces of expressions
+here is the specification of the syntax of our language
+&curren the only self evaluating items are numbers and strings
+&curren variables are represented by symbols
+&curren quotations have the form
+quoted is defined in terms of the procedure tagged list which identifies lists beginning with a designated symbol
+&curren assignments have the form
+&curren definitions have the form
+or the form
+the latter form is syntactic sugar for
+the corresponding syntax procedures are the following
+&curren lambda expressions are lists that begin with the symbol lambda
+we also provide a constructor for lambda expressions which is used by definition value above
+&curren conditionals begin with if and have a predicate a consequent and an ( optional ) alternative
+if the expression has no alternative part we provide false as the alternative
+we also provide a constructor for if expressions to be used by cond if> to transform cond expressions into if expressions
+&curren begin packages a sequence of expressions into a single expression
+we include syntax operations on begin expressions to extract the actual sequence from the begin expression as well as selectors that return the first expression and the rest of the expressions in the sequence
+we also include a constructor sequence exp> that transforms a sequence into a single expression using begin if necessary
+&curren a procedure application is any compound expression that is not one of the above expression types
+the car of the expression is the operator and the cdr is the list of operands
+some special forms in our language can be defined in terms of expressions involving other special forms rather than being implemented directly
+one example is cond which can be implemented as a nest of if expressions
+for example we can reduce the problem of evaluating the expression
+to the problem of evaluating the following expression involving if and begin expressions
+implementing the evaluation of cond in this way simplifies the evaluator because it reduces the number of special forms for which the evaluation process must be explicitly specified
+we include syntax procedures that extract the parts of a cond expression and a procedure cond if> that transforms cond expressions into if expressions
+a case analysis begins with cond and has a list of predicate action clauses
+a clause is an else clause if its predicate is the symbol else
+expressions that we choose to implement as syntactic transformations are called derived expressions
+let expressions are also derived expressions
+louis reasoner plans to reorder the cond clauses in eval so that the clause for procedure applications appears before the clause for assignments
+he argues that this will make the interpreter more efficient since programs usually contain more applications than assignments definitions and so on his modified eval will usually check fewer clauses than the original eval before identifying the type of an expression
+a
+what is wrong with louis's plan
+b
+louis is upset that his plan did n't work
+he is willing to go to any lengths to make his evaluator recognize procedure applications before it checks for most other kinds of expressions
+help him by changing the syntax of the evaluated language so that procedure applications start with call
+for example instead of we will now have to write and instead of we will have to write
+rewrite eval so that the dispatch is done in data directed style
+compare this with the data directed differentiation procedure of exercise two point seventy three
+recall the definitions of the special forms and and or from chapter one
+and the expressions are evaluated from left to right
+if any expression evaluates to false false is returned any remaining expressions are not evaluated
+if all the expressions evaluate to true values the value of the last expression is returned
+if there are no expressions then true is returned
+or the expressions are evaluated from left to right
+if any expression evaluates to a true value that value is returned any remaining expressions are not evaluated
+if all expressions evaluate to false or if there are no expressions then false is returned
+install and and or as new special forms for the evaluator by defining appropriate syntax procedures and evaluation procedures eval and and eval or
+alternatively show how to implement and and or as derived expressions
+scheme allows an additional syntax for cond clauses
+if test evaluates to a true value then recipient is evaluated
+its value must be a procedure of one argument this procedure is then invoked on the value of the test and the result is returned as the value of the cond expression
+for example
+returns two
+modify the handling of cond so that it supports this extended syntax
+let expressions are derived expressions because
+is equivalent to
+implement a syntactic transformation let combination> that reduces evaluating let expressions to evaluating combinations of the type shown above and add the appropriate clause to eval to handle let expressions
+let* is similar to let except that the bindings of the let variables are performed sequentially from left to right and each binding is made in an environment in which all of the preceding bindings are visible
+for example
+returns thirty nine
+explain how a let* expression can be rewritten as a set of nested let expressions and write a procedure let* nested lets> that performs this transformation
+if we have already implemented let and we want to extend the evaluator to handle let* is it sufficient to add a clause to eval whose action is
+or must we explicitly expand let* in terms of non derived expressions
+named let is a variant of let that has the form
+the bindings and body are just as in ordinary let except that var is bound within body to a procedure whose body is body and whose parameters are the variables in the bindings
+thus one can repeatedly execute the body by invoking the procedure named var
+for example the iterative fibonacci procedure can be rewritten using named let as follows
+modify let combination> of exercise four point six to also support named let
+many languages support a variety of iteration constructs such as do for while and until
+in scheme iterative processes can be expressed in terms of ordinary procedure calls so special iteration constructs provide no essential gain in computational power
+on the other hand such constructs are often convenient
+design some iteration constructs give examples of their use and show how to implement them as derived expressions
+by using data abstraction we were able to write an eval procedure that is independent of the particular syntax of the language to be evaluated
+to illustrate this design and implement a new syntax for scheme by modifying the procedures in this section without changing eval or apply
+in addition to defining the external syntax of expressions the evaluator implementation must also define the data structures that the evaluator manipulates internally as part of the execution of a program such as the representation of procedures and environments and the representation of true and false
+for conditionals we accept anything to be true that is not the explicit false object
+to handle primitives we assume that we have available the following procedures
+applies the given primitive procedure to the argument values in the list args and returns the result of the application
+tests whether proc is a primitive procedure
+these mechanisms for handling primitives are further described in section four point one point four
+compound procedures are constructed from parameters procedure bodies and environments using the constructor make procedure
+the evaluator needs operations for manipulating environments
+as explained in section three point two an environment is a sequence of frames where each frame is a table of bindings that associate variables with their corresponding values
+we use the following operations for manipulating environments
+returns the value that is bound to the symbol var in the environment env or signals an error if the variable is unbound
+returns a new environment consisting of a new frame in which the symbols in the list variables are bound to the corresponding elements in the list values where the enclosing environment is the environment base env
+adds to the first frame in the environment env a new binding that associates the variable var with the value value
+changes the binding of the variable var in the environment env so that the variable is now bound to the value value or signals an error if the variable is unbound
+to implement these operations we represent an environment as a list of frames
+the enclosing environment of an environment is the cdr of the list
+the empty environment is simply the empty list
+each frame of an environment is represented as a pair of lists a list of the variables bound in that frame and a list of the associated values
+to extend an environment by a new frame that associates variables with values we make a frame consisting of the list of variables and the list of values and we adjoin this to the environment
+we signal an error if the number of variables does not match the number of values
+to look up a variable in an environment we scan the list of variables in the first frame
+if we find the desired variable we return the corresponding element in the list of values
+if we do not find the variable in the current frame we search the enclosing environment and so on
+if we reach the empty environment we signal an unbound variable error
+to set a variable to a new value in a specified environment we scan for the variable just as in lookup variable value and change the corresponding value when we find it
+to define a variable we search the first frame for a binding for the variable and change the binding if it exists
+if no such binding exists we adjoin one to the first frame
+the method described here is only one of many plausible ways to represent environments
+since we used data abstraction to isolate the rest of the evaluator from the detailed choice of representation we could change the environment representation if we wanted to
+in a production quality lisp system the speed of the evaluator's environment operations especially that of variable lookup has a major impact on the performance of the system
+the representation described here although conceptually simple is not efficient and would not ordinarily be used in a production system
+instead of representing a frame as a pair of lists we can represent a frame as a list of bindings where each binding is a name value pair
+rewrite the environment operations to use this alternative representation
+the procedures set variable value define variable and lookup variable value can be expressed in terms of more abstract procedures for traversing the environment structure
+define abstractions that capture the common patterns and redefine the three procedures in terms of these abstractions
+scheme allows us to create new bindings for variables by means of define but provides no way to get rid of bindings
+implement for the evaluator a special form make unbound that removes the binding of a given symbol from the environment in which the make unbound expression is evaluated
+this problem is not completely specified
+for example should we remove only the binding in the first frame of the environment
+complete the specification and justify any choices you make
+given the evaluator we have in our hands a description of the process by which lisp expressions are evaluated
+one advantage of expressing the evaluator as a program is that we can run the program
+this gives us running within lisp a working model of how lisp itself evaluates expressions
+this can serve as a framework for experimenting with evaluation rules as we shall do later in this chapter
+our evaluator program reduces expressions ultimately to the application of primitive procedures
+therefore all that we need to run the evaluator is to create a mechanism that calls on the underlying lisp system to model the application of primitive procedures
+there must be a binding for each primitive procedure name so that when eval evaluates the operator of an application of a primitive it will find an object to pass to apply
+we thus set up a global environment that associates unique objects with the names of the primitive procedures that can appear in the expressions we will be evaluating
+the global environment also includes bindings for the symbols true and false so that they can be used as variables in expressions to be evaluated
+it does not matter how we represent the primitive procedure objects so long as apply can identify and apply them by using the procedures primitive procedure and apply primitive procedure
+we have chosen to represent a primitive procedure as a list beginning with the symbol primitive and containing a procedure in the underlying lisp that implements that primitive
+setup environment will get the primitive names and implementation procedures from a list
+to apply a primitive procedure we simply apply the implementation procedure to the arguments using the underlying lisp system
+for convenience in running the metacircular evaluator we provide a driver loop that models the read eval print loop of the underlying lisp system
+it prints a prompt reads an input expression evaluates this expression in the global environment and prints the result
+we precede each printed result by an output prompt so as to distinguish the value of the expression from other output that may be printed
+we use a special printing procedure user print to avoid printing the environment part of a compound procedure which may be a very long list
+now all we need to do to run the evaluator is to initialize the global environment and start the driver loop
+here is a sample interaction
+eva lu ator and louis reasoner are each experimenting with the metacircular evaluator
+eva types in the definition of map and runs some test programs that use it
+they work fine
+louis in contrast has installed the system version of map as a primitive for the metacircular evaluator
+when he tries it things go terribly wrong
+explain why louis's map fails even though eva's works
+in thinking about a lisp program that evaluates lisp expressions an analogy might be helpful
+one operational view of the meaning of a program is that a program is a description of an abstract machine
+for example consider the familiar program to compute factorials
+we may regard this program as the description of a machine containing parts that decrement multiply and test for equality together with a two position switch and another factorial machine
+figure four point two is a flow diagram for the factorial machine showing how the parts are wired together
+in a similar way we can regard the evaluator as a very special machine that takes as input a description of a machine
+given this input the evaluator configures itself to emulate the machine described
+for example if we feed our evaluator the definition of factorial as shown in figure four point three the evaluator will be able to compute factorials
+from this perspective our evaluator is seen to be a universal machine
+it mimics other machines when these are described as lisp programs
+this is striking
+try to imagine an analogous evaluator for electrical circuits
+this would be a circuit that takes as input a signal encoding the plans for some other circuit such as a filter
+given this input the circuit evaluator would then behave like a filter with the same description
+such a universal electrical circuit is almost unimaginably complex
+it is remarkable that the program evaluator is a rather simple program
+another striking aspect of the evaluator is that it acts as a bridge between the data objects that are manipulated by our programming language and the programming language itself
+imagine that the evaluator program is running and that a user is typing expressions to the evaluator and observing the results
+from the perspective of the user an input expression such as is an expression in the programming language which the evaluator should execute
+from the perspective of the evaluator however the expression is simply a list that is to be manipulated according to a well defined set of rules
+that the user's programs are the evaluator's data need not be a source of confusion
+in fact it is sometimes convenient to ignore this distinction and to give the user the ability to explicitly evaluate a data object as a lisp expression by making eval available for use in programs
+many lisp dialects provide a primitive eval procedure that takes as arguments an expression and an environment and evaluates the expression relative to the environment
+thus
+and
+will both return twenty five
+given a one argument procedure p and an object a p is said to halt on a if evaluating the expression returns a value
+show that it is impossible to write a procedure halts that correctly determines whether p halts on a for any procedure p and object a
+use the following reasoning if you had such a procedure halts you could implement the following program
+now consider evaluating the expression and show that any possible outcome violates the intended behavior of halts
+our environment model of evaluation and our metacircular evaluator execute definitions in sequence extending the environment frame one definition at a time
+this is particularly convenient for interactive program development in which the programmer needs to freely mix the application of procedures with the definition of new procedures
+however if we think carefully about the internal definitions used to implement block structure we will find that name by name extension of the environment may not be the best way to define local variables
+consider a procedure with internal definitions such as
+our intention here is that the name odd in the body of the procedure even should refer to the procedure odd that is defined after even
+the scope of the name odd is the entire body of f not just the portion of the body of f starting at the point where the define for odd occurs
+indeed when we consider that odd is itself defined in terms of even so that even and odd are mutually recursive procedures we see that the only satisfactory interpretation of the two define s is to regard them as if the names even and odd were being added to the environment simultaneously
+more generally in block structure the scope of a local name is the entire procedure body in which the define is evaluated
+as it happens our interpreter will evaluate calls to f correctly but for an accidental reason since the definitions of the internal procedures come first no calls to these procedures will be evaluated until all of them have been defined
+hence odd will have been defined by the time even is executed
+in fact our sequential evaluation mechanism will give the same result as a mechanism that directly implements simultaneous definition for any procedure in which the internal definitions come first in a body and evaluation of the value expressions for the defined variables does n't actually use any of the defined variables
+there is however a simple way to treat definitions so that internally defined names have truly simultaneous scope just create all local variables that will be in the current environment before evaluating any of the value expressions
+one way to do this is by a syntax transformation on lambda expressions
+before evaluating the body of a lambda expression we scan out and eliminate all the internal definitions in the body
+the internally defined variables will be created with a let and then set to their values by assignment
+for example the procedure
+would be transformed into
+where unassigned is a special symbol that causes looking up a variable to signal an error if an attempt is made to use the value of the not yet assigned variable
+an alternative strategy for scanning out internal definitions is shown in exercise four point eighteen
+unlike the transformation shown above this enforces the restriction that the defined variables' values can be evaluated without using any of the variables' values
+in this exercise we implement the method just described for interpreting internal definitions
+we assume that the evaluator supports let
+a
+change lookup variable value to signal an error if the value it finds is the symbol unassigned
+b
+write a procedure scan out defines that takes a procedure body and returns an equivalent one that has no internal definitions by making the transformation described above
+c
+install scan out defines in the interpreter either in make procedure or in procedure body
+which place is better
+why
+draw diagrams of the environment in effect when evaluating the expression e three in the procedure in the text comparing how this will be structured when definitions are interpreted sequentially with how it will be structured if definitions are scanned out as described
+why is there an extra frame in the transformed program
+explain why this difference in environment structure can never make a difference in the behavior of a correct program
+design a way to make the interpreter implement the simultaneous scope rule for internal definitions without constructing the extra frame
+consider an alternative strategy for scanning out definitions that translates the example in the text to
+here a and b are meant to represent new variable names created by the interpreter that do not appear in the user's program
+consider the solve procedure from section three point five point four
+will this procedure work if internal definitions are scanned out as shown in this exercise
+what if they are scanned out as shown in the text
+explain
+ben bitdiddle alyssa p
+hacker and eva lu ator are arguing about the desired result of evaluating the expression
+ben asserts that the result should be obtained using the sequential rule for define b is defined to be eleven then a is defined to be five so the result is sixteen
+alyssa objects that mutual recursion requires the simultaneous scope rule for internal procedure definitions and that it is unreasonable to treat procedure names differently from other names
+thus she argues for the mechanism implemented in exercise four point sixteen
+this would lead to a being unassigned at the time that the value for b is to be computed
+hence in alyssa's view the procedure should produce an error
+eva has a third opinion
+she says that if the definitions of a and b are truly meant to be simultaneous then the value five for a should be used in evaluating b
+hence in eva's view a should be five b should be fifteen and the result should be twenty
+which of these viewpoints do you support
+can you devise a way to implement internal definitions so that they behave as eva prefers
+because internal definitions look sequential but are actually simultaneous some people prefer to avoid them entirely and use the special form letrec instead
+letrec looks like let so it is not surprising that the variables it binds are bound simultaneously and have the same scope as each other
+the sample procedure f above can be written without internal definitions but with exactly the same meaning as
+letrec expressions which have the form
+are a variation on let in which the expressions expk that provide the initial values for the variables vark are evaluated in an environment that includes all the letrec bindings
+this permits recursion in the bindings such as the mutual recursion of even and odd in the example above or the evaluation of ten factorial with
+a
+implement letrec as a derived expression by transforming a letrec expression into a let expression as shown in the text above or in exercise four point eighteen
+that is the letrec variables should be created with a let and then be assigned their values with set
+b
+louis reasoner is confused by all this fuss about internal definitions
+the way he sees it if you do n't like to use define inside a procedure you can just use let
+illustrate what is loose about his reasoning by drawing an environment diagram that shows the environment in which the <rest of body of f > is evaluated during evaluation of the expression with f defined as in this exercise
+draw an environment diagram for the same evaluation but with let in place of letrec in the definition of f
+amazingly louis's intuition in exercise four point twenty is correct
+it is indeed possible to specify recursive procedures without using letrec although the method for accomplishing this is much more subtle than louis imagined
+the following expression computes ten factorial by applying a recursive factorial procedure
+a
+check that this really does compute factorials
+devise an analogous expression for computing fibonacci numbers
+b
+consider the following procedure which includes mutually recursive internal definitions
+fill in the missing expressions to complete an alternative definition of f which uses neither internal definitions nor letrec
+the evaluator implemented above is simple but it is very inefficient because the syntactic analysis of expressions is interleaved with their execution
+thus if a program is executed many times its syntax is analyzed many times
+consider for example evaluating using the following definition of factorial
+each time factorial is called the evaluator must determine that the body is an if expression and extract the predicate
+only then can it evaluate the predicate and dispatch on its value
+each time it evaluates the expression or the subexpressions and the evaluator must perform the case analysis in eval to determine that the expression is an application and must extract its operator and operands
+this analysis is expensive
+performing it repeatedly is wasteful
+we can transform the evaluator to be significantly more efficient by arranging things so that syntactic analysis is performed only once
+we split eval which takes an expression and an environment into two parts
+the procedure analyze takes only the expression
+it performs the syntactic analysis and returns a new procedure the execution procedure that encapsulates the work to be done in executing the analyzed expression
+the execution procedure takes an environment as its argument and completes the evaluation
+this saves work because analyze will be called only once on an expression while the execution procedure may be called many times
+with the separation into analysis and execution eval now becomes
+the result of calling analyze is the execution procedure to be applied to the environment
+the analyze procedure is the same case analysis as performed by the original eval of section four point one point one except that the procedures to which we dispatch perform only analysis not full evaluation
+here is the simplest syntactic analysis procedure which handles self evaluating expressions
+it returns an execution procedure that ignores its environment argument and just returns the expression
+for a quoted expression we can gain a little efficiency by extracting the text of the quotation only once in the analysis phase rather than in the execution phase
+looking up a variable value must still be done in the execution phase since this depends upon knowing the environment
+analyze assignment also must defer actually setting the variable until the execution when the environment has been supplied
+however the fact that the assignment value expression can be analyzed ( recursively ) during analysis is a major gain in efficiency because the assignment value expression will now be analyzed only once
+the same holds true for definitions
+for if expressions we extract and analyze the predicate consequent and alternative at analysis time
+analyzing a lambda expression also achieves a major gain in efficiency we analyze the lambda body only once even though procedures resulting from evaluation of the lambda may be applied many times
+analysis of a sequence of expressions is more involved
+each expression in the sequence is analyzed yielding an execution procedure
+these execution procedures are combined to produce an execution procedure that takes an environment as argument and sequentially calls each individual execution procedure with the environment as argument
+to analyze an application we analyze the operator and operands and construct an execution procedure that calls the operator execution procedure and the operand execution procedures
+we then pass these to execute application which is the analog of apply in section four point one point one
+execute application differs from apply in that the procedure body for a compound procedure has already been analyzed so there is no need to do further analysis
+instead we just call the execution procedure for the body on the extended environment
+our new evaluator uses the same data structures syntax procedures and run time support procedures as in sections four point one point two four point one point three and four point one point four
+extend the evaluator in this section to support the special form let
+alyssa p
+hacker does n't understand why analyze sequence needs to be so complicated
+all the other analysis procedures are straightforward transformations of the corresponding evaluation procedures in section four point one point one
+she expected analyze sequence to look like this
+eva lu ator explains to alyssa that the version in the text does more of the work of evaluating a sequence at analysis time
+alyssa's sequence execution procedure rather than having the calls to the individual execution procedures built in loops through the procedures in order to call them in effect although the individual expressions in the sequence have been analyzed the sequence itself has not been
+compare the two versions of analyze sequence
+for example consider the common case where the sequence has just one expression
+what work will the execution procedure produced by alyssa's program do
+what about the execution procedure produced by the program in the text above
+how do the two versions compare for a sequence with two expressions
+design and carry out some experiments to compare the speed of the original metacircular evaluator with the version in this section
+use your results to estimate the fraction of time that is spent in analysis versus execution for various procedures

@@ -1,0 +1,455 @@
+well let's see
+what we did so far was a lot of fun
+was it useful for anything
+um i suppose the answer is going to be yes okay that these meta circular interpreters are a valuable thing to play with
+i spend say well there have been times i spend fifty percent of my time over a year trying various design alternatives by experimenting with them with meta circular interpreters
+meta circular interpreters like the k sort sort you just saw meta circular is because they're defined in terms of themselves in such a way that the language they interpret contains itself right
+such interpreters are convenient medium for exploring language issues
+if you want to try adding a new feature it's sort of a snap
+it's easy
+you just do it and see what happens
+you play with that language for a while you say gee i didn't like that you throw it away
+okay or you might want to uh see what the difference is if you'd make a slight difference in the binding strategy or some or more complicated things that might occur
+in fact these meta circular interpreters are an excellent medium for people exchanging exchanging ideas about language design
+because they're pretty easy to understand and they're short and compact and simple uh if i have some idea that i want somebody to criticize like say dan friedman at indiana
+alright i'll write a little meta circular interpreter and send him some network mail and this interpreter he can whip it up on his machine and play with it and say that's no good and then send it back to me and say
+well why don't you try this one
+it's a little better
+so i want to show you some of that technology
+see because really it's the it's the essential simple technology for getting started in in designing your own languages for particular purposes
+so let's start by adding a very simple feature to a lisp
+now one thing i want to tell you about is features before i start okay
+there are many languages that have made a mess of themselves by adding huge numbers of features
+computer scientists have a joke about bugs that transform into features all the time
+but i like s to think of it as that many systems suffer from what's called creeping featurism which is that you know george has a pet p feature he'd like in the system so he adds it
+and then harry says is gonna says well i gee this system's no longer what exactly i like so i'm going to add fav favorite feature okay
+and then then jim adds his favorite feature and after a while the thing has a manual five hundred pages long that no one can understood
+but sometimes it's the same person who writes all of these features and produces this terribly complicated thing
+now some in some cases like editors it's sort of reasonable to have lots of features because there are a lot of things you want to be able to do and many of them are arbitrary
+guh in computer languages i think that's a disaster to have to much stuff in them
+the other alternative you get into is something called feeping creaturism
+which is where you have a box which has a a display a fancy display and a mouse and you get into ih oh there's all sorts of complexity associated with all this fancy io
+and your compute language becomes a dismal little tiny thing that barely works because of all of the swapping and disk twitching so on caused by your window system
+and every time you go near the computer the mouse process wakes up and says gee uh have you something for me to do
+and then it goes back to sleep and if you accidentally push the mouse with you elbow uh a big puff of smoke comes out of your computer and things like that so two ways to disastrously destroy a system by adding features
+but let's try right now add a little simple feature
+this actually is a good one and in fact real real lisps have it
+as you've seen there are procedures like like plus and times that take any number of arguments
+so we can write things like the sum of the product of a and x and x and the product of b and x and c
+as you could see here addition takes three arguments or two arguments multiplication takes two arguments or three arguments taking numbers of arguments all of which are to be treated in the same way okay
+this is a a valuable thing indefinite numbers of arguments
+yet the particular lisp system that i showed you is one where the numbers of arguments is fixed
+because i had to match the arguments against the formal parameters in the binder where there was a pair up hm
+well i'd like to be able to define new procedures like this that can have any number of arguments
+well there's several parts to this problem
+the first part is coming up with a syntactic specification some way of notating the additional arguments of which you don't know how many there are
+and then there is the other thing which is once we've notated it how we're going to interpret that in notation so as to do the right thing whatever the right thing is
+so let's consider an example of the sort of thing we might want to be able to do
+so an example might be that i might want to be able to define a procedure which is a procedure of one required argument x and a non require and a a bunch of arguments i don't know how many there are called y
+so x is required and there are many ys
+many arguments which we will call y la wa y will be the list of them
+now with such a thing we might be able to say something like map i'm going to do something to every one of that procedure of what argument u which multiplies x by u
+and we'll apply that to y
+i've used a dot here to indicate that the thing after this is a list of all the rest of the arguments
+i'm making a syntactic specification
+now what this depends upon the reason why this is sort of a reasonable thing to do okay
+is because this happens to be a syntax that's used in the lisp reader for representing conses
+we ve never introduced that before
+you've never seen you may have seen when playing with the system that if you cons two things together you get the first space dot the second clo uh space
+the first space dot space the second with parenthesis around the whole thing right
+so that for example this x dot y corresponds to a pair which has got an x in it and a y in it
+the mo the other notations that you've seen so far are things like like a procedure a procedure of arguments x and y and z which do things and that
+that looks like just looking at the bound variable list it looks like this
+x y z and the empty thing
+if i have a list of arguments i wish to match this against
+supposing i have a list of arguments one two three i want to match these against okay
+so i might have here a list of three things one two three
+okay and i want to match x y z against one two three
+well it's clear that the one matches the x because i could just sort of follow the structure
+and the two matches the y and the three matches the z
+but now supposing i were to compare this x dot y
+this is x dot y
+supposing i'd compare that with the list of three arguments one two three
+just look at that again
+one two three
+well i can look in i can walk along here and say
+oh yes
+x matches the one huh
+the y matches the list which is two and three
+so the notation i'm choosing here is one that's very natural for the lisp system but i'm going to choose this as a notation for representing a bunch of arguments
+now there's an alternative possibility which is if i don't want to take one special out or two special ones out or something like that right
+if i don't want to do that if i want to talk about just the list of all the arguments like in addition hm well then the argument list i'm going to choose to be that procedure of all the arguments x which do does something with x okay
+which for example if i take the procedure which is which takes all the arguments x and returned the list of them okay that's list
+that's the procedure to list
+so this is how does this work
+well indeed what i had as the bound variable list in this case whatever it is is being matched against the list of arguments
+this symbol now is all of the arguments
+and so this is the choice i'm making for a particular syntactic specification for the description of procedures which take indefinite numbers of arguments hm
+there are two cases of it this one and this one and none of these when you make syntactic specifications it's important that it's unambiguous
+that neither of these can be confused with a n a representation we already have
+this one
+i can always tell whether i have a fixed number of explicitly names arguments named by these formal parameters or a fixed number of named formal parameters followed by a thing which picks up all the rest of them
+or a uh a list of all of the formal of all the arguments which would be matched against this particular formal parameter called x because these are syntactically distinguishable okay
+many languages make terrible errors in that form where whole segments of interpretation are cut off because there are there are syntactic ambiguities in the language
+there have been traditional problems with algol like languages having to do with the nesting of ifs in the in the uh in the predicate part
+in any case now so i've told you about the syntax now what are we going to do about the semantic the semantics of this
+how do we interpret it
+well this is just super easy
+i'm going to modify the meta circular interpreter to do it and that's a one liner
+there is is
+i'm changing the way you pair things up okay
+here we have the procedure that pairs
+here's the procedure that pairs um the variables the formal parameters with the arguments that were passed from the last
+from the last description of the meta circular interpreter
+and here are some things that are the same as they were before
+in other words if the list of variables is empty then if the list of values is empty then i have then i have an empty list otherwise i have too many arguments
+you know if i have that is if i have empty variables but non empty values
+if i have empty values okay but na eh the variables are not empty i have too few arguments
+however if i have a variable the variables are a symbol interesting case
+then what i should do is say oh yes
+this is the special case that i have a symbolic tail okay
+i have here a uh thing just like we looked over here
+this is a tail which is a symbol y
+it's not a nil
+it's not the empty list
+here's a symbolic tail
+it's just the very beginning is the tail
+there's nothing else
+in that case i wish to match the that list of var that variable
+with all the values and m and add that to the to uh the p pairing that i'm making
+otherwise i go through the normal the normal arrangement of making up the whole pairing
+i suppose that's very simple and that's all there is to it and now i'll answer some questions
+first one
+are there any questions
+yes
+could you explain that uh third form
+the third form
+this one
+yes
+okay well maybe we should look at the wh the the thing as a as a piece of list structure okay
+this is a procedure which contains a lambda i'm just looking at the list structure which represents this is represents this
+here's x these are pr are symbols and then their body is nothing but x okay
+if i were looking for the bound variable list part of this procedure i would go looking at the cadr and i'd find a symbol
+so the matcher which is this pair up thing i just showed you is going to be matching a symbolic object against list of uh uh of arguments that were passed and it will bind that symbol to the to the list of arguments
+the in this case if i'm looking for looking for it the match will be against this in the bound variable list position okay
+now if we what this does is it gets the list of arguments and returns it that's list
+that's the procedure is
+oh well thank you
+let's take a break
+well let's see
+now i'm going to tell you about a rather more substantial variation
+uh one that's a a famous variation that uh many early lisps uh had
+it's called dynamic binding of variables and we'll investigate a little bit about that right now
+i'm going to first introduce this by showing you the sort of thing that would make someone want this idea hm
+i'm not going to tell you what it is yet
+i'm going to show you how you why you might want it
+suppose for example we looked at the sum procedure again
+we're summing up a bunch of things to be that procedure of a term a low lower bound method of computing the next index and upper bound
+such that if a is greater than b then the result is zero
+otherwise it's the sum of the term procedure applied to a and the result of adding up terms um
+with the next a being the a
+the next procedure passed along and the upper bound being passed along
+blink blink blink okay
+now when i use this sum procedure i can use it for example like this
+we can define the sum of the powers of to be for example sum of a bunch of powers x to the n to be that procedure of a b and n lower bound the upper bound and n which is sum of lambda of x that procedure of one argument x which exponentiates x to the n with the a the incrementer and b being passed along
+so we're adding up x to the n given an x
+w x takes on values from a to b incrementing by one hm
+i can also write the su the that's right
+it's a product excuse me a product of a bunch of powers
+it's a strange name
+i'm going to leave it there
+weird
+okay
+i'll write what i have
+i'm sure that's right
+and if i want the product of a bunch of powers that was twelve brain cells that double take
+okay i can for example use the the procedure which is like sum which is for pr making products but it's similar to that that you've seen before as a procedure of of three arguments again which is the product of terms that are constructed or factors in this case constructed from exponentiating x to the n where i start with a i increment and i go to b
+now there's some sort of thing here that should disturb you immediately
+these look the same
+why am i writing this code so many times
+okay here i am in the same in the same boat i've been in before right
+wouldn't it be nice to make an abstraction here
+what's an example of a good abstraction to make
+well i see some code that's identical
+here's one and here's another okay
+and so maybe i should be able to pull that out
+i should be able to say oh yes
+the sum of the powers could be written in terms of something called the nth power procedure
+imagine somebody wanted to write a slightly different procedure that looks like this
+the sum powers to be a procedure of a b and n which is the result of summing up the nth power
+we're going to give a name to that idea for starting at a going by one and ending at b
+and similarly okay i might want to write product powers this way
+abstracting out this idea
+i might want this
+product powers to be a procedure of a b and n which is the product of the nth power operation on a with the incrementation and b being being my arguments for the analogous thing product
+and i'd like to be able to define i'd like to be able to define nth power
+i'll put it over here
+put it at the top
+to be in fact my procedure of one argument x which is the result of exponentiating x to the n
+but i have a problem
+my environment model that is my means of interpretation for the language that we've defined so far does not give me a meaning for this end hm because as you know the as you know this n is free in this procedure
+the environment model tells us that the meaning of a free variable is determined in the environment in which this procedure is defined
+in the way i've written it assuming these things are defined on the blackboard as is this is defined in the global environment where there is no n
+therefore n is an unbound variable
+but it's perfectly clear to most of us that we would like it to be this n and this n okay
+on the other hand okay it would be nice certainly we got to be careful here of keeping this to be this okay and this one over here wherever it is to be this one
+well the desire to make this work has led to a very famous bug okay
+tell you about the famous bug
+if you look at this slide there's an idea called dynamic binding where instead of the free variable being interpreted in the environment of definition of a procedure the free variable is interpreted as having it's value in the environment of the caller of the procedure okay and so what you have is a system where you search up the chain of callers of a particular procedure
+and of course in this case since nth power is called from inside product whatever it is i didn't write it
+i wrote sum which is the analogous procedure okay and product is presumable called from product powers as you see over here then since product powers bind the variable n then nth powers n would be derived through that chain okay
+similarly this n the nth power in n in this case would come through nth power here being called from inside sum you can see it being called from inside sum here okay
+it's called term here
+okay but t k sum was called from inside of sum powers which bound n
+therefore there would be an n available for that n to be to get its value from
+this is called a dyna the what we have below this white line plus over here is what's called a dynamic binding view of the world
+if that works that's a dynamic binding view
+now let's take a look for example at just what it takes to implement that
+that's real easy
+in fact the very first lisps that had any f interpretations of the free variables all had dynamic binding interpretations for the free variables
+apl has dynamic binding interpretation for the free variables
+not s not not lexical or static binding
+so the n of course the change is in eval right
+and it's really in two places
+first of all one thing we see is that things become a little simpler
+if i don't have to have the if i don't have to have the environment be the environment of definition for a procedure the procedure need not capture the environment d d the time it's defined hm
+and so if we look here at this this slide we see that the cause for a lambda expression which is the way a procedure is defined does not make up a thing which has a type closure and a and a uh attached environment structure
+he's just the expression itself and we'll decompose that some other way somewhere else hm
+the other thing we see is the applicator the applicator must be able to get the environment of the caller
+the caller of a procedure is right here
+if the procedure is an application if if the expression we're evaluating is an application then we're going to call or a combination then we're going to call a procedure which is the value of the operator
+the environment of the caller is the environment we have right here available now
+so all i have to do is pass that environment to the applicator to apply and if we look at that here the only change we have to make is that the that fella takes that environment and uses that environment for the purpose of extending that environment when uh bi when uh binding the formal parameters of the procedure to the arguments that were passed not a proce a not an environment that was captured in the procedure
+the reason why the first lisps were implemented this way this is sort of the obvious accidental implementation
+and of course as usual people got used to it and like it and there were some people who said this is the way to do it
+unfortunately that causes some serious problems
+the most important serious problem in using dynamic binding is that there is a modularity crisis that's involved in it
+if two people are working together on some big system then an important thing to want is that the names used by each one don't interfere with the names of the other
+it's important that when i invent some s a segment of code that no one can make my code stop working by using my names that i use internal to my code internal to his code
+however dynamic binding violates that particular modularity constraint in a clear way right
+consider for example what happens over here
+suppose it was the case that i decided to change the word next
+i mean i'm a supposing somebody is writing somebody is writing sum and somebody else is going to use sum hm
+the writer of sum has a choice of what names he may use
+let's say i'm that writer
+well by gosh it just happens i didn't want to call this next
+i called it n okay
+so all places where you see next i called it n
+oops
+i've changed nothing about the specifications of this program but this program stops working
+not only that unfortunately this one does too
+okay why do these fre programs stop working
+well it's sort of clear
+instead of chasing out the instead of chasing out the value of the n that occurs in nth power over here or over here through the environment of definition where this one is always linked to this one if it was through the environment of definition because here is the definition
+this lambda expression was executed in the environment where that n was defined okay
+if instead of doing that i have to chase through the call chain look what horrible thing happens
+well this was called from inside sum as term term a okay
+i'm looking for a value of n
+instead of getting this one i get that one
+so by changing the insides of this program this program stops working
+so i know longer have a quantifier as i described before which is a symbol lambda symbol is supposed to be a quantifier
+a thing which has the property that the that the names that are u are bound by it are unimportant
+that i can uniformly substitute any names for these throughout this thing so long as they don't occur in here the new names and the meaning of this expression should remain unchanged
+i've just changed the meaning of the expression by changing the na one of the names
+so lambda is no longer a well defined idea
+it's a very serious problem
+so for that reason i and my buddies have given up this particular kind of abstraction which i would like to have in favor of a modularity principle
+but this is the kind of experiment you can do if you want to play with these interpreters
+you can try them out this way that way and the other way okay
+and you see what makes a nicer language
+so that's a very important thing to be able to do
+now i would like to give you a feeling for what i think the right thing to do is here
+how are you going to how are you going to i get this kind of of power in a lexical system
+and the answer is of course what i really want is a something that makes up for me an exponentiater for a particular n
+given an n it will make me an exponentiater
+oh but that's easy too
+in other words i could write my power my program this way can define a thing called pgen which is a procedure of n which produces for me an exponentiater x to the n
+given that i have that then i can capture the abstraction that i wanted even better because it's now encapsulated in a way where i can't be destroyed by a change of names
+i can define some powers to be a procedure again of a b and n which is the sum of the term genera the term function generated by using this generator pgen n with a the incrementer and b
+and i can define the product of powers to be a procedure of a b and n which is the product of pgen n with a increment and b
+now of course this is a very simple example where this object that i'm trying to distract over is small but it could be a hundred lines of code and so the purpose of this is of course to make it simple
+i've given a name to it
+it's just that here it's a parameterized name
+it's a name that depends upon explicitly the lexically apparent value of n
+so you could think of this as a long name
+and here i've solved my problem by naming my an my my by naming the the term generation procedures with an n in them
+are there any questions
+oh yes david
+is the only solution to uh uh the problem you raised to create another procedure
+in other words can this only work in languages that are capable of defining objects as procedures
+oh i see
+the my solution to making this abstraction when i didn't want to include the procedure inside the body depended upon my ability to return a procedure ah or export one
+right
+and that's right
+uh in the if i don't have that then i just don't have this ability to make an abstraction in a way where i don't have uh where i where i don't have possibilities of symbol conflicts that were unanticipated
+that's right
+so one of the th the as i consider i consider being able to return a procedural value and therefore uh and therefore to sort of have first class procedures in general as being essential to doing very good modular programming
+now indeed there are many other ways to skin this cat
+what you can do is take for each of the for each of the bad things that you have to worry about you can make a special feature that covers that that thing
+you can make a package system
+you could make module system as in aida et cetera okay
+and all of those work over they cover little regions of it
+the thing is that returning procedures as values cover all of those problems okay
+and so it's the simplest mechanism that gives you the ma that gives you the best modularity gives you all of the known modularity mechanisms
+well i suppose it's time for the next break
+thank you
+well yesterday when you learned about streams how worried to you about about the order of evaluation and delayed arguments to procedures
+the way we played with streams yesterday it was the responsibility of the caller and the callee to both agree that an argument was delayed and the call uh callee must force the argument if it needs the answer
+so there had to be a lot of handshaking between the designer of a procedure and the user of it over over delayedness
+that turns out of course to be a fairly bad thing
+it works all right with streams but as a general thing what you want is it a is a an idea to have a locus a decision a design decision in general to have a place where it's made explicitly and notated i in a clear way
+and so it's not a very good idea to have to have an agreement between the person who writes a procedure and the pr person who who calls it about such details as maybe the arguments of evaluation the order of evaluation
+although that's not so bad
+i mean we have other such agreements like the input's a number
+but it would be nice if only one of these guys could take responsibility completely
+now this is not a new idea
+algol sixty had two different ways of calling a procedure
+the arguments can be passed by name or by value
+and what that meant was that a name argument was delayed that when you pass an argument by name that its value would only be a it be obtained if you access that en that that argument
+so what i'd like to do now is show you first of all a little bit about again we're going to make a modification to a language
+in this case we're going to add a feature
+we're going to add the feature of by name parameters if you will or delayed parameters
+because in fact the default in in our lisp system is by the value of a pointer
+a pointer is copied but the data structure it points at is not hm
+what i'd like to in fact show you is a is how you add name arguments as well
+now again why would we need such a thing
+well supposing we wanted to invent certain kinds of of what otherwise would be special forms reserve words but i'd rather not take up reserved words
+i want procedures that could do things like if
+if is special or cond or whatever it is it's the same thing
+it's special in that it determines whether or not to evaluate the consequent or the alternative based on w the value of the predicate part of an expression
+so valua taking the value of one thing determines whether or not to do something else
+whereas all the procedures like plus evaluate or are the ones we can define right now evaluate all of their arguments before before application
+so for example supposing i wish to be able to define something like the reverse of if in terms of if call it unless
+have a predicate a consequent and an alternative
+and what i'd like to sort of be able to do is say oh i'll do it in terms of cond
+cond if not the predicate then take the consequent otherwise take the alternative
+now what i'd like this to mean is supposing i do something like this
+i'd like this unless say if equals one zero then the answer is two
+otherwise the quotient of one and zero okay
+what i'd like that to mean is the result of substituting equal one zero and two and the quotient of one zero for p c and a
+i'd like that to mean and this is funny i'd like it to transform into or mean cond not equal one zero then the result is two
+otherwise i want it to be the quotient of one and zero
+now you know that if i were to type this into lisp i'd get a two
+there's no problem with that okay
+however if i were to type this into lisp because all of the arguments are evaluated before i start then i'm going to get an error out of this
+so that if the substitutions work at all of course i would get the right answer but here's the case where i get the wro i don't the substitutions don't work okay
+i get the wrong i don't get the wrong answer i get no answer
+i get an error
+now however i'd like to be able to make my definition so that this kind of thing works
+what i want to do is say something special about c and a
+i want them to be delayed automatically
+i don't want them to be i don't want them to be evaluated at the time i call
+so i'm going to make a declaration and then i'm going to see how to implement such a declaration
+but again i want you to say to yourself oh this is an interesting kludge he's adding in here
+a kludge you know if piles of kludges make a big complicated mess right
+and is this going to ma foul up something else that may heh occur
+first of all is it sanitic syntactically unambiguous
+well it'll be syntactically unambiguous with what we've seen so far
+but em what i'm going to do may in fact cause trouble
+it may be that the thing i add will conflict with type declarations i might want to add in the future for giving some system some compiler or something the ability to optimize given the types are known okay
+or it might conflict with other types of declarations i might want to make about the the formal parameters
+so i'm not making a general mechanism here where i can add declarations and i would like to be able to do that but i don't want to talk about that right now
+so here i'm going to do i'm going build a kludge
+so we're going to define unless of a predicate and i want to call these by name the consequent and name the alternative
+ha
+ha
+i got caught the corner
+if not p then the result is c else that's what i'd like
+where i can explicitly declare certain of the parameters to be delayed to be computed later
+now this is actually a very complicated modification to an interpreter rather than a simple one
+the ones you saw before dynamic binding or adding uh indefinite argument procedures is relatively simple
+but this one changes a basic strategy
+the problem here is that our interpreter does ih ih as written evaluates a combination by evaluating the procedure the operator producing the procedure and evaluating the operands producing the arguments and then doing an apply of the procedure to the to the arguments arguments
+however here i don't want to evaluate the argu the operand the operands to produce the arguments until after i've examined the procedure to see what the procedure's declarations look like
+so let's look at that
+here we have a changed evaluator
+i'm starting with the simple lexical evaluator not dynamic but we're going to have to do something sort of similar in some ways because of the fact that if i delay a procedure i'm sorry delay an argument to a procedure i'm going to have to attach an environment to it
+remember how hal implemented delay
+hal implemented delay as being a procedure of no arguments which does some expression
+that's what delay of the expression is of that expression
+this turned into something like this okay
+now however if i evaluate a lambda expression i have to capture the environment
+the reason why is because there are para there are variables in there whose meanings i wish deri uh derive from the context where this was written
+so that's why a lambda does the job
+it's the the right thing
+and it's actually forcing of an of of a delayed expression was the same thing as calling that with no arguments
+that's just the opposite of this
+producing an environment of the call which is in fact the environment where this was defined with an extra frame in it that's empty
+i don't care about that
+well if we go back to this the uh slide since it's the case if we look at this for a second everything is the same as it was before except the case of applications or combinations
+and combinations i've got to do two things
+one is i have evaluate the procedure i have to get the procedure by evaluating the operator
+that's what we see right here
+i have to make sure that that's current
+that is not a delayed object and evaluate that to the point where it became it's forced now
+an then i have to somehow apply that to the to the operands si but i have to keep the environment pass that environment along so that some of those operands i may have to delay i have to may have to attach that environment to those operands
+this is a rather complicated thing happening here
+looking at that in apply apply well it has a a primitive procedure thing just like before but the compound one is a little more interesting
+i have to evaluate the body just as before in an environment which is which is the result of binding some formal parameters to arguments in the environment
+that's true
+the environment is the one that come from the procedure now
+it's a lexical language statically bound
+however one thing i have to do is strip off the declarations to get the names of the variables
+that's what this guy does vnames
+and the other thing i have to do is process these declarations deciding which of these operands that's the operands now as opposed to the arguments which of the operands to evaluate and which of them are to be are to be encapsulated in delays of some sort
+the other thing you see here is that we have a primitive a primitive like plus had better get at the real the real operands
+so here's a place where i'm going to have to force them and we're going to look what evlist is going to have to do a bunch of forces
+so we have two different kinds of evlist now
+we have evlist and gevlist
+gevlist is going to wrap delays around some things and force others or evaluate others and this guy is going to do some if yo so so some uh forcing of things
+just looking at this a little bit this is a game you must play for yourself you know
+this is not something that you're going to see all possible variations on an evaluator talking to me
+okay what you have to do is do this for yourself and after you feel this you play this a bit you get to see all the possible design decisions and what they might mean and how they interact with each other and so what languages might have in them and what are sort of consistent sets that make a legitimate language
+whereas what things are complicated kludges that are just piles of junk
+so evlist of course over here just as i said is a list of operands which are going to be undelayed after evaluation
+so these are going to be forced whatever that's going to mean
+and gevlist which is the next thing thank you
+what we see here um well there's a couple of possibilities
+either it's a normal ordinary thing a symbol sitting there like the predicate in the unless okay that's what we have here
+in which case this is intended to be evaluated in applicative order and it's essentially just what we had before
+it's mapping eval down down the list
+in other words i'm going to evaluate the first expression and continue gevlisting the cdr of the expression in the environment
+however it's possible that this is a name a name parameter
+if it's a name parameter i want to put a delay in which combines that expression which i'm calling by name within it with with the environment that's available at this time and passing that as the parameter
+and this is part of the mapping process that you see here okay
+the only other interesting place in this procedure in this in this interpreter is cond
+people tend to write this thing and then they leave this one out
+there's a place where you have to force
+conditionals have to know whether or not the answer is true or false
+it's like a primitive
+when you do a conditional you have to force
+now i'm not going to look at any more of this in any detail
+it isn't very exciting and what's left is how do you make delays
+well delays are data structures which contain an expression in an environment and a type on them that says they're a thunk that comes from algol language and it's claimed to be the sound of something being pushed on a stack
+i don't know
+i was not an algolician so or an algolite or whatever
+so i don't know
+but that's what it's claimed
+and an undelay is something which will recursively undelay thunks until the thunk becomes something which isn't a thunk
+okay and this is the way you implement a call by name like thing in algol
+and that's about all there is
+are there any questions
+uh jerry
+yes fesko
+uh i noticed you avoided calling by name in the primitive procedures and i was wondering what thoughts you have on that
+you never need that
+fesko is asking if it's ever a reasonable to call a primitive procedure by name and the answer is yes
+there is one particular case where it's reasonable actually two
+cre cu construction of a data structure like cons or making an array if you have arrays with any number of elements okay it's unnecessary to evaluate those arguments
+all you need is promises to evaluate those arguments if you look at them
+in other words if i cons together a two things then i could cons together the promises just as easily as i could cons together the things
+and it's only when i it's not even when i car or cdr them that i have to look at them
+that just gets out the promises and passes them to somebody
+that's why the lambda calculus definition the alonzo church definition of car cdr and cons makes sense is because no work is done in car cdr and cons
+it's just shuffling data
+it's just rooting if you will
+however the things that do have to look at data are things like plus because they have to look at the bits that the numbers are made out of unless they're lambda calculus numbers which are funny okay
+they have to look at the bits to d be able to crunch them together to do the add okay
+so in fact data constructors data selectors and in fact things that side effect data objects don't need to do don't need to do any forcing in the laziest possible interpreters
+on the other hand predicates on data structures have to
+if you want to say is this a is this a pair or is it a symbol
+well you better find out
+you got to look at it then
+any other questions
+oh well i suppose it's time for a break
+thank you

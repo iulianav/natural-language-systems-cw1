@@ -1,0 +1,44 @@
+metalinguistic abstraction
+in our study of program design we have seen that expert programmers control the complexity of their designs with the same general techniques used by designers of all complex systems
+they combine primitive elements to form compound objects they abstract compound objects to form higher level building blocks and they preserve modularity by adopting appropriate large scale views of system structure
+in illustrating these techniques we have used lisp as a language for describing processes and for constructing computational data objects and processes to model complex phenomena in the real world
+however as we confront increasingly complex problems we will find that lisp or indeed any fixed programming language is not sufficient for our needs
+we must constantly turn to new languages in order to express our ideas more effectively
+establishing new languages is a powerful strategy for controlling complexity in engineering design we can often enhance our ability to deal with a complex problem by adopting a new language that enables us to describe the problem in a different way using primitives means of combination and means of abstraction that are particularly well suited to the problem at hand
+programming is endowed with a multitude of languages
+there are physical languages such as the machine languages for particular computers
+these languages are concerned with the representation of data and control in terms of individual bits of storage and primitive machine instructions
+the machine language programmer is concerned with using the given hardware to erect systems and utilities for the efficient implementation of resource limited computations
+high level languages erected on a machine language substrate hide concerns about the representation of data as collections of bits and the representation of programs as sequences of primitive instructions
+these languages have means of combination and abstraction such as procedure definition that are appropriate to the larger scale organization of systems
+metalinguistic abstraction establishing new languages plays an important role in all branches of engineering design
+it is particularly important to computer programming because in programming not only can we formulate new languages but we can also implement these languages by constructing evaluators
+an evaluator for a programming language is a procedure that when applied to an expression of the language performs the actions required to evaluate that expression
+it is no exaggeration to regard this as the most fundamental idea in programming
+the evaluator which determines the meaning of expressions in a programming language is just another program
+to appreciate this point is to change our images of ourselves as programmers
+we come to see ourselves as designers of languages rather than only users of languages designed by others
+in fact we can regard almost any program as the evaluator for some language
+for instance the polynomial manipulation system of section two point five point three embodies the rules of polynomial arithmetic and implements them in terms of operations on list structured data
+if we augment this system with procedures to read and print polynomial expressions we have the core of a special purpose language for dealing with problems in symbolic mathematics
+the digital logic simulator of section three point three point four and the constraint propagator of section three point three point five are legitimate languages in their own right each with its own primitives means of combination and means of abstraction
+seen from this perspective the technology for coping with large scale computer systems merges with the technology for building new computer languages and computer science itself becomes no more than the discipline of constructing appropriate descriptive languages
+we now embark on a tour of the technology by which languages are established in terms of other languages
+in this chapter we shall use lisp as a base implementing evaluators as lisp procedures
+lisp is particularly well suited to this task because of its ability to represent and manipulate symbolic expressions
+we will take the first step in understanding how languages are implemented by building an evaluator for lisp itself
+the language implemented by our evaluator will be a subset of the scheme dialect of lisp that we use in this book
+although the evaluator described in this chapter is written for a particular dialect of lisp it contains the essential structure of an evaluator for any expression oriented language designed for writing programs for a sequential machine
+the evaluator has been simplified for the purposes of illustration and discussion and some features have been left out that would be important to include in a production quality lisp system
+nevertheless this simple evaluator is adequate to execute most of the programs in this book
+an important advantage of making the evaluator accessible as a lisp program is that we can implement alternative evaluation rules by describing these as modifications to the evaluator program
+one place where we can use this power to good effect is to gain extra control over the ways in which computational models embody the notion of time which was so central to the discussion in chapter three
+there we mitigated some of the complexities of state and assignment by using streams to decouple the representation of time in the world from time in the computer
+our stream programs however were sometimes cumbersome because they were constrained by the applicative order evaluation of scheme
+in section four point two we'll change the underlying language to provide for a more elegant approach by modifying the evaluator to provide for normal order evaluation
+section four point three implements a more ambitious linguistic change whereby expressions have many values rather than just a single value
+in this language of nondeterministic computing it is natural to express processes that generate all possible values for expressions and then search for those values that satisfy certain constraints
+in terms of models of computation and time this is like having time branch into a set of possible futures and then searching for appropriate time lines
+with our nondeterministic evaluator keeping track of multiple values and performing searches are handled automatically by the underlying mechanism of the language
+in section four point four we implement a logic programming language in which knowledge is expressed in terms of relations rather than in terms of computations with inputs and outputs
+even though this makes the language drastically different from lisp or indeed from any conventional language we will see that the logic programming evaluator shares the essential structure of the lisp evaluator

@@ -1,0 +1,53 @@
+building abstractions with procedures
+we are about to study the idea of a computational process
+computational processes are abstract beings that inhabit computers
+as they evolve processes manipulate other abstract things called data
+the evolution of a process is directed by a pattern of rules called a program
+people create programs to direct processes
+in effect we conjure the spirits of the computer with our spells
+a computational process is indeed much like a sorcerer's idea of a spirit
+it cannot be seen or touched
+it is not composed of matter at all
+however it is very real
+it can perform intellectual work
+it can answer questions
+it can affect the world by disbursing money at a bank or by controlling a robot arm in a factory
+the programs we use to conjure processes are like a sorcerer's spells
+they are carefully composed from symbolic expressions in arcane and esoteric programming languages that prescribe the tasks we want our processes to perform
+a computational process in a correctly working computer executes programs precisely and accurately
+thus like the sorcerer's apprentice novice programmers must learn to understand and to anticipate the consequences of their conjuring
+even small errors in programs can have complex and unanticipated consequences
+fortunately learning to program is considerably less dangerous than learning sorcery because the spirits we deal with are conveniently contained in a secure way
+real world programming however requires care expertise and wisdom
+a small bug in a computer aided design program for example can lead to the catastrophic collapse of an airplane or a dam or the self destruction of an industrial robot
+master software engineers have the ability to organize programs so that they can be reasonably sure that the resulting processes will perform the tasks intended
+they can visualize the behavior of their systems in advance
+they know how to structure programs so that unanticipated problems do not lead to catastrophic consequences and when problems do arise they can debug their programs
+well designed computational systems like well designed automobiles or nuclear reactors are designed in a modular manner so that the parts can be constructed replaced and debugged separately
+we need an appropriate language for describing processes and we will use for this purpose the programming language lisp
+just as our everyday thoughts are usually expressed in our natural language and descriptions of quantitative phenomena are expressed with mathematical notations our procedural thoughts will be expressed in lisp
+lisp was invented in the late 1950s as a formalism for reasoning about the use of certain kinds of logical expressions called recursion equations as a model for computation
+the language was conceived by john mccarthy and is based on his paper recursive functions of symbolic expressions and their computation by machine
+despite its inception as a mathematical formalism lisp is a practical programming language
+a lisp interpreter is a machine that carries out processes described in the lisp language
+the first lisp interpreter was implemented by mccarthy with the help of colleagues and students in the artificial intelligence group of the mit research laboratory of electronics and in the mit computation center
+lisp whose name is an acronym for list processing was designed to provide symbol manipulating capabilities for attacking programming problems such as the symbolic differentiation and integration of algebraic expressions
+it included for this purpose new data objects known as atoms and lists which most strikingly set it apart from all other languages of the period
+lisp was not the product of a concerted design effort
+instead it evolved informally in an experimental manner in response to users' needs and to pragmatic implementation considerations
+lisp's informal evolution has continued through the years and the community of lisp users has traditionally resisted attempts to promulgate any official definition of the language
+this evolution together with the flexibility and elegance of the initial conception has enabled lisp which is the second oldest language in widespread use today to continually adapt to encompass the most modern ideas about program design
+thus lisp is by now a family of dialects which while sharing most of the original features may differ from one another in significant ways
+the dialect of lisp used in this book is called scheme
+because of its experimental character and its emphasis on symbol manipulation lisp was at first very inefficient for numerical computations at least in comparison with fortran
+over the years however lisp compilers have been developed that translate programs into machine code that can perform numerical computations reasonably efficiently
+and for special applications lisp has been used with great effectiveness
+although lisp has not yet overcome its old reputation as hopelessly inefficient lisp is now used in many applications where efficiency is not the central concern
+for example lisp has become a language of choice for operating system shell languages and for extension languages for editors and computer aided design systems
+if lisp is not a mainstream language why are we using it as the framework for our discussion of programming
+because the language possesses unique features that make it an excellent medium for studying important programming constructs and data structures and for relating them to the linguistic features that support them
+the most significant of these features is the fact that lisp descriptions of processes called procedures can themselves be represented and manipulated as lisp data
+the importance of this is that there are powerful program design techniques that rely on the ability to blur the traditional distinction between passive data and active processes
+as we shall discover lisp's flexibility in handling procedures as data makes it one of the most convenient languages in existence for exploring these techniques
+the ability to represent procedures as data also makes lisp an excellent language for writing programs that must manipulate other programs as data such as the interpreters and compilers that support computer languages
+above and beyond these considerations programming in lisp is great fun

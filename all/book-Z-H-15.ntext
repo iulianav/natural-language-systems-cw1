@@ -1,0 +1,430 @@
+as we have seen pairs provide a primitive glue that we can use to construct compound data objects
+figure two point two shows a standard way to visualize a pair in this case the pair formed by
+in this representation which is called box and pointer notation each object is shown as a pointer to a box
+the box for a primitive object contains a representation of the object
+for example the box for a number contains a numeral
+the box for a pair is actually a double box the left part containing the car of the pair and the right part containing the cdr
+we have already seen that cons can be used to combine not only numbers but pairs as well
+as a consequence pairs provide a universal building block from which we can construct all sorts of data structures
+figure two point three shows two ways to use pairs to combine the numbers one two three and four
+the ability to create pairs whose elements are pairs is the essence of list structure's importance as a representational tool
+we refer to this ability as the closure property of cons
+in general an operation for combining data objects satisfies the closure property if the results of combining things with that operation can themselves be combined using the same operation
+closure is the key to power in any means of combination because it permits us to create hierarchical structures structures made up of parts which themselves are made up of parts and so on
+from the outset of chapter one we've made essential use of closure in dealing with procedures because all but the very simplest programs rely on the fact that the elements of a combination can themselves be combinations
+in this section we take up the consequences of closure for compound data
+we describe some conventional techniques for using pairs to represent sequences and trees and we exhibit a graphics language that illustrates closure in a vivid way
+one of the useful structures we can build with pairs is a sequence an ordered collection of data objects
+there are of course many ways to represent sequences in terms of pairs
+one particularly straightforward representation is illustrated in figure two point four where the sequence one two three four is represented as a chain of pairs
+the car of each pair is the corresponding item in the chain and the cdr of the pair is the next pair in the chain
+the cdr of the final pair signals the end of the sequence by pointing to a distinguished value that is not a pair represented in box and pointer diagrams as a diagonal line and in programs as the value of the variable nil
+the entire sequence is constructed by nested cons operations
+such a sequence of pairs formed by nested cons es is called a list and scheme provides a primitive called list to help in constructing lists
+the above sequence could be produced by
+in general
+is equivalent to
+lisp systems conventionally print lists by printing the sequence of elements enclosed in parentheses
+thus the data object in figure two point four is printed as
+be careful not to confuse the expression with the list which is the result obtained when the expression is evaluated
+attempting to evaluate the expression will signal an error when the interpreter tries to apply the procedure one to arguments two three and four
+we can think of car as selecting the first item in the list and of cdr as selecting the sublist consisting of all but the first item
+nested applications of car and cdr can be used to extract the second third and subsequent items in the list
+the constructor cons makes a list like the original one but with an additional item at the beginning
+the value of nil used to terminate the chain of pairs can be thought of as a sequence of no elements the empty list
+the word nil is a contraction of the latin word nihil which means nothing
+the use of pairs to represent sequences of elements as lists is accompanied by conventional programming techniques for manipulating lists by successively cdr ing down the lists
+for example the procedure list ref takes as arguments a list and a number n and returns the nth item of the list
+it is customary to number the elements of the list beginning with 0
+the method for computing list ref is the following
+for n equal 0 list ref should return the car of the list
+otherwise list ref should return the st item of the cdr of the list
+often we cdr down the whole list
+to aid in this scheme includes a primitive predicate null which tests whether its argument is the empty list
+the procedure length which returns the number of items in a list illustrates this typical pattern of use
+the length procedure implements a simple recursive plan
+the reduction step is
+the length of any list is one plus the length of the cdr of the list
+this is applied successively until we reach the base case
+the length of the empty list is 0
+we could also compute length in an iterative style
+another conventional programming technique is to cons up an answer list while cdr ing down a list as in the procedure append which takes two lists as arguments and combines their elements to make a new list
+append is also implemented using a recursive plan
+to append lists list one and list two do the following
+if list one is the empty list then the result is just list two
+otherwise append the cdr of list one and list two and cons the car of list one onto the result
+define a procedure last pair that returns the list that contains only the last element of a given ( nonempty ) list
+define a procedure reverse that takes a list as argument and returns a list of the same elements in reverse order
+consider the change counting program of section one point two point two
+it would be nice to be able to easily change the currency used by the program so that we could compute the number of ways to change a british pound for example
+as the program is written the knowledge of the currency is distributed partly into the procedure first denomination and partly into the procedure count change
+it would be nicer to be able to supply a list of coins to be used for making change
+we want to rewrite the procedure cc so that its second argument is a list of the values of the coins to use rather than an integer specifying which coins to use
+we could then have lists that defined each kind of currency
+we could then call cc as follows
+to do this will require changing the program cc somewhat
+it will still have the same form but it will access its second argument differently as follows
+define the procedures first denomination except first denomination and no more in terms of primitive operations on list structures
+does the order of the list coin values affect the answer produced by cc
+why or why not
+the procedures plus multiply and list take arbitrary numbers of arguments
+one way to define such procedures is to use define with dotted tail notation
+in a procedure definition a parameter list that has a dot before the last parameter name indicates that when the procedure is called the initial parameters will have as values the initial arguments as usual but the final parameter's value will be a list of any remaining arguments
+for instance given the definition
+the procedure f can be called with two or more arguments
+if we evaluate
+then in the body of f x will be one y will be two and z will be the list
+given the definition
+the procedure g can be called with zero or more arguments
+if we evaluate
+then in the body of g w will be the list
+use this notation to write a procedure same parity that takes one or more integers and returns a list of all the arguments that have the same even odd parity as the first argument
+for example
+one extremely useful operation is to apply some transformation to each element in a list and generate the list of results
+for instance the following procedure scales each number in a list by a given factor
+we can abstract this general idea and capture it as a common pattern expressed as a higher order procedure just as in section one point three
+the higher order procedure here is called map
+map takes as arguments a procedure of one argument and a list and returns a list of the results produced by applying the procedure to each element in the list
+now we can give a new definition of scale list in terms of map
+map is an important construct not only because it captures a common pattern but because it establishes a higher level of abstraction in dealing with lists
+in the original definition of scale list the recursive structure of the program draws attention to the element by element processing of the list
+defining scale list in terms of map suppresses that level of detail and emphasizes that scaling transforms a list of elements to a list of results
+the difference between the two definitions is not that the computer is performing a different process but that we think about the process differently
+in effect map helps establish an abstraction barrier that isolates the implementation of procedures that transform lists from the details of how the elements of the list are extracted and combined
+like the barriers shown in figure two point one this abstraction gives us the flexibility to change the low level details of how sequences are implemented while preserving the conceptual framework of operations that transform sequences to sequences
+section two point two point three expands on this use of sequences as a framework for organizing programs
+the procedure square list takes a list of numbers as argument and returns a list of the squares of those numbers
+here are two different definitions of square list
+complete both of them by filling in the missing expressions
+louis reasoner tries to rewrite the first square list procedure of exercise two point twenty one so that it evolves an iterative process
+unfortunately defining square list this way produces the answer list in the reverse order of the one desired
+why
+louis then tries to fix his bug by interchanging the arguments to cons
+this does n't work either
+explain
+the procedure for each is similar to map
+it takes as arguments a procedure and a list of elements
+however rather than forming a list of the results for each just applies the procedure to each of the elements in turn from left to right
+the values returned by applying the procedure to the elements are not used at all for each is used with procedures that perform an action such as printing
+for example
+the value returned by the call to for each can be something arbitrary such as true
+give an implementation of for each
+the representation of sequences in terms of lists generalizes naturally to represent sequences whose elements may themselves be sequences
+for example we can regard the object constructed by
+as a list of three items the first of which is itself a list
+indeed this is suggested by the form in which the result is printed by the interpreter
+figure two point five shows the representation of this structure in terms of pairs
+another way to think of sequences whose elements are sequences is as trees
+the elements of the sequence are the branches of the tree and elements that are themselves sequences are subtrees
+figure two point six shows the structure in figure two point five viewed as a tree
+recursion is a natural tool for dealing with tree structures since we can often reduce operations on trees to operations on their branches which reduce in turn to operations on the branches of the branches and so on until we reach the leaves of the tree
+as an example compare the length procedure of section two point two point one with the count leaves procedure which returns the total number of leaves of a tree
+to implement count leaves recall the recursive plan for computing length
+length of a list x is one plus length of the cdr of x
+length of the empty list is 0
+count leaves is similar
+the value for the empty list is the same
+count leaves of the empty list is 0
+but in the reduction step where we strip off the car of the list we must take into account that the car may itself be a tree whose leaves we need to count
+thus the appropriate reduction step is
+count leaves of a tree x is count leaves of the car of x plus count leaves of the cdr of x
+finally by taking car s we reach actual leaves so we need another base case
+count leaves of a leaf is one
+to aid in writing recursive procedures on trees scheme provides the primitive predicate pair which tests whether its argument is a pair
+here is the complete procedure
+suppose we evaluate the expression
+give the result printed by the interpreter the corresponding box and pointer structure and the interpretation of this as a tree
+give combinations of car s and cdr s that will pick seven from each of the following lists
+suppose we define x and y to be two lists
+what result is printed by the interpreter in response to evaluating each of the following expressions
+modify your reverse procedure of exercise two point eighteen to produce a deep reverse procedure that takes a list as argument and returns as its value the list with its elements reversed and with all sublists deep reversed as well
+for example
+write a procedure fringe that takes as argument a tree and returns a list whose elements are all the leaves of the tree arranged in left to right order
+for example
+a binary mobile consists of two branches a left branch and a right branch
+each branch is a rod of a certain length from which hangs either a weight or another binary mobile
+we can represent a binary mobile using compound data by constructing it from two branches
+a branch is constructed from a length together with a structure which may be either a number or another mobile
+a
+write the corresponding selectors left branch and right branch which return the branches of a mobile and branch length and branch structure which return the components of a branch
+b
+using your selectors define a procedure total weight that returns the total weight of a mobile
+c
+a mobile is said to be balanced if the torque applied by its top left branch is equal to that applied by its top right branch and if each of the submobiles hanging off its branches is balanced
+design a predicate that tests whether a binary mobile is balanced
+d
+suppose we change the representation of mobiles so that the constructors are
+how much do you need to change your programs to convert to the new representation
+just as map is a powerful abstraction for dealing with sequences map together with recursion is a powerful abstraction for dealing with trees
+for instance the scale tree procedure analogous to scale list of section two point two point one takes as arguments a numeric factor and a tree whose leaves are numbers
+it returns a tree of the same shape where each number is multiplied by the factor
+the recursive plan for scale tree is similar to the one for count leaves
+another way to implement scale tree is to regard the tree as a sequence of sub trees and use map
+we map over the sequence scaling each sub tree in turn and return the list of results
+in the base case where the tree is a leaf we simply multiply by the factor
+many tree operations can be implemented by similar combinations of sequence operations and recursion
+define a procedure square tree analogous to the square list procedure of exercise two point twenty one
+that is square list should behave as follows
+define square tree both directly and also by using map and recursion
+abstract your answer to exercise two point thirty to produce a procedure tree map with the property that square tree could be defined as
+we can represent a set as a list of distinct elements and we can represent the set of all subsets of the set as a list of lists
+for example if the set is then the set of all subsets is
+complete the following definition of a procedure that generates the set of subsets of a set and give a clear explanation of why it works
+in working with compound data we've stressed how data abstraction permits us to design programs without becoming enmeshed in the details of data representations and how abstraction preserves for us the flexibility to experiment with alternative representations
+in this section we introduce another powerful design principle for working with data structures the use of conventional interfaces
+in section one point three we saw how program abstractions implemented as higher order procedures can capture common patterns in programs that deal with numerical data
+our ability to formulate analogous operations for working with compound data depends crucially on the style in which we manipulate our data structures
+consider for example the following procedure analogous to the count leaves procedure of section two point two point two which takes a tree as argument and computes the sum of the squares of the leaves that are odd
+on the surface this procedure is very different from the following one which constructs a list of all the even fibonacci numbers fib ( k ) where k is less than or equal to a given integer n
+despite the fact that these two procedures are structurally very different a more abstract description of the two computations reveals a great deal of similarity
+the first program
+enumerates the leaves of a tree filters them selecting the odd ones squares each of the selected ones and accumulates the results using plus starting with 0
+the second program
+enumerates the integers from 0 to n computes the fibonacci number for each integer filters them selecting the even ones and accumulates the results using cons starting with the empty list
+a signal processing engineer would find it natural to conceptualize these processes in terms of signals flowing through a cascade of stages each of which implements part of the program plan as shown in figure two point seven
+in sum odd squares we begin with an enumerator which generates a signal consisting of the leaves of a given tree
+this signal is passed through a filter which eliminates all but the odd elements
+the resulting signal is in turn passed through a map which is a transducer that applies the square procedure to each element
+the output of the map is then fed to an accumulator which combines the elements using plus starting from an initial 0
+the plan for even fibs is analogous
+unfortunately the two procedure definitions above fail to exhibit this signal flow structure
+for instance if we examine the sum odd squares procedure we find that the enumeration is implemented partly by the null and pair tests and partly by the tree recursive structure of the procedure
+similarly the accumulation is found partly in the tests and partly in the addition used in the recursion
+in general there are no distinct parts of either procedure that correspond to the elements in the signal flow description
+our two procedures decompose the computations in a different way spreading the enumeration over the program and mingling it with the map the filter and the accumulation
+if we could organize our programs to make the signal flow structure manifest in the procedures we write this would increase the conceptual clarity of the resulting code
+the key to organizing programs so as to more clearly reflect the signal flow structure is to concentrate on the signals that flow from one stage in the process to the next
+if we represent these signals as lists then we can use list operations to implement the processing at each of the stages
+for instance we can implement the mapping stages of the signal flow diagrams using the map procedure from section two point two point one
+filtering a sequence to select only those elements that satisfy a given predicate is accomplished by
+for example
+accumulations can be implemented by
+all that remains to implement signal flow diagrams is to enumerate the sequence of elements to be processed
+for even fibs we need to generate the sequence of integers in a given range which we can do as follows
+to enumerate the leaves of a tree we can use
+now we can reformulate sum odd squares and even fibs as in the signal flow diagrams
+for sum odd squares we enumerate the sequence of leaves of the tree filter this to keep only the odd numbers in the sequence square each element and sum the results
+for even fibs we enumerate the integers from 0 to n generate the fibonacci number for each of these integers filter the resulting sequence to keep only the even elements and accumulate the results into a list
+the value of expressing programs as sequence operations is that this helps us make program designs that are modular that is designs that are constructed by combining relatively independent pieces
+we can encourage modular design by providing a library of standard components together with a conventional interface for connecting the components in flexible ways
+modular construction is a powerful strategy for controlling complexity in engineering design
+in real signal processing applications for example designers regularly build systems by cascading elements selected from standardized families of filters and transducers
+similarly sequence operations provide a library of standard program elements that we can mix and match
+for instance we can reuse pieces from the sum odd squares and even fibs procedures in a program that constructs a list of the squares of the first n plus one fibonacci numbers
+we can rearrange the pieces and use them in computing the product of the odd integers in a sequence
+we can also formulate conventional data processing applications in terms of sequence operations
+suppose we have a sequence of personnel records and we want to find the salary of the highest paid programmer
+assume that we have a selector salary that returns the salary of a record and a predicate programmer that tests if a record is for a programmer
+then we can write
+these examples give just a hint of the vast range of operations that can be expressed as sequence operations
+sequences implemented here as lists serve as a conventional interface that permits us to combine processing modules
+additionally when we uniformly represent structures as sequences we have localized the data structure dependencies in our programs to a small number of sequence operations
+by changing these we can experiment with alternative representations of sequences while leaving the overall design of our programs intact
+we will exploit this capability in section three point five when we generalize the sequence processing paradigm to admit infinite sequences
+fill in the missing expressions to complete the following definitions of some basic list manipulation operations as accumulations
+evaluating a polynomial in x at a given value of x can be formulated as an accumulation
+we evaluate the polynomial
+using a well known algorithm called horner's rule which structures the computation as
+in other words we start with an multiply by x add an one multiply by x and so on until we reach a 0
+fill in the following template to produce a procedure that evaluates a polynomial using horner's rule
+assume that the coefficients of the polynomial are arranged in a sequence from a 0 through an
+for example to compute one plus 3x plus 5x3 plus x five at x equal two you would evaluate
+redefine count leaves from section two point two point two as an accumulation
+the procedure accumulate n is similar to accumulate except that it takes as its third argument a sequence of sequences which are all assumed to have the same number of elements
+it applies the designated accumulation procedure to combine all the first elements of the sequences all the second elements of the sequences and so on and returns a sequence of the results
+for instance if s is a sequence containing four sequences then the value of should be the sequence
+fill in the missing expressions in the following definition of accumulate n
+suppose we represent vectors v equal ( vi ) as sequences of numbers and matrices m equal ( mij ) as sequences of vectors
+for example the matrix
+is represented as the sequence
+with this representation we can use sequence operations to concisely express the basic matrix and vector operations
+these operations are the following
+we can define the dot product as
+fill in the missing expressions in the following procedures for computing the other matrix operations
+the accumulate procedure is also known as fold right because it combines the first element of the sequence with the result of combining all the elements to the right
+there is also a fold left which is similar to fold right except that it combines elements working in the opposite direction
+what are the values of
+give a property that op should satisfy to guarantee that fold right and fold left will produce the same values for any sequence
+complete the following definitions of reverse in terms of fold right and fold left from exercise two point thirty eight
+we can extend the sequence paradigm to include many computations that are commonly expressed using nested loops
+consider this problem given a positive integer n find all ordered pairs of distinct positive integers i and j where one < j < i < n such that i plus j is prime
+for example if n is six then the pairs are the following
+a natural way to organize this computation is to generate the sequence of all ordered pairs of positive integers less than or equal to n filter to select those pairs whose sum is prime and then for each pair that passes through the filter produce the triple
+here is a way to generate the sequence of pairs for each integer i < n enumerate the integers j <i and for each such i and j generate the pair ( i j )
+in terms of sequence operations we map along the sequence
+for each i in this sequence we map along the sequence
+for each j in this latter sequence we generate the pair
+this gives us a sequence of pairs for each i
+combining all the sequences for all the i produces the required sequence of pairs
+the combination of mapping and accumulating with append is so common in this sort of program that we will isolate it as a separate procedure
+now filter this sequence of pairs to find those whose sum is prime
+the filter predicate is called for each element of the sequence its argument is a pair and it must extract the integers from the pair
+thus the predicate to apply to each element in the sequence is
+finally generate the sequence of results by mapping over the filtered pairs using the following procedure which constructs a triple consisting of the two elements of the pair along with their sum
+combining all these steps yields the complete procedure
+nested mappings are also useful for sequences other than those that enumerate intervals
+suppose we wish to generate all the permutations of a set s that is all the ways of ordering the items in the set
+for instance the permutations of are and
+here is a plan for generating the permutations of s for each item x in s recursively generate the sequence of permutations of s minus x and adjoin x to the front of each one
+this yields for each x in s the sequence of permutations of s that begin with x
+combining these sequences for all x gives all the permutations of s
+notice how this strategy reduces the problem of generating permutations of s to the problem of generating the permutations of sets with fewer elements than s
+in the terminal case we work our way down to the empty list which represents a set of no elements
+for this we generate which is a sequence with one item namely the set with no elements
+the remove procedure used in permutations returns all the items in a given sequence except for a given item
+this can be expressed as a simple filter
+define a procedure unique pairs that given an integer n generates the sequence of pairs ( i j ) with one < j < i < n
+use unique pairs to simplify the definition of prime sum pairs given above
+write a procedure to find all ordered triples of distinct positive integers i j and k less than or equal to a given integer n that sum to a given integer s
+the eight queens puzzle asks how to place eight queens on a chessboard so that no queen is in check from any other
+one possible solution is shown in figure two point eight
+one way to solve the puzzle is to work across the board placing a queen in each column
+once we have placed k minus one queens we must place the kth queen in a position where it does not check any of the queens already on the board
+we can formulate this approach recursively assume that we have already generated the sequence of all possible ways to place k minus one queens in the first k minus one columns of the board
+for each of these ways generate an extended set of positions by placing a queen in each row of the kth column
+now filter these keeping only the positions for which the queen in the kth column is safe with respect to the other queens
+this produces the sequence of all ways to place k queens in the first k columns
+by continuing this process we will produce not only one solution but all solutions to the puzzle
+we implement this solution as a procedure queens which returns a sequence of all solutions to the problem of placing n queens on an n&times n chessboard
+queens has an internal procedure queen cols that returns the sequence of all ways to place queens in the first k columns of the board
+in this procedure rest of queens is a way to place k minus one queens in the first k minus one columns and new row is a proposed row in which to place the queen for the kth column
+complete the program by implementing the representation for sets of board positions including the procedure adjoin position which adjoins a new row column position to a set of positions and empty board which represents an empty set of positions
+you must also write the procedure safe which determines for a set of positions whether the queen in the kth column is safe with respect to the others
+louis reasoner is having a terrible time doing exercise two point forty two
+his queens procedure seems to work but it runs extremely slowly
+when louis asks eva lu ator for help she points out that he has interchanged the order of the nested mappings in the flatmap writing it as
+explain why this interchange makes the program run slowly
+estimate how long it will take louis's program to solve the eight queens puzzle assuming that the program in exercise two point forty two solves the puzzle in time t
+this section presents a simple language for drawing pictures that illustrates the power of data abstraction and closure and also exploits higher order procedures in an essential way
+the language is designed to make it easy to experiment with patterns such as the ones in figure two point nine which are composed of repeated elements that are shifted and scaled
+in this language the data objects being combined are represented as procedures rather than as list structure
+just as cons which satisfies the closure property allowed us to easily build arbitrarily complicated list structure the operations in this language which also satisfy the closure property allow us to easily build arbitrarily complicated patterns
+when we began our study of programming in section one point one we emphasized the importance of describing a language by focusing on the language's primitives its means of combination and its means of abstraction
+we'll follow that framework here
+part of the elegance of this picture language is that there is only one kind of element called a painter
+a painter draws an image that is shifted and scaled to fit within a designated parallelogram shaped frame
+for example there's a primitive painter we'll call wave that makes a crude line drawing as shown in figure two point ten
+the actual shape of the drawing depends on the frame all four images in figure two point ten are produced by the same wave painter but with respect to four different frames
+painters can be more elaborate than this the primitive painter called rogers paints a picture of mit's founder william barton rogers as shown in figure two point eleven
+the four images in figure two point eleven are drawn with respect to the same four frames as the wave images in figure two point ten
+to combine images we use various operations that construct new painters from given painters
+for example the beside operation takes two painters and produces a new compound painter that draws the first painter's image in the left half of the frame and the second painter's image in the right half of the frame
+similarly below takes two painters and produces a compound painter that draws the first painter's image below the second painter's image
+some operations transform a single painter to produce a new painter
+for example flip vert takes a painter and produces a painter that draws its image upside down and flip horiz produces a painter that draws the original painter's image left to right reversed
+figure two point twelve shows the drawing of a painter called wave four that is built up in two stages starting from wave
+in building up a complex image in this manner we are exploiting the fact that painters are closed under the language's means of combination
+the beside or below of two painters is itself a painter therefore we can use it as an element in making more complex painters
+as with building up list structure using cons the closure of our data under the means of combination is crucial to the ability to create complex structures while using only a few operations
+once we can combine painters we would like to be able to abstract typical patterns of combining painters
+we will implement the painter operations as scheme procedures
+this means that we do n't need a special abstraction mechanism in the picture language since the means of combination are ordinary scheme procedures we automatically have the capability to do anything with painter operations that we can do with procedures
+for example we can abstract the pattern in wave four as
+and define wave four as an instance of this pattern
+we can also define recursive operations
+here's one that makes painters split and branch towards the right as shown in figures two point thirteen and two point fourteen
+we can produce balanced patterns by branching upwards as well as towards the right
+by placing four copies of a corner split appropriately we obtain a pattern called square limit whose application to wave and rogers is shown in figure two point nine
+define the procedure up split used by corner split
+it is similar to right split except that it switches the roles of below and beside
+in addition to abstracting patterns of combining painters we can work at a higher level abstracting patterns of combining painter operations
+that is we can view the painter operations as elements to manipulate and can write means of combination for these elements procedures that take painter operations as arguments and create new painter operations
+for example flipped pairs and square limit each arrange four copies of a painter's image in a square pattern they differ only in how they orient the copies
+one way to abstract this pattern of painter combination is with the following procedure which takes four one argument painter operations and produces a painter operation that transforms a given painter with those four operations and arranges the results in a square
+tl tr bl and br are the transformations to apply to the top left copy the top right copy the bottom left copy and the bottom right copy respectively
+then flipped pairs can be defined in terms of square of four as follows
+and square limit can be expressed as
+right split and up split can be expressed as instances of a general splitting operation
+define a procedure split with the property that evaluating
+produces procedures right split and up split with the same behaviors as the ones already defined
+before we can show how to implement painters and their means of combination we must first consider frames
+a frame can be described by three vectors an origin vector and two edge vectors
+the origin vector specifies the offset of the frame's origin from some absolute origin in the plane and the edge vectors specify the offsets of the frame's corners from its origin
+if the edges are perpendicular the frame will be rectangular
+otherwise the frame will be a more general parallelogram
+figure two point fifteen shows a frame and its associated vectors
+in accordance with data abstraction we need not be specific yet about how frames are represented other than to say that there is a constructor make frame which takes three vectors and produces a frame and three corresponding selectors origin frame edge one frame and edge two frame
+we will use coordinates in the unit square to specify images
+with each frame we associate a frame coordinate map which will be used to shift and scale images to fit the frame
+the map transforms the unit square into the frame by mapping the vector v equal ( x y ) to the vector sum
+for example ( 0 0 ) is mapped to the origin of the frame ( one 1 ) to the vertex diagonally opposite the origin and ( 0.5 0.5 ) to the center of the frame
+we can create a frame's coordinate map with the following procedure
+observe that applying frame coord map to a frame returns a procedure that given a vector returns a vector
+if the argument vector is in the unit square the result vector will be in the frame
+for example
+returns the same vector as
+a two dimensional vector v running from the origin to a point can be represented as a pair consisting of an x coordinate and a y coordinate
+implement a data abstraction for vectors by giving a constructor make vect and corresponding selectors xcor vect and ycor vect
+in terms of your selectors and constructor implement procedures add vect sub vect and scale vect that perform the operations vector addition vector subtraction and multiplying a vector by a scalar
+here are two possible constructors for frames
+for each constructor supply the appropriate selectors to produce an implementation for frames
+a painter is represented as a procedure that given a frame as argument draws a particular image shifted and scaled to fit the frame
+that is to say if p is a painter and f is a frame then we produce p's image in f by calling p with f as argument
+the details of how primitive painters are implemented depend on the particular characteristics of the graphics system and the type of image to be drawn
+for instance suppose we have a procedure draw line that draws a line on the screen between two specified points
+then we can create painters for line drawings such as the wave painter in figure two point ten from lists of line segments as follows
+the segments are given using coordinates with respect to the unit square
+for each segment in the list the painter transforms the segment endpoints with the frame coordinate map and draws a line between the transformed points
+representing painters as procedures erects a powerful abstraction barrier in the picture language
+we can create and intermix all sorts of primitive painters based on a variety of graphics capabilities
+the details of their implementation do not matter
+any procedure can serve as a painter provided that it takes a frame as argument and draws something scaled to fit the frame
+a directed line segment in the plane can be represented as a pair of vectors the vector running from the origin to the start point of the segment and the vector running from the origin to the end point of the segment
+use your vector representation from exercise two point forty six to define a representation for segments with a constructor make segment and selectors start segment and end segment
+use segments painter> to define the following primitive painters
+a
+the painter that draws the outline of the designated frame
+b
+the painter that draws an x by connecting opposite corners of the frame
+c
+the painter that draws a diamond shape by connecting the midpoints of the sides of the frame
+d
+the wave painter
+an operation on painters works by creating a painter that invokes the original painters with respect to frames derived from the argument frame
+thus for example flip vert does n't have to know how a painter works in order to flip it it just has to know how to turn a frame upside down the flipped painter just uses the original painter but in the inverted frame
+painter operations are based on the procedure transform painter which takes as arguments a painter and information on how to transform a frame and produces a new painter
+the transformed painter when called on a frame transforms the frame and calls the original painter on the transformed frame
+the arguments to transform painter are points that specify the corners of the new frame when mapped into the frame the first point specifies the new frame's origin and the other two specify the ends of its edge vectors
+thus arguments within the unit square specify a frame contained within the original frame
+here's how to flip painter images vertically
+using transform painter we can easily define new transformations
+for example we can define a painter that shrinks its image to the upper right quarter of the frame it is given
+other transformations rotate images counterclockwise by ninety degrees
+or squash images towards the center of the frame
+frame transformation is also the key to defining means of combining two or more painters
+the beside procedure for example takes two painters transforms them to paint in the left and right halves of an argument frame respectively and produces a new compound painter
+when the compound painter is given a frame it calls the first transformed painter to paint in the left half of the frame and calls the second transformed painter to paint in the right half of the frame
+observe how the painter data abstraction and in particular the representation of painters as procedures makes beside easy to implement
+the beside procedure need not know anything about the details of the component painters other than that each painter will draw something in its designated frame
+define the transformation flip horiz which flips painters horizontally and transformations that rotate painters counterclockwise by one hundred eighty degrees and two hundred seventy degrees
+define the below operation for painters
+below takes two painters as arguments
+the resulting painter given a frame draws with the first painter in the bottom of the frame and with the second painter in the top
+define below in two different ways first by writing a procedure that is analogous to the beside procedure given above and again in terms of beside and suitable rotation operations
+the picture language exercises some of the critical ideas we've introduced about abstraction with procedures and data
+the fundamental data abstractions painters are implemented using procedural representations which enables the language to handle different basic drawing capabilities in a uniform way
+the means of combination satisfy the closure property which permits us to easily build up complex designs
+finally all the tools for abstracting procedures are available to us for abstracting means of combination for painters
+we have also obtained a glimpse of another crucial idea about languages and program design
+this is the approach of stratified design the notion that a complex system should be structured as a sequence of levels that are described using a sequence of languages
+each level is constructed by combining parts that are regarded as primitive at that level and the parts constructed at each level are used as primitives at the next level
+the language used at each level of a stratified design has primitives means of combination and means of abstraction appropriate to that level of detail
+stratified design pervades the engineering of complex systems
+for example in computer engineering resistors and transistors are combined to produce parts such as and gates and or gates which form the primitives of a language for digital circuit design
+these parts are combined to build processors bus structures and memory systems which are in turn combined to form computers using languages appropriate to computer architecture
+computers are combined to form distributed systems using languages appropriate for describing network interconnections and so on
+as a tiny example of stratification our picture language uses primitive elements that are created using a language that specifies points and lines to provide the lists of line segments for segments painter> or the shading details for a painter like rogers
+the bulk of our description of the picture language focused on combining these primitives using geometric combiners such as beside and below
+we also worked at a higher level regarding beside and below as primitives to be manipulated in a language whose operations such as square of four capture common patterns of combining geometric combiners
+stratified design helps make programs robust that is it makes it likely that small changes in a specification will require correspondingly small changes in the program
+for instance suppose we wanted to change the image based on wave shown in figure two point nine
+we could work at the lowest level to change the detailed appearance of the wave element we could work at the middle level to change the way corner split replicates the wave we could work at the highest level to change how square limit arranges the four copies of the corner
+in general each level of a stratified design provides a different vocabulary for expressing the characteristics of the system and a different kind of ability to change it
+make changes to the square limit of wave shown in figure two point nine by working at each of the levels described above
+in particular
+a
+add some segments to the primitive wave painter of exercise two point forty nine
+b
+change the pattern constructed by corner split
+c
+modify the version of square limit that uses square of four so as to assemble the corners in a different pattern

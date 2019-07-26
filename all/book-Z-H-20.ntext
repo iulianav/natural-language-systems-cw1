@@ -1,0 +1,223 @@
+we ordinarily view the world as populated by independent objects each of which has a state that changes over time
+an object is said to have state if its behavior is influenced by its history
+a bank account for example has state in that the answer to the question can i withdraw one hundred dollars depends upon the history of deposit and withdrawal transactions
+we can characterize an object's state by one or more state variables which among them maintain enough information about history to determine the object's current behavior
+in a simple banking system we could characterize the state of an account by a current balance rather than by remembering the entire history of account transactions
+in a system composed of many objects the objects are rarely completely independent
+each may influence the states of others through interactions which serve to couple the state variables of one object to those of other objects
+indeed the view that a system is composed of separate objects is most useful when the state variables of the system can be grouped into closely coupled subsystems that are only loosely coupled to other subsystems
+this view of a system can be a powerful framework for organizing computational models of the system
+for such a model to be modular it should be decomposed into computational objects that model the actual objects in the system
+each computational object must have its own local state variables describing the actual object's state
+since the states of objects in the system being modeled change over time the state variables of the corresponding computational objects must also change
+if we choose to model the flow of time in the system by the elapsed time in the computer then we must have a way to construct computational objects whose behaviors change as our programs run
+in particular if we wish to model state variables by ordinary symbolic names in the programming language then the language must provide an assignment operator to enable us to change the value associated with a name
+to illustrate what we mean by having a computational object with time varying state let us model the situation of withdrawing money from a bank account
+we will do this using a procedure withdraw which takes as argument an amount to be withdrawn
+if there is enough money in the account to accommodate the withdrawal then withdraw should return the balance remaining after the withdrawal
+otherwise withdraw should return the message insufficient funds
+for example if we begin with one hundred dollars in the account we should obtain the following sequence of responses using withdraw
+observe that the expression evaluated twice yields different values
+this is a new kind of behavior for a procedure
+until now all our procedures could be viewed as specifications for computing mathematical functions
+a call to a procedure computed the value of the function applied to the given arguments and two calls to the same procedure with the same arguments always produced the same result
+to implement withdraw we can use a variable balance to indicate the balance of money in the account and define withdraw as a procedure that accesses balance
+the withdraw procedure checks to see if balance is at least as large as the requested amount
+if so withdraw decrements balance by amount and returns the new value of balance
+otherwise withdraw returns the insufficient funds message
+here are the definitions of balance and withdraw
+decrementing balance is accomplished by the expression
+this uses the set special form whose syntax is
+here name is a symbol and new value is any expression
+set changes name so that its value is the result obtained by evaluating new value
+in the case at hand we are changing balance so that its new value will be the result of subtracting amount from the previous value of balance
+withdraw also uses the begin special form to cause two expressions to be evaluated in the case where the if test is true first decrementing balance and then returning the value of balance
+in general evaluating the expression
+causes the expressions exp one through expk to be evaluated in sequence and the value of the final expression expk to be returned as the value of the entire begin form
+although withdraw works as desired the variable balance presents a problem
+as specified above balance is a name defined in the global environment and is freely accessible to be examined or modified by any procedure
+it would be much better if we could somehow make balance internal to withdraw so that withdraw would be the only procedure that could access balance directly and any other procedure could access balance only indirectly
+this would more accurately model the notion that balance is a local state variable used by withdraw to keep track of the state of the account
+we can make balance internal to withdraw by rewriting the definition as follows
+what we have done here is use let to establish an environment with a local variable balance bound to the initial value one hundred
+within this local environment we use lambda to create a procedure that takes amount as an argument and behaves like our previous withdraw procedure
+this procedure returned as the result of evaluating the let expression is new withdraw which behaves in precisely the same way as withdraw but whose variable balance is not accessible by any other procedure
+combining set with local variables is the general programming technique we will use for constructing computational objects with local state
+unfortunately using this technique raises a serious problem when we first introduced procedures we also introduced the substitution model of evaluation to provide an interpretation of what procedure application means
+we said that applying a procedure should be interpreted as evaluating the body of the procedure with the formal parameters replaced by their values
+the trouble is that as soon as we introduce assignment into our language substitution is no longer an adequate model of procedure application
+as a consequence we technically have at this point no way to understand why the new withdraw procedure behaves as claimed above
+in order to really understand a procedure such as new withdraw we will need to develop a new model of procedure application
+in section three point two we will introduce such a model together with an explanation of set and local variables
+first however we examine some variations on the theme established by new withdraw
+the following procedure make withdraw creates withdrawal processors . the formal parameter balance in make withdraw specifies the initial amount of money in the account
+make withdraw can be used as follows to create two objects w one and w two
+observe that w one and w two are completely independent objects each with its own local state variable balance
+withdrawals from one do not affect the other
+we can also create objects that handle deposits as well as withdrawals and thus we can represent simple bank accounts
+here is a procedure that returns a bank account object with a specified initial balance
+each call to make account sets up an environment with a local state variable balance
+within this environment make account defines procedures deposit and withdraw that access balance and an additional procedure dispatch that takes a message as input and returns one of the two local procedures
+the dispatch procedure itself is returned as the value that represents the bank account object
+this is precisely the message passing style of programming that we saw in section two point four point three although here we are using it in conjunction with the ability to modify local variables
+make account can be used as follows
+each call to acc returns the locally defined deposit or withdraw procedure which is then applied to the specified amount
+as was the case with make withdraw another call to make account
+will produce a completely separate account object which maintains its own local balance
+an accumulator is a procedure that is called repeatedly with a single numeric argument and accumulates its arguments into a sum
+each time it is called it returns the currently accumulated sum
+write a procedure make accumulator that generates accumulators each maintaining an independent sum
+the input to make accumulator should specify the initial value of the sum for example
+in software testing applications it is useful to be able to count the number of times a given procedure is called during the course of a computation
+write a procedure make monitored that takes as input a procedure f that itself takes one input
+the result returned by make monitored is a third procedure say mf that keeps track of the number of times it has been called by maintaining an internal counter
+if the input to mf is the special symbol how many calls then mf returns the value of the counter
+if the input is the special symbol reset count then mf resets the counter to zero
+for any other input mf returns the result of calling f on that input and increments the counter
+for instance we could make a monitored version of the sqrt procedure
+modify the make account procedure so that it creates password protected accounts
+that is make account should take a symbol as an additional argument as in
+the resulting account object should process a request only if it is accompanied by the password with which the account was created and should otherwise return a complaint
+modify the make account procedure of exercise three point three by adding another local state variable so that if an account is accessed more than seven consecutive times with an incorrect password it invokes the procedure call the cops
+as we shall see introducing assignment into our programming language leads us into a thicket of difficult conceptual issues
+nevertheless viewing systems as collections of objects with local state is a powerful technique for maintaining a modular design
+as a simple example consider the design of a procedure rand that whenever it is called returns an integer chosen at random
+it is not at all clear what is meant by chosen at random . what we presumably want is for successive calls to rand to produce a sequence of numbers that has statistical properties of uniform distribution
+we will not discuss methods for generating suitable sequences here
+rather let us assume that we have a procedure rand update that has the property that if we start with a given number x one and form
+then the sequence of values x one x two x three ... will have the desired statistical properties
+we can implement rand as a procedure with a local state variable x that is initialized to some fixed value random init
+each call to rand computes rand update of the current value of x returns this as the random number and also stores this as the new value of x
+of course we could generate the same sequence of random numbers without using assignment by simply calling rand update directly
+however this would mean that any part of our program that used random numbers would have to explicitly remember the current value of x to be passed as an argument to rand update
+to realize what an annoyance this would be consider using random numbers to implement a technique called monte carlo simulation
+the monte carlo method consists of choosing sample experiments at random from a large set and then making deductions on the basis of the probabilities estimated from tabulating the results of those experiments
+for example we can approximate using the fact that six / two is the probability that two integers chosen at random will have no factors in common that is that their greatest common divisor will be one
+to obtain the approximation to we perform a large number of experiments
+in each experiment we choose two integers at random and perform a test to see if their gcd is one
+the fraction of times that the test is passed gives us our estimate of six / two and from this we obtain our approximation to
+the heart of our program is a procedure monte carlo which takes as arguments the number of times to try an experiment together with the experiment represented as a no argument procedure that will return either true or false each time it is run
+monte carlo runs the experiment for the designated number of trials and returns a number telling the fraction of the trials in which the experiment was found to be true
+now let us try the same computation using rand update directly rather than rand the way we would be forced to proceed if we did not use assignment to model local state
+while the program is still simple it betrays some painful breaches of modularity
+in our first version of the program using rand we can express the monte carlo method directly as a general monte carlo procedure that takes as an argument an arbitrary experiment procedure
+in our second version of the program with no local state for the random number generator random gcd test must explicitly manipulate the random numbers x one and x two and recycle x two through the iterative loop as the new input to rand update
+this explicit handling of the random numbers intertwines the structure of accumulating test results with the fact that our particular experiment uses two random numbers whereas other monte carlo experiments might use one random number or three
+even the top level procedure estimate pi has to be concerned with supplying an initial random number
+the fact that the random number generator's insides are leaking out into other parts of the program makes it difficult for us to isolate the monte carlo idea so that it can be applied to other tasks
+in the first version of the program assignment encapsulates the state of the random number generator within the rand procedure so that the details of random number generation remain independent of the rest of the program
+the general phenomenon illustrated by the monte carlo example is this from the point of view of one part of a complex process the other parts appear to change with time
+they have hidden time varying local state
+if we wish to write computer programs whose structure reflects this decomposition we make computational objects whose behavior changes with time
+we model state with local state variables and we model the changes of state with assignments to those variables
+it is tempting to conclude this discussion by saying that by introducing assignment and the technique of hiding state in local variables we are able to structure systems in a more modular fashion than if all state had to be manipulated explicitly by passing additional parameters
+unfortunately as we shall see the story is not so simple
+monte carlo integration is a method of estimating definite integrals by means of monte carlo simulation
+consider computing the area of a region of space described by a predicate p that is true for points in the region and false for points not in the region
+for example the region contained within a circle of radius three centered at is described by the predicate that tests whether two plus two < thirty two
+to estimate the area of the region described by such a predicate begin by choosing a rectangle that contains the region
+for example a rectangle with diagonally opposite corners at and contains the circle above
+the desired integral is the area of that portion of the rectangle that lies in the region
+we can estimate the integral by picking at random points ( x y ) that lie in the rectangle and testing p for each point to determine whether the point lies in the region
+if we try this with many points then the fraction of points that fall in the region should give an estimate of the proportion of the rectangle that lies in the region
+hence multiplying this fraction by the area of the entire rectangle should produce an estimate of the integral
+implement monte carlo integration as a procedure estimate integral that takes as arguments a predicate p upper and lower bounds x one x two y one and y two for the rectangle and the number of trials to perform in order to produce the estimate
+your procedure should use the same monte carlo procedure that was used above to estimate
+use your estimate integral to produce an estimate of by measuring the area of a unit circle
+you will find it useful to have a procedure that returns a number chosen at random from a given range
+the following random in range procedure implements this in terms of the random procedure used in section one point two point six which returns a nonnegative number less than its input
+it is useful to be able to reset a random number generator to produce a sequence starting from a given value
+design a new rand procedure that is called with an argument that is either the symbol generate or the symbol reset and behaves as follows produces a new random number resets the internal state variable to the designated new value
+thus by resetting the state one can generate repeatable sequences
+these are very handy to have when testing and debugging programs that use random numbers
+as we have seen the set operation enables us to model objects that have local state
+however this advantage comes at a price
+our programming language can no longer be interpreted in terms of the substitution model of procedure application that we introduced in section one point one point five
+moreover no simple model with nice mathematical properties can be an adequate framework for dealing with objects and assignment in programming languages
+so long as we do not use assignments two evaluations of the same procedure with the same arguments will produce the same result so that procedures can be viewed as computing mathematical functions
+programming without any use of assignments as we did throughout the first two chapters of this book is accordingly known as functional programming
+to understand how assignment complicates matters consider a simplified version of the make withdraw procedure of section three point one point one that does not bother to check for an insufficient amount
+compare this procedure with the following make decrementer procedure which does not use set
+make decrementer returns a procedure that subtracts its input from a designated amount balance but there is no accumulated effect over successive calls as with make simplified withdraw
+we can use the substitution model to explain how make decrementer works
+for instance let us analyze the evaluation of the expression
+we first simplify the operator of the combination by substituting twenty five for balance in the body of make decrementer
+this reduces the expression to
+now we apply the operator by substituting twenty for amount in the body of the lambda expression
+the final answer is five
+observe however what happens if we attempt a similar substitution analysis with make simplified withdraw
+we first simplify the operator by substituting twenty five for balance in the body of make simplified withdraw
+this reduces the expression to
+now we apply the operator by substituting twenty for amount in the body of the lambda expression
+if we adhered to the substitution model we would have to say that the meaning of the procedure application is to first set balance to five and then return twenty five as the value of the expression
+this gets the wrong answer
+in order to get the correct answer we would have to somehow distinguish the first occurrence of balance from the second occurrence of balance and the substitution model cannot do this
+the trouble here is that substitution is based ultimately on the notion that the symbols in our language are essentially names for values
+but as soon as we introduce set and the idea that the value of a variable can change a variable can no longer be simply a name
+now a variable somehow refers to a place where a value can be stored and the value stored at this place can change
+in section three point two we will see how environments play this role of place in our computational model
+the issue surfacing here is more profound than the mere breakdown of a particular model of computation
+as soon as we introduce change into our computational models many notions that were previously straightforward become problematical
+consider the concept of two things being the same
+suppose we call make decrementer twice with the same argument to create two procedures
+are d one and d two the same
+an acceptable answer is yes because d one and d two have the same computational behavior each is a procedure that subtracts its input from twenty five
+in fact d one could be substituted for d two in any computation without changing the result
+contrast this with making two calls to make simplified withdraw
+are w one and w two the same
+surely not because calls to w one and w two have distinct effects as shown by the following sequence of interactions
+even though w one and w two are equal in the sense that they are both created by evaluating the same expression it is not true that w one could be substituted for w two in any expression without changing the result of evaluating the expression
+a language that supports the concept that equals can be substituted for equals in an expresssion without changing the value of the expression is said to be referentially transparent
+referential transparency is violated when we include set in our computer language
+this makes it tricky to determine when we can simplify expressions by substituting equivalent expressions
+consequently reasoning about programs that use assignment becomes drastically more difficult
+once we forgo referential transparency the notion of what it means for computational objects to be the same becomes difficult to capture in a formal way
+indeed the meaning of same in the real world that our programs model is hardly clear in itself
+in general we can determine that two apparently identical objects are indeed the same one only by modifying one object and then observing whether the other object has changed in the same way
+but how can we tell if an object has changed other than by observing the same object twice and seeing whether some property of the object differs from one observation to the next
+thus we cannot determine change without some a priori notion of sameness and we cannot determine sameness without observing the effects of change
+as an example of how this issue arises in programming consider the situation where peter and paul have a bank account with one hundred dollars in it
+there is a substantial difference between modeling this as
+and modeling it as
+in the first situation the two bank accounts are distinct
+transactions made by peter will not affect paul's account and vice versa
+in the second situation however we have defined paul acc to be the same thing as peter acc
+in effect peter and paul now have a joint bank account and if peter makes a withdrawal from peter acc paul will observe less money in paul acc
+these two similar but distinct situations can cause confusion in building computational models
+with the shared account in particular it can be especially confusing that there is one object that has two different names if we are searching for all the places in our program where paul acc can be changed we must remember to look also at things that change peter acc
+with reference to the above remarks on sameness and change observe that if peter and paul could only examine their bank balances and could not perform operations that changed the balance then the issue of whether the two accounts are distinct would be moot
+in general so long as we never modify data objects we can regard a compound data object to be precisely the totality of its pieces
+for example a rational number is determined by giving its numerator and its denominator
+but this view is no longer valid in the presence of change where a compound data object has an identity that is something different from the pieces of which it is composed
+a bank account is still the same bank account even if we change the balance by making a withdrawal conversely we could have two different bank accounts with the same state information
+this complication is a consequence not of our programming language but of our perception of a bank account as an object
+we do not for example ordinarily regard a rational number as a changeable object with identity such that we could change the numerator and still have the same rational number
+in contrast to functional programming programming that makes extensive use of assignment is known as imperative programming
+in addition to raising complications about computational models programs written in imperative style are susceptible to bugs that cannot occur in functional programs
+for example recall the iterative factorial program from section one point two point one
+instead of passing arguments in the internal iterative loop we could adopt a more imperative style by using explicit assignment to update the values of the variables product and counter
+this does not change the results produced by the program but it does introduce a subtle trap
+how do we decide the order of the assignments
+as it happens the program is correct as written
+but writing the assignments in the opposite order
+would have produced a different incorrect result
+in general programming with assignment forces us to carefully consider the relative orders of the assignments to make sure that each statement is using the correct version of the variables that have been changed
+this issue simply does not arise in functional programs
+the complexity of imperative programs becomes even worse if we consider applications in which several processes execute concurrently
+we will return to this in section three point four
+first however we will address the issue of providing a computational model for expressions that involve assignment and explore the uses of objects with local state in designing simulations
+consider the bank account objects created by make account with the password modification described in exercise three point three
+suppose that our banking system requires the ability to make joint accounts
+define a procedure make joint that accomplishes this
+make joint should take three arguments
+the first is a password protected account
+the second argument must match the password with which the account was defined in order for the make joint operation to proceed
+the third argument is a new password
+make joint is to create an additional access to the original account using the new password
+for example if peter acc is a bank account with password open sesame then
+will allow one to make transactions on peter acc using the name paul acc and the password rosebud
+you may wish to modify your solution to exercise three point three to accommodate this new feature
+when we defined the evaluation model in section one point one point three we said that the first step in evaluating an expression is to evaluate its subexpressions
+but we never specified the order in which the subexpressions should be evaluated
+when we introduce assignment the order in which the arguments to a procedure are evaluated can make a difference to the result
+define a simple procedure f such that evaluating will return 0 if the arguments to plus are evaluated from left to right but will return one if the arguments are evaluated from right to left

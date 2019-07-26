@@ -1,0 +1,608 @@
+well yesterday we learned a bit about symbolic manipulation and we wrote a rather stylized program to implement a pile of calculus rules from the calculus book
+uh here on the uh transparencies we see a bunch of calculus rules from such a book and of course what we did is sort of translate these rules into the language of the computer
+but of course that's a sort of funny strategy
+why should we have to translate these rules into the language of the computer and what do i really mean by that
+these are the program we wrote yesterday was very stylized
+it was a conditional a dispatch on the type of the expression as observed by the rules
+and what we see here are rules that say if the ru if the object being the derivative is being taken of if that expression is a constant then do one thing if it's a variable do another thing if it's a product of a constant times a variable do something and so on
+this is sort of a dispatch there on a type
+well the assistant has such a stylized behavior and structure
+is there some other way of writing this program that's more clear
+what's a rule first of all
+what are these rules
+let's think about that
+rules have parts
+if you look at these rules in detail what you see for example is the rule has a left hand side and a right hand side
+now each of these rules has a left hand side and a right hand side
+the left hand side is somehow compared with the expression you're trying to take the derivative of
+the right hand side is the replacement for that expression
+so all rules on this page are something like this
+ok
+i have patterns ok and somehow i have to produce given a pattern a skeleton
+this is a rule
+a pattern is something that matches and a skeleton is something you substitute into in order to get a new expression
+so what that means is that the pattern is matched against the expression which is the source expression and the result of the application of the rule is to produce a new expression which i'll call a target by instantiation of a skeleton
+it's called instantiation
+so that is a process by which these rules are described
+what i'd like to do today is build a language and a means of interpreting that language a means of executing that language
+what that language allows us to directly express these rules and what we're going to do is instead of bringing the rules to the level of the computer by writing a program that is those rules in the computer's language at the moment in the uh list
+we're going to bring the computer to the level of us by writing a way by which the computer can understand rules of this sort
+this is slightly emphasizing the idea that we had last time that we're trying to make a solution to a class of problems rather than a particular one
+the problem is if i want to write rules for a different piece of mathematics say to simple algebraic simplification or something like that our manipulation of manipulation of trig trigonometric functions i would have to write a different program in using yesterday's method whereas i would like to encapsulate all of the things that are common to both of those programs meaning the idea of matching instantiation the control structure which it turns out to be very complicated for such a thing
+i'd like to encapsulate that separately from the rules themselves
+so let's look at first of all a representation
+i'd like to use the overhead here
+i'd like there it is
+i'd like to look at a representation of the rules of calculus for derivatives in a sort of simple language that i'm writing right here
+now i'm going to avoid worrying about syntax
+we can easily pretty this
+and i'm not interested in making this is indeed ugly this doesn't look like the beautiful tech set dx by dt or something that i'd like to write but that's not essential
+that's sort of an accidental phenomenon
+here we're just worrying about the fact that the structure of the rules is that there is a left hand side here represents the thing i want to match against the derivative expression
+this is the representation i'm going to say for the derivative of a constant which we will call c with respect to the variable we will call v
+and what we will get on the right hand side is zero so this represents a rule
+a next the next rule will be the derivative of a variable which we will call v with respect to the same variable v i would get a one
+however if we have the derivative of a variable called u with respect to a different variable v we will get zero
+i just want you to look at these rules a little bit kinda see how they fit together
+for example over here we're going to have the derivative of the sum of an expression called x1 and an expression called x2
+these things that begin with question marks are called pattern variables
+ok in the language that we're inventing and you see we're just making it up um so the pattern variables for ma for matching
+and so in this er here we have the derivative of the sum of the expression which we will call x1 and the expression we will call x2 with respect to the variable we call v will be here at the right hand side the sum of the derivative of that expression x1 with respect to v
+the right hand side is the skeleton and the derivative of x2 with respect to v
+colons here will stand for stand for substitution objects
+they will we'll call them eh they're skeleton evaluations
+so let me put up here on the black board for a second some syntax so we'll know what's going on for this rule language
+first of all we're going to have to worry about for pattern matching
+we're going to have things like a symbol like foo matches exactly itself
+hmm
+the the expression f of a and b will be used to match any list whose first element is f whose second element is a and whose third element is b
+also another thing we might have in a pattern is that a question mark with some variable like x and what that means it says matches anything which we will call x
+question mark cx will match only constants so this is something which matches a constant
+call it x
+and question mark zx will match a variable which we call x
+this is sort of a language we're making up now
+if i match two things against each other then they are compared element by element but elements in the pattern may contain these syntactic variables pattern variables which will be used to match arbitrary objects
+and we'll get that will get that object as a value in in in the in the name x here for example
+now when we make skeletons for instantiation mmm well then we have things like this
+foo a symbol instantiates to itself
+something which is a list like f of a and b instantiates to what f instantiates to to a three list a list of three elements
+ok which are the results of instantiating each of f a and b
+ok
+and x will be instantiate to the value of x in as in the matched pattern
+so going back to the overhead here we see we see that all of those kinds of objects we see here a pattern variable wh which matches a constant
+a pattern variable which matched a variable a pattern variable which will match anything
+and if we have two instances of the same name like this is the derivative of the of the expression which is a variable only whose name will be v
+we respect to some arbitrary expression which we will call v since this v appears twice we're going to want that to mean they have to be the same
+the only consistent match is that those are the same
+so here we're making up a language and in fact that's a very nice thing to be doing
+it's so much fun to make up a language and you do this all the time and the really most powerful design things you ever do is sort of making up a language to solve problems like this
+now the the here we go back here and look at some of these rules
+well there's a whole set of them
+i mean there's ones for addition and one for multiplication just like we had before the derivative of a product of x1 and x2 with respect to v is the sum of the product of x1
+and the derivative of x2 with respect to v and the product of the derivative of x1 and x2 and here we have exponentiation and of course we run off the n down here
+we get as many as we like but the whole thing over here i'm giving this this list of rules the name derivative rules
+what would we do with such a thing once we have it
+well one of the nicest ideas first of all is i'm going to write for you and we're going to play with it all day what i'm going to write for you is a program called simplifier
+the general purpose simplifier
+i'm going to say something like define desimp to be a simplifier of the derivative rules
+and what simplifier is going to do is given a set of rules it will produce for me a procedure which will simplify expressions containing the things that are referred to by these rules
+so here will be a procedure constructed for your purposes to simplify things with derivatives in them such that after that if we're typing at some list system and we get a prompt and we say desimp for example of the derivative of the sum of x and y with respect to x
+note the quote here because i'm talking about the expression which is the derivative
+then i will get back as a result plus one zero because the derivative of x over x plus y is derivative of x plus derivative of y
+derivative of x with respect to x is one derivative of y with respect to x is zero
+so that's what we're going to get
+i'm putting simplification at that level algebraic simplification yet
+of course once we have such a uh thing then we can then we can look at other rules
+so for example we can if we go to the slide ok here for example are other rules that we might have algebraic manipulation rules
+ones that would be used for simplifying algebraic expressions
+for example just looking at some of these the left hand side says any operator applied to a constant e1 and a constant e2 is the result of evaluating that operator on the constants e1 and e2 or an operator applied to e1 any expression e1 and a constant e2 is going to move the constant forward so that'll turn into the operator with e2 followed by e1
+why it did that i don't know
+it wouldn't work if i had division ok for example
+so that's a bug in the rules if you like
+ok
+the sum of zero and e is e
+the product of one and any expression e is e
+the product of zero and any expression e is zero
+just looking at some more of these rules we could have arbitrarily complicated ones
+we could have things like the product of the constant e1 and any constant e2 and with e3 is the result of multiplying the result of multiplying now the constants e1 and e2 together and putting e3 there
+so it says combine the constants that i had which is if i had a product of e1 and e2 and e3 just multiply i mean e1 and e2 are both constants
+multiply them
+ok
+and you can make up the rules as you like
+there are lots of them here
+ok there are things as complicated for example as oh i suppose down here some distributive law you see
+the product of of any object c and the sum of d and e is a result is the same as the sum of the product of c and d and the product of c and e
+ok
+now what exactly these rules are doesn't very much interest me
+we're going to writing the language so it'll do what it'll allow us to interpret these rules so that we can in fact make up whatever rules we like another whole language of programming
+well let's see
+i haven't told you how we're going to do this and of course for a while we're going to work on that
+but there's a real question of what is what am i going to do at all on a large scale ok
+how do these rules work how is the simplifier program going to manipulate these rules with your expression to produce a reasonable answer
+well first i'd like to think about these rules as being some sort of deck of them
+ok
+so here we have a bowl a whole bunch of rules
+right
+each rule here's a rule has a pattern and a skeleton
+i'm trying to make up a control structure for this
+now what i have is a matcher and i have something which is an instantiator
+and i'm going to pass from the matcher to the instantiator from a set of meanings for the pattern variables a dictionary i'll call it
+a dictionary
+which will say x was matched against the following subexpression ok and y was matched against another following subexpression
+and from the instantiator i will be making expressions and they will go into the matcher
+there will be expressions
+and the patterns of the rules will be set into the matcher and the skeletons from the same rule will be fed into the instantiator
+now this is a little complicated because when you have uh something like an algebraic expression where subs the rules are intended to allow you to substitute equals for equals
+these are equal transformation rules so all sub expressions of the expression should be looked at
+you give it an expression this thing and the rules should be cycled around first of all for every sub expression of the expression you feed in all of the rules must be tried and looked at
+and if any rule matches then this process occurs
+the dictionary the dictionary is to have some values in it
+the instantiator makes a new expression which is basically replaces that part of the expression that was matched in your original expression
+and then then of course we're going to recheck that going to go around these rules again seeing if that could be simplified further
+and then uh uh then we're going to do that for every sub expression until the thing no longer changes
+you can think of this as sort of an organic process
+you've got some sort of stew right
+you've got bacteria or something or enzymes and some gooey mess
+and there's a uh you thick these enzymes change things
+they attach to your expression change it and then they go away and they have to match
+the key the key and lock phenomenon
+they match they change it they go away
+you can imagine it's a parallel process of some sort
+so you stick an expression into this into this mess and after a while you take it out and it's been simplified
+ok
+and it just keeps changing until it no longer can be changed but these enzymes can attach to any part of the of the expression
+ok at this point i'd like to stop and ask for questions
+yes
+this implies that the matching program and the instantiation programs are separate programs
+is that right
+or is that
+they are
+they're separate little pieces
+they fit together in a larger structure
+so i'm going through and matching and passing the information about what i matched to an instantiator which makes the changes and then i pass that back in the match
+it won't make a change
+it will make that new expression which has which has substituted the value of the pattern val variables that were matched on the left hand side for the variables that are mentioned the skeleton variables or evaluation variables whatever i forgot uh what i called them on the right hand side
+ok
+and then that's passed back into the matcher
+then the then this is going to go go around again
+this is going to go through this mess until it no longer changes
+and it seems that there would be a danger of getting into a recursive loop
+yes
+yes you've you don't write your rules nicely you er indeed
+in any programming language you invent if it's sufficiently powerful to do anything you can write programs that that will go into infinite loops
+and indeed writing a program for doing algebraic manipulations will produce infinite loops
+go ahead
+some language designers feel that this feature is so important that it should become part of the basic language for example case
+what are your thoughts on
+which language feature
+uh the pair matching
+er in all application of such rules should be
+it's possible
+ok i think my feeling about is that i would like to teach you how to do it so you don't depend upon some language designer
+ok
+you make it yourself
+you can roll your own
+thank you
+well let's see
+now we have to tell you how it works
+in the uh conveniently breaks up into various pieces like look now at the matcher
+the matcher has the following basic structure
+it's a box that takes as its input an expression and a pattern and it turns out a dictionary
+a dictionary remember is a mapping of the na of pattern variables to the values that were found by batching and it puts out another dictionary
+which is the result of augmenting this dictionary by what was found in matching this expression against this pattern
+so that's the matcher
+now this is a rather complicated program and we can look at it on the overhead over here and see ha ha it's very complicated
+i just want you to look at the shape of it
+ok it's too complicated to look at except in pieces ok
+however it's a fairly large complicated program with a lot of sort of indented structure
+at the largest scale don't try to read those characters but at the largest scale you see that there is a case analysis which is all these cases lined up
+what we're now going to do is look at this in a bit more detail attempting to understand how it works
+let's go now to the first slide showing some of the structure of the matcher at a large scale
+and we see is the matcher the matcher takes as its input a pattern an expression and a dictionary
+ok
+and there is a case analysis here which is made out of several cases some of which have been left out over here and the general case which i'd like you to see
+let's consider this general case
+it's a very important pattern
+the problem is that we have to examine two trees simultaneously
+one of the trees is the tree of the expression and the other is the tree of the pattern
+and we have to compare them with each other so that ca the sub expressions of the expression are matched against sub expressions of the pattern
+looking at that in a bit more detail suppose i had a pattern a pattern which was the sum of the product of a thing which we will call x and a thing which we will call y
+and the sum of that and the same thing we call y
+so we're looking for a sum of product whose second whose second argument is the same as a second argument of the sum
+that's a thing you might be looking for
+well that as a pattern looks like this
+there's a tree which consists of a sum and a product with a pattern variable question mark x and a question mark y
+the other pattern variable and question mark y just looking at the same just writing down a list structure in a different way
+now suppose we were matching that against an expression which matches it the sum of say the product of three and x and say x
+that's another tree
+it's the sum of the product of three and x and um x
+so what i want to do is traverse these two trees simultaneously
+and what i'd like to do is walk them like this
+i'm going to say are these the same
+this is a complicated object
+let's look at the left branches
+well that could be the car
+how's that look
+oh yes the plus looks just fine
+ah but the next thing here is a complicated thing
+let's look at that
+oh yes that's pretty fine too
+they're both asterisks
+now whoops my pattern variable
+it matches against the three
+remember x equals three now
+that's in my dictionary and the dictionary's going to follow along with me
+x equals three
+ah yes x equals three and y equals x
+different x
+the pattern x is uh the expression x the pattern y
+ok
+oh yes the pattern variable y is it uh i've already got a value for it
+it's x
+is this an x
+oh yeah sure it is
+that's fine
+yup done
+i now have a i now have a dictionary which i've accumulated by making this walk
+ok
+well now let's look at this at this general case here and see how this works
+here we have it
+i take in a pattern variable sorry a pattern an expression and a dictionary
+and now i'm going to do do a complicated thing here which is the general case
+the expression is made out of two parts a left and a right half in general
+anything that's complicated is made out of two pieces in a lisp system
+now what do we have here
+i'm going to match the cars of the two expressions against each other with a respect to the dictionary i already have
+producing a dictionary as its value which i will then use for matching the cdrs against each other
+so that's how the dictionary travels threads the entire structure
+and then the result of that is the dictionary for the match of the car and cdr
+and that's what's going to be returned as a value
+now any point a match might fail
+it may be the case for example if we go back and look at an expression that doesn't quite match like supposing this was a four
+ok
+well now these two don't match anymore because the x that had to be sorry the y that had to be x here and this y has to be has to be four
+but x and four were not the same object syntactically
+so this wouldn't match and that would be rejected sometimes so matches may fail
+now of course because this matcher takes the dictionary from the previous match as input it must be able to propagate the failures and so that's what the first clause of this conditional does
+it's also true that if it turned out that the pattern was not atomic see if the pattern was atomic i'd go into this stuff which we haven't looked at yet
+but if the pattern is not atomic uh and the uh expression is atomic it's not made out of pieces then that must be a failure and so we go over here
+if the pattern is not atomic and the pattern is not a pattern variable i have to remind myself of that
+then we go over here so that ways failures may occur
+ok so now let's look at the insides of this thing
+well the first place to look is what happens if i have an atomic pattern
+that's very simple a pattern that's not made out of any pieces
+foo
+nice atomic pattern
+well here's what we see
+if the pattern is atomic then if the expression is atomic then if they are the same thing then the dictionary i get is the same one as i had before
+nothing's changed ok
+it's just that i matched plus against plus asterisk against asterisk x against x
+that's all fine
+however if the pattern is not the one which is the expression if i have two separate atomic objects then it was matching plus against asterisk in which case i fail
+ok
+or if it turns out that the uh pattern is atomic but the expression is complicated it's not atomic then i get a failure
+that's very simple
+now what about the various kinds of various kinds of pattern variables
+we have three kinds
+i give them a names
+they're arbitrary constants arbitrary variables and arbitrary expressions
+a question mark a question mark x is an arbitrary expression
+a question mark cx is an arbitrary constant and question mark vx is an arbitrary variable
+but what do we do here
+looking at this we see that if i have an arbitrary constant if the pattern is an arbitrary constant then it had better be the case that the expression had better be a constant
+if the expression's not a constant then that match fails
+if if it is a constant however then i wish to extend the dictionary i wish to extend the dictionary with that pattern being remembered to be that expression using the old dictionary as a starting point
+similarly for arbitrary variables i have to check first if the expression's a variable that i'm matching against
+if so um it's worth extending the dictionary so that the pattern is remembered to be matched against that expression given the original dictionary and this makes a new dictionary
+now it has to check is is a source of failure inside extend dictionary was if that val if if one of these pattern variables already has a value
+and i'm trying to match the thing against something else which is not equivalent to the one that i've already matched it against once then a failure will come flying out of here too
+and i will see that sometime
+and finally an arbitrary expression does not have to check anything syntactic about the expression that's being matched so all it does is the extension of the dictionary
+so you've just seen a complete very simple matcher
+now one of the things that's rather remarkable about this is people pay an awful lot of money these days for someone to make a quote ai expert system ok that has nothing more in it than a matcher and maybe an instantiator like this
+but it's very easy to do and now of course you can start up a little start up company and make a couple of megabucks in the next week taking some people for a ride
+i mean twenty years ago this was remarkable this kind of program
+but now this is sort of easy
+you can teach it to freshmen
+well now there's an instantiator as well
+the problem is they're all going off and making more money than i do
+now that's always been true of universities
+as an expression the purpose of the instantiator is to make expressions given a dictionary and a skeleton
+and that's not very hard at all
+ok we'll see that very simply in the next the next uh slide
+here
+to instantiate a skeleton given a particular dictionary oh this is easy
+we're going to do a recursive tree walk over the skeleton and for everything which is a skeleton variable i don't know we'll call it a skeleton evaluation
+that's the name of the abstract syntax that i give it in this program a skeleton evaluation a thing beginning with a colon in the rules
+for anything one of in that case i'm going to look up the answer in the dictionary and we'll worry about that in a second
+let's look at this as a whole
+ok
+here i have i'm going to instantiate a skeleton given a dictionary
+well i'm going to define some internal internal loop right there and it's going to do something very simple
+either the skeleton is simple and atomic in which case it's nothing more than giving the skeleton back as an answer or in the general case it's complicated in which case i'm going to make up the er the expression which is the result of instantiating calling this loop recursively instantiating the car of the skeleton and the cdr so here are the recursive tree walk
+however if it turns out to be a skeleton evaluation a colon expression in the skeleton then what i'm going to do is find the expression that's er in the colon that's the cadr in this case is a piece of abstract syntax here so i can change my representation of rules ok
+i'm going to evaluate that relative to this dictionary whatever evaluation means
+we'll find out a lot about that sometime
+ok
+and the result of that is my answer
+so i start up this loop here's my initialization by calling it the whole skeleton and this is just do a recursive decomposition into pieces
+now one more little bit of detail is what happens inside evaluate
+i can't tell you that in great detail
+i can tell you a little bit of it
+later we're going to see look into this in much more detail
+to evaluate some form some expression with respect to a dictionary if the expression is an atomic object well i'm going to go look it up
+nothing very exciting there
+otherwise i'm going to do something complicated here which is i'm going to apply a procedure which is a result of looking up the operator part in something that we're going to find out about someday
+i want you to realize you're seeing magic now
+this magic will become clear very soon but not today
+ok
+now i'm looking at looking up all the pieces all the arguments to that in the in the dictionary
+so i don't want you to look at this in detail
+i want you to see there's more going on here and we're going to see more we're going to see more about this
+ok
+but it's er the magic is going to stop
+this part has to do with lisp
+ok
+it's the end of that
+ok so now we know about matching and instantiation
+are there any questions for this segment
+i have a question
+yes
+is it possible to bring up a previous slide it's about this define match pattern
+yes you'd like to see the overall slide define match pattern
+could somebody put up the no the overhead
+that's the biggest scale one
+what part would you like to see
+well any er the top would be fine
+any of the parts where your your passing failed
+yes
+uh your pass the idea is to pass failed back to the dictionary
+is that right
+a dictionary is the dictionary is either er is the answer to a match
+right
+and it it's either uh is either some mapping or there's no match it doesn't match
+so what you're seeing over here is in fact passing because of the fact that a match may use it may have another match pass it a dictionary as you see in the general case down here
+here's the general case where a match patches another match to the dictionary
+when i match the cdrs i match them in the in the with the dictionary that is resulting from matching the cars
+ok that's what i have here so because of that if the cars if the match of the cars fails then it may be necessary that the match of the cdrs propagates that failure
+that's what the first line is
+ok i'm still unclear what matches what comes out of uh one instance of match being
+one of two possibilities
+either the symbol failed which means there is no match or some mapping which is an abstract thing right now and you should know about the structure of it which re relates the names of the the pattern variables to their values as picked up in the match
+ok so it is
+that's constructed by extend dictionary
+so the recursive er nature brings about the fact that if ever it runs if ever a failed gets passed out of any calling of match then the first condition will pick it up
+and pa just propagate it along without any further ado
+right
+oh right ok
+that's just the fastest way to get that failure out out of there
+yes
+if i don't fail that means that i've matched a pattern and i run the procedure extenddict and then pass in the pattern and the expression
+um but the substitution will not be made at that point
+is that right
+i'm just
+no no there's no substitution to be in there because there's no skeleton to be substituted in
+right
+so wh
+all you've got there is we're making up the dictionary for later substitution
+and the what would the dictionary look like
+is it an order pairs uh is it
+uh that's that's not told to you
+we're being abstract
+ok
+why do you want to know
+what it is is it's a function
+abstractly as a set of ordered pairs
+it could be implemented as a set of lisp pairs
+it could be implemented as some fancy table mechanism
+it could be implemented as a function
+ok
+and somehow i'm building up a function
+but i'm not telling you
+that's up to george who's going to build that later
+ok
+now i know you really badly want to write concrete things
+i'm not gonna i'm not gonna let you do that
+well let me at least ask what is the important information there that's being passed to extenddict
+i want to pass the pattern i found
+yes the pattern that's matched against the expression
+you want to have you want to have the pattern which happens to be in those cases pattern variables
+but all of those three cases for extenddict are pattern variables
+right
+ok
+so you have a pattern variable that is to be given a value in a dictionary
+the value is the expression that it matches against
+the dictionary is the set of things that i've already figured out that i've memorized or learned
+ok
+and i'm going to make a new dictionary which is extended from the original one by having that pattern variable have a value with the new dictionary
+i guess what i don't understand is why can't the substitution be made right as soon as you find
+how do i know what i'm going to substitute
+i don't know i don't know anything about this skeleton
+this pattern this matcher is an independent unit
+oh i see
+ok
+right
+yeah
+i go i take the matcher i apply the matcher
+if it matches now i'm er it's worth doing er instantiation
+ok good
+yeah
+can you just do that answer again using that example on the board
+you know what you just passed back
+oh yes
+ok
+yes
+you're looking at this example
+at this point when i'm traversing this structure i get here
+x
+i have some dictionary presumably an empty dictionary at this point if this is a whole expression
+all right
+so i have an empty dictionary and i've matched x against three
+so now after this point the dictionary contains x is three
+ok
+now i continue walking along here i see y
+ok
+now this is a particular x a pattern x
+i see y a pattern y
+the dictionary says oh yes the pattern y is the is the symbol x because i've got a match there so the dictionary now contains at this point two entries
+the pattern x is three and the pattern y is the expression x
+ok
+now i get that i can walk along further
+i say ah y also pattern y also wants to be four
+but that's impossible producing a failure
+thank you let's take a break
+ok this is uh you're seeing your first very big and hairy program
+now of course one of the goals of this is to get you to be able to read something like this and not be afraid of it
+this one's only about four pages of code
+and fifty page program will not look particularly frightening
+well i don't expect and i don't want you to think that i expect you to be getting it as it's coming out
+you're supposed to feel the flavor of this ok and you're supposed to go think about because it is a big program
+there's a lot of stuff inside this inside this program
+now i've told you about the language we're implementing the pattern match substitution language showed you some rules and i've told you about matching and instantiation which is the two halves of how a rule works
+now we have to understand the control structure by which the rules are applied to the expressions so as to so as to do algebraic simplifications
+now that's also a big complicated mess
+ok
+the problem is that there's a variety of interlocking interwoven loops if you will involved in this
+for one thing i have to apply i have to examine every sub expression of my expression that i'm trying to simplify
+that we know how to do
+it's a car cdr recursion of some sort
+ok or something like that
+ok some sort of tree walk
+and that's going to be happening
+now for every such place every node that i get to in doing my in doing my traversal of the expression i'm trying to simplify i want to apply all of the rules
+every rule is going to look at every node
+there's a i'm going to rotate the rules around
+ok
+now er either a rule will or will not match
+if the rule does not match then it's not very interesting
+if the rule does match then i'm going to replace that node in the expression by an alternate expression
+i'm going to make up actually i'm making up a new expression which contains everything contains that new value the result of substituting into the skeleton instantiating the skeleton for that rule at this level
+but no one knows whether that thing that i instantiated there is in simplified form
+so we're going to have to simplify that
+somehow i have to call the simplifier on the thing that i just constructed
+ok
+and then when that's done then i sort of can sort of build that into the expression i want as my answer
+now there's a basic idea here which i will call a garbage in garbage out simplifier
+it's kind of a recursive simplifier and what happens is the way you simplify something is that simple objects like variables are simple
+ok
+compound objects well i don't know
+what i'm going to do is i'm going to build up with simple objects trying to make simple things by assuming that the pieces they're made out of are simple
+so that's what's happening here
+well now if we look at the first slide no overhead overhead you look at the overhead we see a very complicated program like we say before for the matcher so complicated that you can't read it like that
+ok
+that's why you get the feel of the shape of it and the shape of it is that this program has various subprograms in it ok
+one of them is this part is the part for traversing the expression and this part is the part for trying rules
+now of course we can look at that in some more detail
+let's look at the let's look at the first transparency right
+the simplifier is made out of several parts
+now remember at the very beginning the simplifier is a thing which takes a rules set of rules and produces a program which will simplify relative to them
+so here we have our simplifier takes a rules set and in the context where that rule set is defined there are various other definitions that are done here
+and then the result of this simplifier procedure is in fact one of the procedures that was defined
+simplify exp
+what i'm returning as the value of calling simplifier on a set of rules is a procedure the simplify x procedure which is defined in that context which is a simplification procedure appropriate for using those set of rules
+that's what i have there
+now the first two of these procedures this one and this one are together going to be the recursive traversal of an expression
+this one is the general simplification for any expression and this is a thing which simplifies a list of parts of an expression nothing more
+for each of those we're going to do something complicated which involves trying the rules
+now we should look at the various parts
+well let's look first at the recursive traversal of an expression
+and this is done in a sort of simple way
+this is a little nest a recurs a little nest of recursive procedures
+and what we have here are two procedures one for simplifying an expression and one for simplifying parts of an expression
+and the way this works is very simple
+if the expression i'm trying to simplify is a compound expression i'm going to simplify all the parts of it
+and that's going and that procedure simplify parts is going to make up a new expression with all the parts simplified which i'm then going to try the rules on over here
+if it turns out that the expression is not compound if it's simple like just a symbol or something like pi
+then in any case i'm going to try the rules on it because it might be that i want in my set of rules to expand pi to 3 point 1 4 1 5 9 2 6 5 3 5 8 9 7 9
+but i may not
+but there is no reason not to do it
+now if i want to simplify the parts well that's easy too
+either the expression is an empty one there's no more parts in which case i have the empty expression
+otherwise i'm going to make a new expression by cons which is the result of simplifying the first part of the expression the car and simplifying the rest of the expression which is the cdr
+now the reason why i'm showing you this sort of stuff this way is because i want you to get the feeling for the various patterns that are very important when writing programs and this is a this could be written in a different way
+there's another way to write simplify expressions so there would be only one of them
+there would only be one little procedure here and let me write that on the blackboard and give you a feeling for that
+this is another idiom if you will
+simplify an expression called x
+what am i going to do
+i'm going to try the rules on the following situation if on the following expression compound just like we had before
+if you've if the expression is compound
+so what am i going to do
+i'm going to simplify all the parts
+but i already have a cdr recursion common pattern of usage which has been captured as a high order procedure
+it's called map so i'll just write that here
+map simplify the expression
+now all the parts of the expression
+this apply
+the simplification operation which is this one every part of the expression and then they cons those up into a list
+every element of the list which the expression is assumed to be made out of and otherwise i have the expression
+so i don't need the helper procedure simplify parts because that's really this
+so sometimes you just write it this way
+it doesn't matter very much
+well now let's take a look at let's just look at how you apply rules
+if you look at this slide we see this is a complicated mess also
+while i'm trying rules on an expression it turns out the expression i'm trying it on is some subexpression now of the expression i started with because the thing i just arranged allowed us to draw every subexpression
+so now we're here we're taking in a sub expression of the expression we started with
+that's what this is and what we're going to define here is a procedure called scan which is going to try every rule and we're going to start it up on the whole set of rules
+this is going to go cdring down the rules if you will looking for a rule to apply and when it finds one it'll do the job
+well let's take a look at how try rules works
+it's very simple
+or scan rules scan rules the way of scanning
+well is it so simple
+it's a big program of course
+you take a bunch of rules which is a sublist of the list of rules
+we've tried some of them already and they've not been appropriate so we get to the sum here and get to look at the next one
+if there are no more rules well then there's nothing i can do with this expression and it's simplified
+however if it turns out that the rule that there are still rules to be done then let's match the pattern of the first rule against the expression using the empty dictionary to start with and make it use that as a dictionary
+if that happens to be a failure try the rest of the rules
+that's all it says here
+how it says discard that rule
+otherwise well i'm going to get the skeleton of the first rule instantiate that relative to the dictionary and simplify the result and that's the expression i want
+so although that was a complicated program every complicated program is made of a lot of simple pieces
+now the pattern the pattern of recursions is very complicated and one of the most important things is not to think about that
+if you try to think about the actual pattern by which this does something you're going to get very confused
+i would
+this is not a matter of of you have you can do this with practice
+these patterns are hard
+you don't have to think about it
+the key to this er very good programming and very good design is to know what not to think about
+the fact is going back to this slide i don't have to think about it because i have specifications in my mind for what simplify exp does
+i don't have to know how it does it and it may in fact scan somehow through try rules which is does and somehow i've got another recursion going on here
+but since i know that simplify exp is assumed by wishful thinking to produce a simplified result then i don't have to think about it anymore
+i've used it
+i've used it in a reasonable way i will get a reasonable answer
+and you have to learn how to program that way
+we've abandoned it
+well there's very little after this thing
+all there is left is a few details associated with what a dictionary is and those of you who have been itching to know what a dictionary is well i will pick it up and not tell you anything about it
+ok
+dictionaries are easy
+it's represented in terms of something else called uh an a list which is a particular pattern of usage for making tables in lisp and they're easy
+they're made out of pairs as was asked a bit uh ago
+but and there's special procedures for dealing with such things called ask you and you can find them in manuals
+and i'm not terribly excited about it
+the only interesting thing here extend dictionary is i have to extend a dictionary with a pattern and datum and a dictionary
+this pattern is in fact at this point a pattern variable
+now what do i want to do
+i want to pull out the name of that pattern variable the pattern variable name and i'm going to look up in the dictionary see if it already has a value
+if not i'm going to add a new one in
+if it does have one has a value then it had better be equal to the one that was already stored away and uh if that's the case the dictionary is what i expect it to be
+otherwise i fail
+so that's easy too
+if you open up any program you're going to find inside of it lots of little pieces all of which are easy
+so at this point i suppose i've just told you some million dollar valuable information
+and i suppose at this point we're pretty much done with this program i'd like to ask questions
+yes can you give me the word that describes the specification for simplify expression
+sure simplify expression takes an expression and produces a simplified expression
+that's it
+ok
+how it does it is very easy
+compound expressions all the pieces are simplified and then the rules are tried on the result and for simple expressions you just try all the rules
+are expressions simplified by virtues of the rules
+that's of course true and the way this works is that simplify expression as you see here ok what it does is it breaks the expression down into its smallest pieces
+simplifies building up from the bottom using the rules to be the simplifier to do the manipulations and constructs a new expression as the result
+eventually uh one of the things you see is that the rules themselves try rules calls simplify expression on the results and when it changes something
+the results uh of a match
+i'm sorry the results of an instantiation and skeleton for a pat for a rule that has matched
+so the spec of simplify expression is that any expression you put into it comes out simplified according to those rules
+thank you let's take a break

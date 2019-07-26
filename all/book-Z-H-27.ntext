@@ -1,0 +1,140 @@
+now that we have an evaluator expressed as a lisp program we can experiment with alternative choices in language design simply by modifying the evaluator
+indeed new languages are often invented by first writing an evaluator that embeds the new language within an existing high level language
+for example if we wish to discuss some aspect of a proposed modification to lisp with another member of the lisp community we can supply an evaluator that embodies the change
+the recipient can then experiment with the new evaluator and send back comments as further modifications
+not only does the high level implementation base make it easier to test and debug the evaluator in addition the embedding enables the designer to snarf features from the underlying language just as our embedded lisp evaluator uses primitives and control structure from the underlying lisp
+only later need the designer go to the trouble of building a complete implementation in a low level language or in hardware
+in this section and the next we explore some variations on scheme that provide significant additional expressive power
+in section one point one where we began our discussion of models of evaluation we noted that scheme is an applicative order language namely that all the arguments to scheme procedures are evaluated when the procedure is applied
+in contrast normal order languages delay evaluation of procedure arguments until the actual argument values are needed
+delaying evaluation of procedure arguments until the last possible moment is called lazy evaluation
+consider the procedure
+evaluating generates an error in scheme
+with lazy evaluation there would be no error
+evaluating the expression would return one because the argument would never be evaluated
+an example that exploits lazy evaluation is the definition of a procedure unless
+that can be used in expressions such as
+this wo n't work in an applicative order language because both the usual value and the exceptional value will be evaluated before unless is called
+an advantage of lazy evaluation is that some procedures such as unless can do useful computation even if evaluation of some of their arguments would produce errors or would not terminate
+if the body of a procedure is entered before an argument has been evaluated we say that the procedure is non strict in that argument
+if the argument is evaluated before the body of the procedure is entered we say that the procedure is strict in that argument
+in a purely applicative order language all procedures are strict in each argument
+in a purely normal order language all compound procedures are non strict in each argument and primitive procedures may be either strict or non strict
+there are also languages that give programmers detailed control over the strictness of the procedures they define
+a striking example of a procedure that can usefully be made non strict is cons
+one can do useful computation combining elements to form data structures and operating on the resulting data structures even if the values of the elements are not known
+it makes perfect sense for instance to compute the length of a list without knowing the values of the individual elements in the list
+we will exploit this idea in section four point two point three to implement the streams of chapter three as lists formed of non strict cons pairs
+suppose that we define unless as shown above and then define factorial in terms of unless as
+what happens if we attempt to evaluate
+will our definitions work in a normal order language
+ben bitdiddle and alyssa p
+hacker disagree over the importance of lazy evaluation for implementing things such as unless
+ben points out that it's possible to implement unless in applicative order as a special form
+alyssa counters that if one did that unless would be merely syntax not a procedure that could be used in conjunction with higher order procedures
+fill in the details on both sides of the argument
+show how to implement unless as a derived expression and give an example of a situation where it might be useful to have unless available as a procedure rather than as a special form
+in this section we will implement a normal order language that is the same as scheme except that compound procedures are non strict in each argument
+primitive procedures will still be strict
+it is not difficult to modify the evaluator of section four point one point one so that the language it interprets behaves this way
+almost all the required changes center around procedure application
+the basic idea is that when applying a procedure the interpreter must determine which arguments are to be evaluated and which are to be delayed
+the delayed arguments are not evaluated instead they are transformed into objects called thunks
+the thunk must contain the information required to produce the value of the argument when it is needed as if it had been evaluated at the time of the application
+thus the thunk must contain the argument expression and the environment in which the procedure application is being evaluated
+the process of evaluating the expression in a thunk is called forcing
+in general a thunk will be forced only when its value is needed when it is passed to a primitive procedure that will use the value of the thunk when it is the value of a predicate of a conditional and when it is the value of an operator that is about to be applied as a procedure
+one design choice we have available is whether or not to memoize thunks as we did with delayed objects in section three point five point one
+with memoization the first time a thunk is forced it stores the value that is computed
+subsequent forcings simply return the stored value without repeating the computation
+we'll make our interpreter memoize because this is more efficient for many applications
+there are tricky considerations here however
+the main difference between the lazy evaluator and the one in section four point one is in the handling of procedure applications in eval and apply
+the application clause of eval becomes
+this is almost the same as the application clause of eval in section four point one point one
+for lazy evaluation however we call apply with the operand expressions rather than the arguments produced by evaluating them
+since we will need the environment to construct thunks if the arguments are to be delayed we must pass this as well
+we still evaluate the operator because apply needs the actual procedure to be applied in order to dispatch on its type and apply it
+whenever we need the actual value of an expression we use
+instead of just eval so that if the expression's value is a thunk it will be forced
+our new version of apply is also almost the same as the version in section four point one point one
+the difference is that eval has passed in unevaluated operand expressions for primitive procedures we evaluate all the arguments before applying the primitive for compound procedures we delay all the arguments before applying the procedure
+the procedures that process the arguments are just like list of values from section four point one point one except that list of delayed args delays the arguments instead of evaluating them and list of arg values uses actual value instead of eval
+the other place we must change the evaluator is in the handling of if where we must use actual value instead of eval to get the value of the predicate expression before testing whether it is true or false
+finally we must change the driver loop procedure to use actual value instead of eval so that if a delayed value is propagated back to the read eval print loop it will be forced before being printed
+we also change the prompts to indicate that this is the lazy evaluator
+with these changes made we can start the evaluator and test it
+the successful evaluation of the try expression discussed in section four point two point one indicates that the interpreter is performing lazy evaluation
+our evaluator must arrange to create thunks when procedures are applied to arguments and to force these thunks later
+a thunk must package an expression together with the environment so that the argument can be produced later
+to force the thunk we simply extract the expression and environment from the thunk and evaluate the expression in the environment
+we use actual value rather than eval so that in case the value of the expression is itself a thunk we will force that and so on until we reach something that is not a thunk
+one easy way to package an expression with an environment is to make a list containing the expression and the environment
+thus we create a thunk as follows
+actually what we want for our interpreter is not quite this but rather thunks that have been memoized
+when a thunk is forced we will turn it into an evaluated thunk by replacing the stored expression with its value and changing the thunk tag so that it can be recognized as already evaluated
+notice that the same delay it procedure works both with and without memoization
+suppose we type in the following definitions to the lazy evaluator
+give the missing values in the following sequence of interactions and explain your answers
+eval uses actual value rather than eval to evaluate the operator before passing it to apply in order to force the value of the operator
+give an example that demonstrates the need for this forcing
+exhibit a program that you would expect to run much more slowly without memoization than with memoization
+also consider the following interaction where the id procedure is defined as in exercise four point twenty seven and count starts at 0
+give the responses both when the evaluator memoizes and when it does not
+cy d
+fect a reformed c programmer is worried that some side effects may never take place because the lazy evaluator does n't force the expressions in a sequence
+since the value of an expression in a sequence other than the last one is not used there can be no subsequent use of this value that will cause it to be forced
+cy thus thinks that when evaluating sequences we must force all expressions in the sequence except the final one
+he proposes to modify eval sequence from section four point one point one to use actual value rather than eval
+a
+ben bitdiddle thinks cy is wrong
+he shows cy the for each procedure described in exercise two point twenty three which gives an important example of a sequence with side effects
+he claims that the evaluator in the text handles this correctly
+explain why ben is right about the behavior of for each
+b
+cy agrees that ben is right about the for each example but says that that's not the kind of program he was thinking about when he proposed his change to eval sequence
+he defines the following two procedures in the lazy evaluator
+what are the values of and with the original eval sequence
+what would the values be with cy's proposed change to eval sequence
+c
+cy also points out that changing eval sequence as he proposes does not affect the behavior of the example in part a
+explain why this is true
+d
+how do you think sequences ought to be treated in the lazy evaluator
+do you like cy's approach the approach in the text or some other approach
+the approach taken in this section is somewhat unpleasant because it makes an incompatible change to scheme
+it might be nicer to implement lazy evaluation as an upward compatible extension that is so that ordinary scheme programs will work as before
+we can do this by extending the syntax of procedure declarations to let the user control whether or not arguments are to be delayed
+while we're at it we may as well also give the user the choice between delaying with and without memoization
+for example the definition
+would define f to be a procedure of four arguments where the first and third arguments are evaluated when the procedure is called the second argument is delayed and the fourth argument is both delayed and memoized
+thus ordinary procedure definitions will produce the same behavior as ordinary scheme while adding the lazy memo declaration to each parameter of every compound procedure will produce the behavior of the lazy evaluator defined in this section
+design and implement the changes required to produce such an extension to scheme
+you will have to implement new syntax procedures to handle the new syntax for define
+you must also arrange for eval or apply to determine when arguments are to be delayed and to force or delay arguments accordingly and you must arrange for forcing to memoize or not as appropriate
+in section three point five point one we showed how to implement streams as delayed lists
+we introduced special forms delay and cons stream which allowed us to construct a promise to compute the cdr of a stream without actually fulfilling that promise until later
+we could use this general technique of introducing special forms whenever we need more control over the evaluation process but this is awkward
+for one thing a special form is not a first class object like a procedure so we cannot use it together with higher order procedures
+additionally we were forced to create streams as a new kind of data object similar but not identical to lists and this required us to reimplement many ordinary list operations for use with streams
+with lazy evaluation streams and lists can be identical so there is no need for special forms or for separate list and stream operations
+all we need to do is to arrange matters so that cons is non strict
+one way to accomplish this is to extend the lazy evaluator to allow for non strict primitives and to implement cons as one of these
+an easier way is to recall that there is no fundamental need to implement cons as a primitive at all
+instead we can represent pairs as procedures
+in terms of these basic operations the standard definitions of the list operations will work with infinite lists ( streams ) as well as finite ones and the stream operations can be implemented as list operations
+here are some examples
+note that these lazy lists are even lazier than the streams of chapter three the car of the list as well as the cdr is delayed
+in fact even accessing the car or cdr of a lazy pair need not force the value of a list element
+the value will be forced only when it is really needed e.g. for use as the argument of a primitive or to be printed as an answer
+lazy pairs also help with the problem that arose with streams in section three point five point four where we found that formulating stream models of systems with loops may require us to sprinkle our programs with explicit delay operations beyond the ones supplied by cons stream
+with lazy evaluation all arguments to procedures are delayed uniformly
+for instance we can implement procedures to integrate lists and solve differential equations as we originally intended in section three point five point four
+give some examples that illustrate the difference between the streams of chapter three and the lazier lazy lists described in this section
+how can you take advantage of this extra laziness
+ben bitdiddle tests the lazy list implementation given above by evaluating the expression
+to his surprise this produces an error
+after some thought he realizes that the lists obtained by reading in quoted expressions are different from the lists manipulated by the new definitions of cons car and cdr
+modify the evaluator's treatment of quoted expressions so that quoted lists typed at the driver loop will produce true lazy lists
+modify the driver loop for the evaluator so that lazy pairs and lists will print in some reasonable way
+you may also need to modify the representation of lazy pairs so that the evaluator can identify them in order to print them

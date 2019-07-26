@@ -1,0 +1,770 @@
+well so far we've invented enough programming to do some very complicated things
+and uh you've certainly learned a lot about programming at this point
+you've learned almost all the most important tricks that usually don't get taught in ta to people until they've have a lot of experience
+for example data directed programming is a a major trick
+and yesterday you also saw an interpreted language
+we did this all in a computer language at this point where there was no assignment statement
+and presumably for those of you who have seen your basic or pascal or whatever that's usually considered the most important thing
+well today we're going to do something horrible
+we're going to add an assignment statement
+and since we can do all these wonderful things without it why should we add it
+an important thing to understand is that today we're going to first of all have a rule which is going to always be obeyed
+which is the only reason we ever add a feature to our language is because there's a good reason
+and the good reason is going to boil down to the ability
+you now get an ability to break a problem into pieces that are different sets of pieces than you could have broken down without that
+give you another means of decomposition
+however let's just start
+let me quick begin by reviewing the kind of language that we um that we have now
+we've been writing what's called functional programs and functional programs are a kind of encoding of mathematical truths
+for example when we look at the factorial procedure that you see on the slide here it's basically two clauses
+if n is one the result is one otherwise n n times factorial n minus one
+that's factorial of n
+well that is factorial of n
+and written down in some other obscure notation that you might have learned in calculus classes
+uh mathematical logic what you see there is if uh n equals one the result for n factorial is one otherwise greater that one
+n factorial's n times n minus one factorial
+true statements
+that's the kind of language we've been using
+and whenever we have true statements of that sort there's a kind of a way of uh of understanding how they work
+which is that such processes can be evolved by substitution
+that's what we see on the second slide here
+that the way we understand the execution implied by those statements arranged in that order is that you sub to seek successive substitutions of arguments for formal parameters in the body of a procedure
+these all say this is basically a sequence of equalities
+factorial of four is four times factorial of three
+that is four times three times factorial of two
+and so on
+we're always preserving truth
+now even in this even though we're talking about true statements there might be more than one organization of these true statements to describe the computation of a particular function
+computation of the value of a particular function
+so for example looking at the next one here um here's a way of looking at the sum
+go look at the sum of n and m okay and we did this one by a recursive process
+it's the um increment of the sum of the decrement of n and m ay
+and of course there is some piece of mathematical logic here that describes that
+it's the increment of the sum of the decrement of n and m
+just like that
+so there's nothing nothing particularly magic about that
+and of course if we can also look at a iterative process with the same program that evolves an iterative process with the same function
+these are two things that compute the same van answer and we have equivalent mathematical truths that are arranged there
+and just the way you arrange those truths determine the particular process or the way you choose and arrange them that determines the process that's evolved
+so we have the flexibility of talking about both the function to be computed and the method by which it's computed
+does not clear we want we'd need more
+however today i'm going to do this awful thing
+i'm going to introduce this assignment operation
+now what is this
+well first of all there's going to be a another kind of uh kind of statement if you will in our programming language called set
+and set things that do things like assignment i'm going to put exclamation points after
+we'll talk about what that means in a second
+the exclamation point again like question mark is an arbitrary thing we attach to the symbol which is the name has no significance to the system
+the only significance is to me and you to alert you that this is an assignment of some sort
+but we're going to set a variable to a value
+and what that's going to mean is that there is a time at which something happens
+here's a time
+if i have time going this way
+this is a time axis
+time progresses by walking down the page
+then an assignment is the first thing we have that produces the difference between a before and an after
+all of the other programs that we've written that have no assignments in them the order in which they were evaluated didn't matter
+but assignment is special
+it produces a moment in time
+so there is a moment before the time the set occurs
+and after such that such that after this moment in time
+the variable has the value value
+independent of what value it had before
+set changes the value of the variable
+until this moment we had nothing that changed
+so for example one of the things we can think of is that the procedures we write for something like factorial are in fact pretty much identical to the function factorial
+factorial of four
+if i write f a c t four independent of what context it's in and independent of how many times i write it i always get the same answer
+it's always twenty four
+it's a unique map from the argument to the answer
+and all the programs we've written so far are like that
+however once i have assignment that isn't true
+so for example if i were to define count to be one
+and then i'm going to define also a procedure simple procedure called demo
+which takes an argument x and does the following operations it first sets x to x+1
+my gosh this looks just like fortran right in a funny syntax
+and then add to x count
+oh i just made a mistake
+i want to say set count to one plus count
+which this thing defined here
+and eh a set to x count
+then i can try this procedure
+let's run it
+so suppose i get a prompt and i say demo three
+well what happens here
+the first thing that happens is count is currently one currently there's a time
+i'm talking about time
+x gets three
+at this moment i say oh yes count is incremented so count is two
+two plus three is five
+so the answer i get out is five
+then i say demo of say three again
+okay now what do i get
+well now count is two
+it's not one anymore because i've incra incremented it
+but now i go through this process
+three goes into x
+uh count becomes one plus count so that's three now
+the sum of those two is six
+so the answer is six
+now what we see is the same expression leads to two different answers depending upon time
+so demo is not a function does not compute a mathematical function
+in fact you could also see why now of course this is the first place where the substitution model isn't going to work
+this kills the substitution model dead
+you know with quotation there were some little problems that a philosopher might notice
+okay with the substitutions because you have to worry about what deductions you can make when you substitute into quotes if you're allowed to do that at all
+but here the substitution model is dead
+can't do anything at all because supposing i wanted to use a substitution model to consider substituting for count
+well by gosh if i substitute for here and here okay they're different ones
+it's not the same count anymore
+i get the wrong answer
+the substitution model's a static phenomenon that describes things that are true and not things that change
+here we have truths that change
+ok well before i give you any any uh understanding of this this is very bad
+now we've lost our model of computation
+and pretty soon i'm going to have to build you a new model of computation because but let's play with this just now in an informal sense
+course what you already see is that when i have something like assignment the model that we're going to need is different from the model that we had before
+in that the variables those symbols like count or x are no longer going to refer to the values they have but rather to some sort of place where the value is stored
+we're going to have to think that way for a while and it's going to be a very bad thing and cause a lot of trouble
+and so we're as i said the very fact that we're inventing this bad thing means that there had better be good reason for it
+otherwise it's just a waste of time and a lot of effort
+let's just look at some of it no just to play
+supposing we write down the functional version functional meaning in the old style okay of factorial by an iterative process
+factorial of n
+we're going to iterate of m and i which says if
+i is greater than n then the result is m otherwise the result of iterating the product of i and m
+so m is going to be the product that i'm accumulating
+m is the product
+okay
+and the count i'm going to increase by one plus iter else con define
+i'm going to start this up
+and these days you should have no trouble reading something like this
+what i have here is a a product being accumulated and a counter
+i start them up both at one
+i'm going to buzz the counter up
+i goes to i plus one every time around
+but that's only whe are putting a time on the process
+each of this is just to have truths true rules
+okay
+and m is going to get re get new values of i and m i times m each time around
+and eventually i is going to be bigger than n in which case the answer is going to be n
+now i speaking to you use time in this
+that's just because i know how the computer works
+but i didn't have to
+this could be a purely mathematical description at this point because substitution will work for this
+but let's say i write down a similar sort of program doing using the same algorithm but with a with assignments
+so this is called a functional version
+i want to write down an imperative version
+factorial of n
+i'm going to create my two variables
+let i initialize itself to one
+and m be initialized to one similar
+we'll create a loop
+which says cond greater than i and if i is greater than n we're done
+and the result is m the product i'm accumulating otherwise i'm going to write down three things to do
+i'm going to set m to the product of i and m set i i to the sum of i and one
+and go around the loop again
+looks very familiar to you fortran programmers
+else cond define funny syntax though
+start the loop up
+okay and that's the program
+now this program how do we think about it
+well let's just say we're seeing here
+there are two local variables i and m that have initialized to one okay
+every time i un the loop i test to see if i is greater than n which is the input argument and if so the result is the product being accumulated in m
+however if it's not the end of the loop if i'm done if i'm not done then what i'm going to do is change the product to be the result of multiplying i times the current product
+which is sort of what we were doing here except here i wasn't changing
+i was making another copy because the substitution model says you copy the body of the procedure with the argument substituted for the formal parameters
+here i'm not worrying about copying here i've changed the value of m
+i also then changed the value of i to i plus one and go buzzing around
+seems like it's essentially the same program
+but there's some ways of making errors here that didn't exist until today
+for example if i were to do the horrible thing of writing not being careful and writing my program and interchange those two assignments the program wouldn't compute the same function
+i'd get a timing error because there's a dependency that m depends upon having the last value of i
+if i try and change i first then i've got the wrong value of i when i multiply by m
+that's a bug that wasn't available until this moment
+so we introduced something that had time in it
+so as i said first we need a new model of computation
+and second we have to have a damn good reason for doing this kind of ugly thing
+are there any questions
+speak loudly david
+okay
+um i'm confused about we've introduced set now but we had let before and defined before
+uh i'm confused about the difference between the three
+wouldn't define work in the same situation as set
+you introduced it a bit
+no is define is intended for setting something once the first time
+for making it
+mm hm
+okay
+in other words i say you have never seen me write on a blackboard okay two defines in a row whose intention was to change the old value of some variable to a new one
+and is that is that
+and
+by convention or
+it's no
+it's intention okay
+i
+the answer is that for example internal to a procedure two defines in a row are illegal
+two defines in a row of the same variable
+okay
+executing the same dibba define twice
+whether or not a system catches that error is a different question
+but i legislate to you that define happens once on anything
+now indeed in interactive debugging we intend that you interacting with your computer will redefine things
+and so there's a special exception made for interactive debugging
+but define define is intended to d mean set up something okay
+which will be forever tha er tha that value after that point okay
+it's as if all the defines were done at the beginning
+and in fact the only legal place to put a define in scheme internal to a procedure is just aft at the beginning of a lambda expression
+okay which is the in the beginning of the body of a procedure okay
+now uh
+now let let of course does does nothing like either of that
+i mean if you look at what's happening with the let this happens again exactly once
+it sets up a context where i and m are val have values one and one
+that context exists throughout this scope
+this region of the program
+however you don't think of that let as creating in a a a as setting i again
+it doesn't change it
+i never changes because of the let
+i gets created because of the let
+in fact the let is a very simple idea
+let does nothing more uh let a variable one to have value one
+let me write this down a little bit more neatly
+let's write var one have value the value of expression e one and variable two have the ex value of the expression e two
+in an expression e three is the same thing as a procedure of var one and var two
+the informal parameters and e three being the body where var one is bound to the value of e one and var two gets the value of e two
+so this is in fact a perfectly understandable thing from a substitution point of view
+this is really the same expression written in two different ways
+in fact the way the actual system works is this gets translated into this before anything happens
+okay
+i'm still unclear as then what makes the difference between a let and a define
+it could
+a define a define is a syntactic sugar whereby essentially a bunch of variables be created by lets and then set up once
+okay time for the first break i think thank you
+m let me get this seven
+how long was that
+well let's see
+i now have to rebuild the model of computation in youm so you understand how some such mechanical mechanism could work that can do what we've just talked about
+i've just recently destroyed your substitution model
+unfortunately this model is significantly more complicated than the substitution model
+it's called the environment model and i'm going to have to introduce some terminology which is very good terminology for you to know anyway
+it's about names
+and wha we're going to give names to the kinds of names things have and the way names are used
+so this is a meta description if you will
+anyway there's a pile of unfortunate terminology here but we're going to need this to understand what's called the environment model
+and we're about to do a little bit of boring dog work here
+let's look at the first uh transparency
+now we see a description of a word called bound
+and we're going to say that a variable v is bound in an expression e if the meaning of e is unchanged by the uniform replacement of a the variable w not occurring in e for every occurrence of v in e
+now that's a long sentence okay
+so i think i'm going to have to say a little bit about that before we even fool around at all here
+bound variables we're talking about here
+and you've seen lots of them
+you may not know that you've seen lots of them although i suppose in your logic you saw logical variables like for every x there exists a y such that p is true of x and y from your calculus class
+hm
+this variable x and this variable y are bound because the meaning of this expression does not depend upon the particular letters i use to describe x and y
+if i were to change e w for x if this said for every w there exists a y such that p is true of w and y it would be the same sentence
+that's what it means
+or another case of this that you've seen is integral say from uh zero to one of d x over one plus x square
+hm
+well that's something you see all the time and this x is a bound variable
+if i change that to a t the expression is still the same thing
+this is uh a quarter of the uz arctan of one or something or something like that
+that's yeah it's arctan of one
+so bound variables are actually fairly common for those of you who've played a bit with mathematics
+well let's ta go into the uh into the programming world
+instead of the quantifier being something like for every or there exists or integral
+a quantifier is a symbol that binds a variable okay we're going to use the quantifier lambda as being the essential thing that binds variables
+and so we have some nice examples here like that procedure of one argument y which ha which does the following thing
+it calls the procedure of one argument x which multiplies x by y and applies that to three
+that procedure has the property there are two bound variables in it x and y
+this quantifier lambda here binds this y and this quantifier lambda binds that x because if i were to take an arbitrary symbol that does not occur in this expression like w and replace all y's with w's in this expression the expression is still the same
+the same procedure
+and this is an important idea
+the reason why we have such things like that is a kind of modularity
+if two people are writing programs it should be and they work together it shouldn't matter what names they use internal to their own little machines that they're building
+okay
+and so i i'm really telling you there is that for example this is equivalent to that procedure of one argument y which uses that procedure of one argument z which multiplies uh z by y
+because nobody cares what i used in here
+it's a nice example
+on the other hand i have some i have some variables that are not bound
+an example that procedure of one argument x which multiplies x by y
+in this case y is not bound
+supposing y has the value three and z had the value four
+then this procedure would be the thing an an and that multiplies its argument by three
+if i were to replace every instance of y with z i would have a different procedure which multiplies every it every argument is given by four okay
+and in fact we have a name for such a variable here
+we say that a variable v is free in an expression e if the meaning of the expression e has changed by the uniform replacement of a variable w not occurring in e for every occurrence of v and e
+so that's why that's why the these this vy variable over here y is a free variable
+and so free variable in this expression
+and other examples of that is that procedure of one argument y which is just what we had before which uses that procedure of one argument x that multiplies x by y
+use that on three
+this this procedure has a free variable in it which is asterisk
+see because if that has the normal meaning of multiplication then if i were to replace uniformly all asterisks with pluses then the meaning of this expression would change
+that's what you mean by a free variable
+so so far you've learned some logician words which describe the way names are used
+now we have to do a little bit more playing around here little bit more
+i want to tell you about about the regions over which variables are defined
+you see we've been very informal about this up 'til now and of course many of you have probably understood very clearly or most of you that the x that's being declared here is defined only in here
+this x is defined only in here and this y is defined only in here
+we have a name for such an idea
+it's called a scope
+and let me give you another piece of terminology
+it's a long story
+if x is a bound variable in e then there is a lambda expression where it is bound
+it's the only way you can get a la a bound variable ultimately is by lambda expression
+then you may worry is define quite the sa an exception to this
+and it turns out we can always arrange things so you don't need any defines
+and we'll see that in a while
+it's a be very magical thing
+okay
+so define really can go away okay
+the really only thing that makes names is lambda
+that's its job
+now what's so amazing about a lot of things is that you can compute with only lambda
+but in any case okay a lambda expression has a place where it declares a variable
+we call that the formal parameter list
+and we say or the bound variable list
+we say that the lambda expression binds so that's a verb binds the variables declared in its bound variable list
+and in addition those parts of the expression where the variable is defined
+which was declared by some declaration is called the scope of that of that variable
+so these are scopes
+this is the scope of y
+and this is the scope of x
+and that sort of thing
+okay well now we have enough terminology to begin to understand how to how to make a new model for computation
+because the key thing going on here is that we've destroyed the substitution model and we now have to have a model that represents the names as referring to places because if we're going to change something then we have to have a place where it's stored
+you see if a va a name only refers to a value and if i tried to change the name's meaning well that's not clear
+there's nothing that's the nothing that is the the place that that name referred to
+how am i really saying it
+there's nothing shared among all of the instances of that name
+and what we really mean by a name is we fan something out
+we've given something a name and you have it and you have it because i've given you a reference to it and i've given you a reference to it okay and we'll see a lot about that
+so let me tell you about environments
+i need the overhead projection machine
+thank you
+okay so here is a is a bunch of environment structures
+an environment is a way of doing substitutions virtually
+it rep represents a place where something is stored which is the in substitutions that you haven't done
+it's the place where it's a place where everything accumulates where the names of the var uh of the variables are associated with the values they have such that when you when i say what is the name what does this name mean you look it up in an environment
+so an environment is a function or a table or something like that
+but it's a structured sort of table
+it's made out of things called frames
+frames are pieces of an environment and they're chained together in some nice ways by what's called parent links or something like that
+so here we have an environment structure consisting of three environments basically a b and c
+d is also an environment but it's the same one
+they share
+and that's the essence of assignment
+if i change a variable that uh a value of a variable that lives here like that one it should be visible from all places that you're looking at it from
+take this one x
+if i change that x to four it's visible from other places
+but i'm not going to worry about that right now
+we're going to talk a lot about that in a little while
+what do we have here
+well these are called frames
+here's a frame here's a frame and here's a frame
+a is an environment which consists of the table labeled fr which is frame two followed by the table na labeled frame one
+and in this environment in say in say this environment uh frame two uh x and y are bound
+they have values in frame sorry in frame one
+in frame two z is bound and x is bound and y is bound but the value of x that we see looking from this point of view is this x
+this x is seven rather than this one which is three
+we say that this x shadows this x okay
+from environment three from frame three from environment b which refers to frame three we have variables m and y bound and also x
+this y shadows this one
+so the value looking from this point of view of y is two
+the value from looking from this point of view of m is one and the value of looking from this point of view of x is three hm
+so there we have a very simple environment structure made out of frames
+these correspond to the applications of procedures
+and we'll see that in a second
+so now i have to make you some other other nice little structure that we build
+next slide we see an object which i'm going to draw procedures
+this is a procedure
+a procedure is made out of two parts
+it's sort of like a cons
+however it's the two parts okay
+the first part refers to some code something that could be executed a set of instructions if you will
+you can think of it that way
+and the second part is an environment
+the procedure is the whole thing
+and we're going to have to use this to to capture the values of the free variables that occur in the procedure
+if a va if a variable occurs in the procedure it's either bound in that procedure or free
+if it's bound then the value will somehow be easy to find okay
+and but i will talk it will be in some easy environment to get at
+if it's free we're going to have to have something that goes with the procedure that says where it will go look for its value
+and the reasons why are not obvious yet but will will be soon
+so here is a procedure object
+it's a composite object consisting of a piece of code and a and a environment structure
+now i will tell you the new rules the complete new rules for evaluation
+the first rule there's only two of them
+these correspond to the substitution model rules
+and the first one has to do with how do you apply a procedure to its arguments okay
+and a procedure object is applied to a set of arguments by constructing a new frame
+that frame will contain the mapping of the formal parameters to the actual parameters of the arguments that were supplied in the call
+as you know when we make up a call to a procedure like lambda x times x y and we have called that with the var argument three then we're going to need some mapping of x to three
+it's the same thing as later substituting if you will the three for the x in the old model
+so i'm going to build a frame which contains x equals three as the information in that frame
+now the body of the procedure will then have to be evaluated which is this
+and it will be evaluated in an environment which is the um envir in the environment which is constructed by adjoining the new frame
+that we just made to the environment which was part of the procedure that we applied
+so i'm going to make a little example of that here
+supposing i have some environment
+here's a frame which represented and some procedure which i'm going to draw with circles here cause it's easier than little triangles
+uh sorry
+those are rhombuses
+rhomboidal little pieces of true true jelly or something
+so here's a procedure which takes this environment
+and the procedure has a piece of code which is a lambda expression which binds x and y and then executes uh unna a a an expression e
+and this is the procedure
+we'll call it p
+and i wish to apply that procedure to three and four
+so i want to do p of three and four
+well what i'm going to do of course is make a new frame
+i build a frame which contains x equals three and y equals four
+and i'm going to connect that frame to this frame over here
+and then this environment which i will call b is the environment in which i will b evaluate the body of e
+now e may contain references to x and y and other things
+x and y will be have values right here
+other things will have their values here
+how do we get this frame
+that we do by the construction of procedures which is the other rule
+and i think that's the next slide
+rule two
+when a lambda expression is evaluated relative to a particular environment see the way i get a procedure is by evaluating a lambda expression
+here's a lambda expression
+by evaluating it i get a procedure which i can apply to three
+now this lambda expression is evaluated in an environment where y is defined
+and i want the body of this which contains a free version of y
+y is free in here
+it's bound over the whole thing but it's free over here
+i want that y to be this one
+i evaluate this body of this procedure in the environment where y was created
+that's this kind of thing because that was done by an a vapa application
+now if i ever want to look up the value of y i have to know where it is
+therefore this procedure that was created the creation of the procedure which is the result of evaluating that lambda expression had better capture a pointer or remember the frame in which y was bound
+so that's what this rule is telling us m
+so for example if i happen to be evaluating a lambda expression lambda expression in e
+lambda of say x and y let's call it g in e evaluating that
+well all that means is i now construct a procedure object
+e is some environment
+e is something which has a pointer to it
+i construct a procedure object that points off to that environment where the code of that is a lambda expression or whatever that translates into
+and this is the procedure
+so this produces for me this this this object here his environment pointer captures the place where this lambda expression was evaluated
+where the definition was used where the definition was used to make a procedure to make the procedure
+so it picks up the environment from the place where that procedure was defined stores it in the procedure itself
+and then when the procedures is used the environment where is was defined is extended with the new frame
+so this gives us a locus for putting the where where a variable has a value
+and for example if there were lots of guys pointing it at that environment then they share that place and we'll see more of that shortly
+well now you have a new model for doing for understanding the execution of programs
+i suppose i'll take questions now and then we'll go on and use that for something
+is it right to say then the environment is that linked chain of frames
+that's right
+starting with
+working all the way back
+yes
+the environment is a sequence of frames linked together and the way i like to think about it it's the pointer to the first because it's once you've got that you've got them all
+anybody else
+is it possible to evaluate the procedure once you define a procedure in two different environments such that it'll behave differently and have pointers to both coders
+oh the same procedure is not going to have two different environments
+the same code
+the same lambda expression can be evaluated in two environments producing two different procedures
+each procedure
+their definition has the same name
+their operation
+the definition is written the same with the same characters
+i can evaluate that set of characters whatever or that struct that that list structure that defines that is the textual representation okay
+i can evaluate that in two different environments producing two different procedures
+each of those procedures has its own local local sets of variables
+and we'll see that right now
+okay
+anybody else
+okay
+thank you
+let's take a break
+well now i've done this terrible thing to you
+i've introduced a very complicated thing assignment which destroys most of the interesting mathematical properties of our programs okay
+why should i have done this
+what possible good could this do
+it's clearly not not a nice thing
+so i better have a good excuse
+well let's do a little bit of playing first of all with some very interesting programs that have assignment
+understand something special about them that makes them somewhat valuable
+start with a very simple program which i'm going to call makecounter
+i'm going to define makecounter
+to be a procedure of one argument n which returns as its value a procedure of no arguments 'cause procedure that produce a procedure
+which sets n to the increment of n and returns that value of n okay
+now we're going to investigate the behavior of this
+it's a sort of interesting thing
+and in order to investigate the behavior i have to make an environment model because we can't understand this any other way
+so let's just do that
+we start out with some sort of
+let's say there's a global environment that the machine is born with
+global we'll call it
+and it's going to have in it a bunch of initial things
+we all know what it's got
+it's got things in it like like say plus and times and quotient and difference and car and et cetera
+lots of things
+i don't know what they are some various squiggles that are the things the machine is born with
+and by doing the definition here what i plan to do well what am i doing
+i'm doing this relative to the global environment
+so here's my environment pointer
+in order to do that i have to evaluate this lambda expression
+that means i make a procedure object
+so i'm going to make a procedure object here
+and the procedure object has as the place its defined the global environment
+the procedure object contains some code that represents a procedure of one argument n which returns a procedure of no arguments which does something hm
+and the define is a way of changing this environment so that now add to it makecounter
+a special rule for the special thing defin define
+but what that is is it gives me that pointer to that procedure
+so now the global environment contains makecounter as well
+now we're going to do some operations
+i'm going to use this to make some counters
+we'll see what a counter is
+so let's define c one to be a counter beginning at zero
+of zero
+well we know how to do this now according to the model
+i have to evaluate the expression makecounter in the global environment makecounter of zero
+well i look up makecounter and see that it's a procedure okay
+i'm going to have to apply that procedure
+the way i apply the procedure is by constructing a frame right
+so i construct a frame which has has a value for n in it which is zero
+and the parent environment is the one which is the environment of definition of makecounter okay
+so i've made an environment by applying makecounter to zero
+now i have to evaluate the body of makecounter which is this lambda expression in that environment
+well evaluating this body this body is a lambda expression
+evaluating lambda expression means make a procedure object
+so i'm going to make a procedure object
+and that procedure object has the environment it was defined in being that
+where n was defined to be zero
+and it has some code which is the procedure of no arguments which does something
+the sets something and does a red returns n
+and this thing is going to be the object which in the global environment will have the name c one
+so we construct a name here c one
+and say that equals that
+now if i also make another counter c two to be make counter say starting with ten
+then i do essentially the same thing
+i can st i apply the makecounter procedure which i got from here to make another frame with n being ten okay
+that frame has a global environment as its parent
+i then construct a procedure which has that as it's frame of definition which is
+the code of it is the procedure of no arguments which does something
+it does a set and so on and n comes out okay
+and c two is this
+well you're already beginning to see something fairly interesting
+there are two ns here
+they're not one n
+each time i called makecounter i made another instance of n okay
+these are distinct and separate from each other hm
+now let's do some execution use those counters
+wanna use those counters
+well what happens if i say c one at this point
+well i go over here and i say oh yes
+c one is a procedure
+i'm going to call this procedure on no arguments
+but it has no parameters
+that's right
+what's its body
+we'll have to look over here because i didn't write it down
+it said set n to one plus n and return n
+okay increment n
+well the n it sees is this one
+so i increment that n
+that becomes one and i return the value one okay
+supposing i then call c two
+well what do i do
+i see c two is this procedure which does the same thing but here's the n
+it becomes eleven hm
+and so i have an eleven which is the value
+i then can say let's try c one again
+hmm c one is this that's two
+so the answer is two
+and c two gives me a twelve by the same method
+by walking down here looking at that and saying here's the n i'm incrementing
+so what i have are computational objects
+there are two counters each with its own independent local state
+now let's talk about this a little
+this is a strange thing
+what's an object
+it's not all obvious what an object is
+we like to think about objects because it's economical to think that way
+it's an intellectual economy
+i am an object
+you are an object
+we are not the same object
+i can divide the world into two parts me and you and then there's other things as well such that most of the things i might want to discuss about my workings do not involve you and most of the things i want to discuss about your workings don't involve me
+i have a blood pressure a temperature a respiration rate right a certain amount of sugar in my blood and numerous thousands of state variables millions actually or i don't know how many
+huge numbers of state variables in the physical sense which represent me the state of me as a particle okay
+and you have gazillions of them as well
+and most of mine are uncoupled to most of yours okay
+so we can compute the properties of me without worrying too much about the properties of you
+if we add the work about both of us together then the number of states that we'd have to consider is the product of the number of states you have and the number of states i have
+but this way it's almost the some
+now indeed there are forces that couple us
+i'm talking to you and your state changes
+i'm looking at you and my state changes
+some of my state variables a very few of them therefore are coupled to yours
+if you were to suddenly yell very loud my blood pressure would go up okay you see
+however and it may not be always appropriate to think about the world as being made out of independent states and independent particles
+lots of the bugs that occur in things like quantum mechanics or the bugs in our minds that occur when we think about things like quantum mechanics are due to the fact that we're trying to think about things being broken up into independent pieces
+when in fact there is more coupling than we see on the surface or that we want to believe in because we want to compute efficiently and effectively and we've been trained to think that way
+well let's see
+how would we know if we had objects at all
+how can we tell if we have objects
+consider some possible optical illusions
+this could be done eh
+these pieces of chalk are not appropriately identical but supposing you couldn't tell the difference in them by looking at them right
+well there's a possibility that this is all a game i'm playing with mirrors
+it's really the same piece of chalk but you're seeing two of them
+how would you know if you're seeing one or two
+well it's there's only one way i know
+you grab one of them and change it and see if the other one changed
+and it didn't so there's two of them okay
+on the other hand there's some other screwy properties and things like that
+like how would we know if something changed
+we have to look at it before and after the change
+the change is an assignment it's z moment in time
+but that means we have to know it was the same one that we're looking at
+so some very strange and unusual and obscure and i don't understand problems associated with assignment and change and objects
+i mean these things get very very bad
+for example here i am
+i am a particular person a particular object okay
+now i can take out my knife and cut my finger nail right and a piece of my fingernail has fallen off onto the table
+i believe i am the same person i was a second ago but i'm not physically the same in the slightest okay
+i have changed
+why am i the same
+what is the identity of me
+well i don't know okay except for the fact that i have d i have some sort of identity
+and so i think by introducing assignment and objects we have we have opened ourselves up to all of the horrible questions of philosophy that have been flagging philosophers for some thousands of years about this sort of thing
+that's why mathematics is a lot cleaner
+let's look at the best things i know to say about actions and identity
+we say that an action a had an effect on an object x or equivalently that x was changed by a if some property p which was true of x before a became false of x after a
+let's test
+it still means i have to have the x before and after
+or the other way of saying this is we say that two objects x and y are the same but any action which has an effect on x has the same effect on y
+however objects are very useful as i said for an intellectual economy okay
+one of things that's incredibly useful about them is that the world is we like to think about made out of independent objects with independent local state
+we like to think that way although it isn't completely true okay
+when we want to make very complicated programs that deal with such a world if we want those programs to be understandable by us and also to be changeable so that if we change the world we change the program only a little bit then we want there to be connections
+isomorphism between the objects in the world and the objects in our mental model
+the modularity of the world can give us a modularity in our programming
+so we invent things called object oriented programming and things like that to provide us with that idea to provide us with that power
+but as even easier let's play a little game
+i want to play a little game showing you an even easier example of where modularity can be enhanced by using an assignment statement judiciously
+one thing i want to en enforce and impress on you is don't use assignment statements the way you use it in fortran or basic or something or pascal to do the things you don't have to do with it
+it's not the right way to think for most things
+sometimes it's essential or maybe it's essential
+we'll see more about that too
+okay well let me show you a a fun game here
+um there was a mathematician by the name of sesaro or cesaro
+cesaro i suppose it is uh who figured out a clever way of computing pi
+it turns out that if i take two random numbers two integers at random and compute their greatest common divisor they're greatest common divisor is either one or it's not one
+if it's one then they have no common divisors hm
+if their if their greatest common divisor is one well the probability that two random numbers two numbers chosen at random has a greatest common divisor one is related to pi okay
+in fact yes it's very strange
+of course there are other ways of computing pi like dropping pins on on flags and things like that and sort of the same kind of thing
+so the probability that the gcd of number one and number two
+two random numbers chosen is six over pi square hm
+i'm not going to try to prove that
+it's actually not too hard and it's sort of fun
+uh how would we estimate such a probability
+well the way we do that the way we estimate probabilities is by doing lots of experiments and then computing the ratios of the ones that come out one way to the total number of experiments we do
+it's called monte carlo and it's useful in other contexts for doing things like integrals where you have lots and lots of variables your you have space which th limiting dimensions you're doing integral in
+but going back to here let's look at this slide okay
+we can use cesaro's method for estimating pi with a with n trials by taking the square root of six over a monte carlo
+a monte carlo experiment with n n trials using cesaro's experiment where cesaro's experiment is the test of whether the gcd of two random numbers
+and you can see that i've already got some assignments in here just by what i wrote
+the fact that this word rand in parenthesis therefore that procedure call yields a different value than this one at least and that's what i'm assuming by writing this this way
+indicates that this is not a function that there's internals state in it which is changing but the it's the probability i'm sorry the gcd the if the gcd of those two random numbers is equal to one
+that's the experiment
+so here i have an experimental method for estimating the value of pi where i can easily divide this problem into two parts
+one is the specific monte uh monte carlo experiment of cesaro which you just saw and the other is the general technique of doing monte carlo experiments and that's what this is
+if i want to do monte carlo experiments with n trials a certain number of trials and a particular experiment
+the way i do that is i make a little iterative procedure which has variables the number of trials remaining and the number of trials that have been passed that i've gotten true
+and if the number remaining is zero then the answer is the number past divided by this whole number trials is the estimate of the probability
+and if it's not if it if s if i have more trials to do then let's do one
+we do an experiment we call the procedure which is the experiment on no arguments we do the experiment and then if that turned out to be true we go around the loop decrementing the number of experiments we have to do by one and incrementing the number we're passed
+and it the experiment was false we just go around the loop decrementing the number of experiments remaining and keeping the number past the same
+we start this up iterating over the total number of trials with zero experiments past
+a very elegant little program
+and i don't have to just do this with cesaro's experiment
+it could be lots of monte carlo experiments i might do
+of course this depends upon the existence of some sort of random number generator and random number generators are generally look something like this okay
+there is a a random number generator is in fact a procedure which is going to do something just like the counter
+it's going to update an x to a re uh the result of applying some function to x where this function is some screwy kind of function that you might find out in knuth's books on the details of programming
+we'd knew that these wonderful books that are full of the details of programming because i can't remember how to make a random number generator but i can look it up there and i can find out
+and then eventually i return the value of x which is the state variable internal to the random number generator
+that state variable is initialized somehow and has a value and this procedure is defined in the context where that proce that variable is bound
+so this is a hidden piece of local state that you see here and this procedure is insi ih is defined in that context
+now that's a very simple thing to do okay
+it's very nice
+supposing i didn't want to use assignments
+supposing i wanted to write this program without assignments
+what problems would i have
+well let's see
+i'd like to use the overhead machine here
+thank you
+here's a well first of all let's look at the whole thing
+it's a big story right
+unfortunately
+which tells you there's something wrong okay
+it's at least that big and it's monolithic
+and ya yo you don't have to understand to look at the text there right now to see that it's monolithic
+it isn't a thing which is cesaro's experiment
+it's not pulled out from the monte carlo process
+it's not separated
+let's look why
+remember the constraint here is that every procedure returned the same value for the same arguments
+every procedure represent a function okay
+that's a different kind of constraint because when i have assignments i can change some internal state variable
+so let's see how that causes things to go wrong
+well let's start at the beginning
+ah
+the estimate of pi looks sort of the same
+okay what i'm doing is i take the square root of six over the random gcd test applied to n
+whereas that's what this is
+but here we're beginning to see something funny
+the random gcd test of a certain number of trials is just like we had before the an iteration on the number of trials remaining
+the number of trials that had been passed okay and another variable x
+what's that x
+that x is the state of the random number generator okay
+and it is now going to be used here the ra same random update function that i have over here is the one i would've used in the random number generator if i were building it the other way
+the one i get out of knuth's books okay
+x is going to get transformed into x one
+i need to two random numbers and x one is going to get transformed into x two
+i have two random numbers
+i then have to do exactly what i did before
+i take the gcd of x one and x two
+if that's one then i go around the loop with x two being the next value of x
+you see what's happened here is that the state of the random number generator is no longer confined to the insides of the random number generator
+it is leaked out
+it is leaked out into my procedure that does that does the s the monte carlo experiment
+but what's worse than that is it's also because it was contained inside my experiment itself cesaro it leaked out of that too because cesaro called twice
+has to have a different value each time if i'm going to have a legitimate e experimental test
+so cesaro can't be a function either okay unless i pass it the seed of the random generator it's going to go wandering around
+so unfortunately the seed of the random namin number generator has leaked out into cesaro from the random generator
+that's leaded into the monte carlo experiment
+and unfortunately monte my monte carlo experiment here is no longer general
+the monte carlo experiment here knows how many random numbers i need to do the experiment
+that's sort of horrible
+i've lost an ability to decompose the problem into pieces because i wasn't willing to accept the the little loop of information the the feedback process that happens inside the random number generator before that was made by having
+by having an assignment to a state variable that was confined to the random number generator
+so there the fact that the random number generator is an object with an internal state variable
+it's effected di by nothing but it'll give you something
+it'll applies force to you okay
+that was what we're missing now
+okay
+well i think we've seen enough reason for doing this and it all sort of looks very wonderful
+wouldn't it be nice if if assignment was a good thing
+maybe it's worth it
+but i'm not sure
+as mr gilbert and sullivan said things are seldom what they seem
+skim milk masquerades as cream
+are there any questions
+are there any philosophers here
+anybody want to argue about objects
+you're just floored right
+and you haven't done your homework yet
+you haven't come up with a good questions
+oh well
+okay sure
+thank you
+let's take the long break now

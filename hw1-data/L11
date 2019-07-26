@@ -1,0 +1,618 @@
+well last time uh jerry really let the cat out of the bag
+he introduced the idea of assignment of assignment
+and state and as we started to see the implications of introducing assignment and state into the language are absolutely frightening
+i mean first of all the substitution model of evaluation breaks down and we have to use this much more complicated environment model and this very mechanistic thing with diagrams even to say what statements in the programming language mean and that's not a mere technical point
+see it's not that we had this particular substitution model and well it doesn't quite work so we have to do something else
+it's that it's that nothing like the substitution model can work because suddenly suddenly a variable is not just something that stands for a value alright
+a variable now has to somehow specify a place that holds a value and the value that's in that place can change
+or for instance an expression like f of x might have a side effect in it
+so if we say f of x and it has some value and then later we say f of x again we might get a different value depending on the order
+so suddenly we have to think not only about values but about time
+and then things like pairs are no longer just their cars and their cdrs
+a pair now is is not quite its car and its cdr
+it's rather its identity
+so a pair is has identity
+it's an object
+and two pairs that have the same car and cdr well might be the same or different because suddenly we have to worry about sharing
+so all of these things enter as soon as we introduce assignment
+see this is a really far cry from where we started with substitution right
+it's a technically harder harder way of looking at things because we have to think in a more mechanistically about our programming language
+we can't just think about it as mathematics
+it's a uh it's philosophically harder because suddenly there are all these funny issues about what does it mean that something changes or that two things are the same and then also it's programming harder because as jerry showed last time there were all these bugs having to do with
+with bad sequencing and aliasing that just just don't exist in a language where we don't worry about objects
+well how did we get into this mess
+remember what we did
+the reason we got into this is because we were looking to build modular systems alright
+we wanted to uh build systems that that fall apart into chunks that seem natural
+so for instance uh you wanna take a random number generator and package up the state of that random number generator inside of it
+so that we can separate the idea of picking random numbers from the general monte carlo strategy at estimating something and separate that from the particular way that you work with random numbers and that formula developed by cesaro for pi
+and similarly when we go off and construct some models of things uh if we go off and model a system that we see in the real world we'd like our program to break into natural pieces
+pieces that mirror the parts of the system that we see in the real world
+so for example uh if we look at a digital circuit we say gee there's a circuit
+and it has a piece and it has another piece and these different pieces sort of have identity
+they have state and the state sits on these wires and we think of this piece as an object that's different from that as an object
+and when we watch the system change we think about a signal coming in here and changing a state that might be here and going here and interacting with a state that might be stored there and so on and so on
+alright
+so what we'd like is we'd like to build in the computer systems that fall into pieces that mirror mirror our view of reality of the way that the actual systems we're modeling seem to fall into pieces
+well maybe the reason that that building systems like this seems to introduce such uh technical complications has nothing to do with computers
+see maybe the real reason that we pay such a price to write programs that mirror our view of reality is that we have the wrong view of reality
+see maybe maybe time is just an illusion and nothing ever changes
+see for example if i take this chalk we say gee this is an object and it has a state right
+at each moment it has a position and a velocity and if we do something that state can change but if you studied any relativity for instance you know that you don't think of the path of that chalk as something that goes on instant by instant
+it's more ins insightful to think of that whole chalk's existence as a path in space time that's sort of all splayed out right
+there aren't individual positions and velocities
+there's just it's it's sort of unchanging existence in space time
+similarly if we look at this electrical system if we imagine this electrical system is implementing some sort of uh signal processing system the signal processing engineer who put that thing together doesn't think of it as
+well at each instant there's a voltage coming in and that translates into something and that effects the state over here which changes the state over here
+nobody putting together a signal processing system think about it like that
+instead you say there's this signal
+that's sort of is splayed out over time and if this is acting as a filter this whole thing transforms this whole thing into some sort of some sort of other output alright
+you don't think of it as what's happening instant by instant as the state of these things
+and somehow you think of this box as sort of a whole thing not as little pieces sending messages of state to each other at particular instants
+okay
+well today we're going to look at another way to decompose systems that's more like the signal processing engineer's view of the world then it is like thinking about objects that communicates any messages okay
+that's called that's called stream processing
+and we're going to start by showing by showing how we can make our programs more uniform and see a lot more commonality
+if we if we throw out of these programs what you might say is uh an inordinate concern with worrying about time
+alright well let me start by by comparing two procedures
+the first one sort of does this
+we imagine that there is a tree say there's a tree of integers
+it's a binary tree
+let's see one so it looks like this and there's there's integers at each of the nodes
+and what we would like to compute is for each odd number sitting here we'd like to find the square and then sum up all those squares
+alright well that's a should be a familiar kind of thing now
+there's a recursive strategy for doing it
+alright we look at each leaf and either it's going to contribute the square of the number of it's odd or zero if it's even and then recursively we can say at each tree the sum of all of them is the sum coming form the right branch and the left branch and recursively down through the nodes
+and that's a familiar way of of thinking about programming
+let's let's actually look at that on the slide
+alright we say to sum the odd squares in a tree well there's a test
+either it's a leaf node i'm going to check to see if it's inte an integer and then either it's odd in which we take the square or else it's zero and then the sum of the whole thing is the sum coming from the left branch and the right branch
+okay well let me let me contrast that with a with a second problem
+suppose uh i give you an integer n and then some function to compute of the first of each integer in one through n and then i want to collect together in a list all those function values that satisfy some property
+that's a general kind of thing
+let's say to be specific let's imagine that for each integer k we're going to compute the kth fibonacci number and then we'll see which of those are odd and assemble those into a list
+so here's a procedure that does that right the find the odd fibonacci numbers among the first n and here is a standard loop the way we've been writing it
+this is a recursion right it's a loop on k and says if k is bigger than n it's the empty list otherwise we compute the kth fibonacci number call that f
+if it's odd we cons it on to the list starting with the next one and otherwise we just take the next one and this is the standard way we've been writing iterative loops and we start off calling that loop with one
+okay
+so there are two procedures
+these procedures look very different
+they have very different structures yet from a certain point of view those procedures are really doing very much the same thing
+so if i was talking like a a signal processing engineer what i might say is that the f the first procedure this first procedure enumerates
+the leaves of a tree and then we can think of a of a signal coming out of that which is all the leaves
+we'll filter them to see which ones are odd put them through some kind of filter we'll then put them some kind of uh transducer and if for each one of those things we'll take the square
+and then we'll accumulate all of those
+we'll accumulate them by sticking them together with addition starting from zero
+that's the first program
+the second program i can describe in a very very similar way
+i'll say we'll enumerate the numbers on this interval to the interval one through n
+well for each one compute the fibonacci number put them through a transducer we'll then take the result of that and we'll filter it for oddness
+and then we'll take those and put them into a cu an accumulator
+this time we'll build up a list so we'll accumulate with cons starting from the empty list okay
+so this way of looking at the program makes the two seem very very similar
+the problem is that that commonality is completely obscured when we look at the procedures we wrote
+let's go back and look at some odd squares again and say things like where's the enumerator right
+where's the enumerator in this program
+well it's not in one place but it's a little bit in uh this leaf node test which is going to stop
+it's a little bit in the recursive structure of the thing itself
+where's the accumulator
+the accumulator isn't one place either
+it's it's sort of partly in this zero right and partly in this plus right
+it's not there as a as a thing that we can look at
+similarly if we look at at odd fibs that's also in some sense an enumerator and an accumulator
+but it looks very different because partly the uh enumerator is here in this greater than sign in the test and partly it's in this whole recursive structure in the loop and the way that we call it
+and then similarly that's also mixed up in there with the accumulator which is partly over there and partly over there
+so these very very natural pieces right these very natural boxes here don't appear in our programs because they're kind of mixed up
+the programs don't chop things up in the right way
+see we don't have going back to this fundamental principle of computer science that in order to control something you need the name of it
+we don't really have control over thinking about things this way because we don't don't have our hands in them explicitly
+we don't have a good language for talking about them
+well let's invent an appropriate language to which we can build these pieces
+the key to the language is to say is these guys is what is the these things i called signals
+what are these things that are flowing on the arrows between the boxes okay
+well those things are going to be data structures called streams
+that's going to be the key to inventing this language
+what's a stream
+well a stream is uh like anything else a data abstraction
+so i should tell you what what its selectors and constructors are
+ya for a stream we're going to have one constructor that's called cons stream
+cons stream is going to put two things together to form a thing called a stream and then to extract things from the stream we're going to have a selector called the head of the stream
+so if i have a stream i can have take its head or i can take its tail
+and remember i have to tell you george's contract here tell you what the what the axioms are that relate these and it's going to be for for any x and y if i form the cons stream and take the head
+the head of cons stream of x and y is going to be x and the tail
+of cons stream of x and y is going to be y
+so those are the constructor two selectors for streams and an axiom there's something fishy here
+see you might notice that these are exactly the axioms for cons car and cdr
+see if i said instead of writing cons stream i wrote cons and i said head was the car and tail was the cdr those are exactly the axioms for pairs and in fact there's another thing here
+we're going to have a thing called the empty stream just like the empty list
+so why am i introducing this terminology
+why don't i just keep talking about pairs and lists
+well we'll see
+for now if you like why don't you just pretend that streams really are just a terminology for lists and we'll see in a little while why why we want to keep this extra abstraction layer and not just call them lists
+okay now that we have streams we can start constructing the pieces of a language to operate on streams and there are a whole bunch of very useful things that we could
+we could start making
+for instance we'll make our map box right to take a stream s
+and procedure and to generate a new stream which has as its elements the procedure applied to all the successive elements of s
+in fact we've seen this before
+this is the procedure map that we did with lists and you see it's exactly map accept we're testing for empty stream
+well i forgot to mention that empty stream is like the nil test
+so if it's empty we generate the empty stream otherwise we form a new stream whose first element is the procedure applied to the head of the stream
+and whose rest is gotten by mapping along with the procedure down the tail of the stream
+so that looks exactly like the map procedure we looked at before
+here's another useful thing
+filter this is our filter box
+we're going to have a predicate and a stream
+we're going to make a new stream that consists of all the elements of the original one that satisfy the predicate
+let's case analysis but there's nothing in the stream we return the empty stream
+we test the predicate on the head of the stream and if it's true we add the head of the stream onto the result of filtering the tail of the stream
+and otherwise if that predicate was false we just filter the tail of the stream right
+so there's filter uh
+let me run through a couple of more rather quickly
+they're all in they're all in the book and you can look at them
+let me just flash through
+here's accumulate
+accumulate takes a way of combining things and an initial value in a stream and sticks them all together
+if the stream's empty it's just the initial value otherwise we combine the head of the stream with the result of accumulating the tail of the stream starting from the initial value
+so that's what i'd use to add up everything in the stream i'd accumulate with plus um how would i enumerate the leaves of a tree
+well if the tree is just a leaf itself i make something which only has that node in it
+otherwise i append together the stuff of accumulating the left branch of enumerating the left branch and the right branch and then append here is like the ordinary append on lists
+y you can look at that
+that's analogous to the the ordinary procedure on for appending two lists
+uh how would i enumerate an interval
+this'll take two integers low and high and generate a stream of the integers going from low to high
+and we can make a whole bunch of pieces
+right so there's so that's a little language of talking about streams
+once we have streams we can build things for manipulating them
+again we're making a language
+and now we can start expressing things in this language
+here's our original procedure for summing the odd squares in a tree and you'll notice it looks exactly now like the
+the block diagram like the signal processing block diagram
+so to sum the odd squares in a tree we enumerate the leaves of the tree
+we filter that for oddness we map that for squareness and we accumulate the result of that using addition starting from zero
+so we can see the pieces that we wanted
+similarly the fibonacci one right how do we get the odd fibs
+well we enumerate the interval from one to n we map along that computing the fibonacci of each one we filter the result of those for oddness
+and we accumulate all of that stuff using cons starting from the empty list
+okay
+what's the advantage of this
+well for one thing we now have pieces that we can start mixing and matching
+so for instance if i wanted to change this if i wanted to uh oh compute the squares of the integers and then filter them all i need to do is pick up a standard piece like this and map square and put it in
+or if we wanted to do this whole fibonacci computation on the uh leaves of a tree rather than a sequence all i need to do is replace this enumerator with that one
+see the advantage of the stream processing is that we're establishing this is one of the big themes of the course we're establishing conventional interfaces
+conventional interfaces that allow us to glue things together
+we na things like map and filter are sort of a standard set of components that we can start using for pasting together programs in all sorts of ways
+alright it allow us to see the the commonality of programs
+i just thought i'd mention i've only showed you two procedures but let me emphasize that this way of putting things together with maps filters and accumulators is very very general
+it's sort of the the uh the generate and test kind of paradigm for programs and as an example of that uh richard waters who's at mit when he was a graduate student as part of his thesis research
+went and analyzed a large chunk of the ibm scientific subroutine labort library and discovered that about sixty percent of the programs in it could be expressed exactly in in terms using no more than what we've put here map filter and accumulate
+alright let's take a break
+okay questions
+yeah
+it seems like the essence of this whole thing is just that you have a very uniform simple data structure to work with the stream
+right
+the essence is that you again it's this this sense of conventional interfaces
+so you can start putting a lot of things together in and and the stream is the the sort of as you say the uniform data structure that supports that
+this is very much like apl by the way
+apl is very much the same idea except in apl instead of the stream you have arrays and vectors
+and a lot of the power of apl is exactly the same reason of the power of this
+okay thank you
+let's take a break
+alright well we've been looking at at ways of organizing computations using streams
+what i want to do now is just show you two more somewhat uh somewhat more complicated examples of that
+let's start by by thinking about about the following oh kind of utility procedure that'll come in in useful
+suppose i've got a stream and the elements of this stream are themselves streams
+so the first thing might be one two three
+so i've got a stream and each element of the stream is itself a stream
+and what i'd like to do is build a stream that sort of collects together all of the elements pulls all of the elements out of these sub streams and strings them all together in one thing
+so just to show you the the use of this language how how easy it is call that flatten
+and i can define to flatten
+to flatten uh we should call this stream of streams
+well what is that
+that's just an accumulation
+i want to accumulate
+i want to accumulate using append by successively appending
+if i accumulate using append streams
+starting with the empty stream down that stream of streams okay
+so there's an example of of how you can start using these higher order things to do some interesting operations
+in fact there's another there's another useful thing that i want to do
+i want to define a procedure called flat map
+flat map of some function and a stream and what this is going to do is f f'll be a stream of elements
+f is going to be a function that for each element in the stream produces another stream
+now what i want to do is take all of the elements in all of those streams and combine them together
+so that's just going to be be flatten
+of map f down s
+each time i apply f to an elements of s i get a stream
+if i map it all the way down i get a stream of streams and i'll flatten that
+alright well i want to use that to show you a a new way to do a familiar kind of problem
+the problem's going to be this is like a lot of problems you've seen although maybe not this particular one
+i'm going to give you an integer n and the problem is going to be find all pairs
+uh let's see all pairs of integers i and j between zero and i with j less than i j less than i up to n
+such that such that i plus j is prime
+so for example uh if n equals six let's make a little table here
+i and j and i plus j
+so for say i equals two and j equals one i'd get three and for i equals three i could have j equals two and that would be five and four and one
+it'd be five and so on up until i goes to six and what i'd like to return is to produce a stream of all the triples like this
+that say i i j and i plus j
+so for each n i want to generate this stream
+ok wall
+that's easy
+let's build it up
+i'm going to start like this
+we're going to say for each i for each i we're going to generate a stream
+for each i in the interval one through n we're going to generate a stream
+what's that stream going to be
+we're going to start by generating all the pairs
+so for each i we're going to generate
+for each j for each j in the interval one to i minus one we'll generate the pair or the the list with two elements i and j
+alright so we map along the interval
+generating the pairs and of each i that generates a stream of pairs and we flat map it
+now we have all the pairs i and j such that i is less than j
+so that builds that
+now we've got to test them
+well we take that thing we just built the flat map and we filter it to see whether the i see we had an i and j
+i was the first thing in the l in the list
+j was the second thing in the list
+so we have a predicate which says in that list of two elements is the sum of the car and the cdr prime and we filter that collection of pairs we just built
+so those are the pairs we want
+now we go ahead and we map we take the result of that filter and we map along it generating the list i and j and i plus j
+and that's our procedure primes on pairs
+okay and then just to flash it up here's the whole procedure alright
+map of filter of flat map
+alright
+there's the whole thing even though this isn't particularly readable
+it's just expanding that flat map
+alright so there's an example which illustrates the general point that nested loops in this procedure start looking like compositions of flat maps of flat maps of flat maps of maps and things alright
+so not only can we sort of enumerate individual things but by using flat maps we can do what would correspond to nested loops in most other languages
+of course it's pretty awful to keep writing these flat maps of flat maps of flat maps
+primes on pairs you saw was fairly sort of looked fairly complicated
+even though the individual pieces were easy
+so what you could do if you like is introduce some syntactic sugar that's call collect
+and collect is just an abbreviation for that nest of flat maps and filters arranged in that particular way
+here's primes on pairs again written using collect it says
+to find all those pairs i'm going to collect together a result which is the list i j and i plus j
+that's going to be generated as i runs through the interval from one to n and as j runs through the interval from one to i minus one such that i plus j is prime
+so i'm not going to say what collect does in general
+you can look at that by looking at it in the book but pretty much you can see that the pieces of this are the pieces of that original procedure i wrote and this collect is just some is just syntactic sugar for automatically generating that nest of flat maps and flat maps
+okay
+well let me do one more example which shows you the same kind of thing
+here's a very famous problem that's used to illustrate a lot of so called back tracking computer algorithms
+this is the eight queens problem
+this is a chess board and the eight queens problem says find a way to put down eight queens on a chess board so that no two are attacking each other
+and this here's a particular solution to the eight queens problem
+alright so i can't have i have to make sure to put down queens so that no two are in the same row or the same column or uh sit along the same diagonal
+now what's a there's sort of a standard way of doing that
+well first what we need to do is sort of below the surface at george's level we have to find some way to represent a board represent positions and we'll not worry about that but let's assume that there's a predicate called safe
+and what safe is going to do is going to say given that i have a bunch of queens down on the chess board is it okay to put a queen in this particular spot
+so safe is going to take a row and a column that's going to be a place where i'm going to try and put down the next queen
+and the sort of rest of positions
+and what safe will say is given that i already have queens down in these positions is it safe to put another queen down in that row and that column
+and let's not worry about that
+that's sort of george's problem and it's not hard to write
+you just have to check whether whether this thing contains anything on that row or that column or in that diagonal okay
+now how would you organize the pro the program given that
+and there's sort of a a traditional way to organize it called backtracking
+and it says well let's start off let's think about all the ways of putting the first queen down in the first column
+there are eight ways
+well well let's say we'll try the first column
+try column one row one
+these branches are going to represent the possibilities at each level
+so i'll try and put a queen down in the first column and now given that it's in the first column i'll try and put the next queen down in the first column
+well that's no good
+they're both in in th if i put the first queen the one in the first column down in the first row i'm sorry and then given that we'll put the next queen down in the first row and that's no good so i'll back up to hear
+and i'll say oh can i put the first queen down in the second row oh that's no good
+oh can i put it down in the third row well that's good
+well now can i put the next queen down in the first column
+well i can't visualize this chess board anymore but i think that's right
+and i try the next one and at each place i i go down as as far down this tree as i can and i back up
+if i get down to here and find no possibilities below there i back all the way up to here and now start again generating this sub tree
+and i sort of walk around and finally if i ever manage to get all the way down i've found a solution
+alright so that's a typical sort of uh paradigm that's used a lot a in ai programming
+it's called backtracking search
+and uh it's really unnecessary
+you saw me get confused while i was visualizing this thing
+you sort of see the complication
+this is sort of a complicated thing to say
+why is it complicated
+it's because somehow this program is too inordinately concerned with time
+it's too much i try this one and i try this one and i go back to the last possibility and that's sort of a complicated thing
+if i stop worrying about time so much
+then there's a much simpler way to describe this
+it says let's imagine that i i have in my hands the the tree down to k k minus one levels
+see suppose i had in my hands all possible ways to solve to put down queens in the first k columns
+suppose i just had that
+let's not worry about how we get it
+well then how do i figure it how do i extend that
+how do i find all possible ways to put down queens in the next column
+it's really easy
+for each of these for each of these positions i have i adjoin queens i put i think about putting down a queen in each row
+to make the next thing and then for each one i put down i filter those by the ones that are safe right
+so instead of thinking about this tree as generated step by step i
+i sa suppose i had it all there
+and so it to extend it from level k minus one to level k i just need to for extend each thing in all possible ways and only keep the ones that are safe and that'll give me the tree to level k and that's a recursive strategy for solving the eight queens problem
+alright well let's look at it
+right to uh solve the eight queens problem on a board of some specified size
+i'm going to write a sub procedure called fill columns
+fill columns is going to put down queens up through column k and here's the pattern of the recursion
+i'm going to call fill columns with the size eventually
+so fill columns says how to put down queens safely in the first k columns of this chess board with
+with uh size number of rows in it
+if k is equal to zero well then i don't have to put anything down
+so my solution is just an empty chess board
+otherwise i'm going to do some stuff and i'm going to use collect and here's the collect
+i find all ways to put down queens in the first k minus one columns and that's wa just what i said for
+imagine i have this tree down to k minus one levels and then i find all ways of trying a row that's just each of the possible rows their size rows
+so that's enumerate interval and then what i do is a i collect together the new row i'm going to try and column k with the rest of the queens
+i adjoin a position
+this is george's problem
+adjoin position is like safe
+it's a it's thing that takes a row and column and a rest of the positions and makes a new position collection
+so i adjoin the positi i adjoin a position of a new row and a new column to the rest of the queens
+where the rest of the queens runs through all possible ways of solving the problem in k minus one columns and the new row runs through all possible rows such that it was safe to put one there
+right and that's the whole program right
+right there's the whole procedure right
+not only that
+that doesn't just solve the eight queens problem right it solves it gives you all solutions to the eight queens problem
+when you're done you have a stream and the elements of that stream are all possible ways of solving that problem alright
+why is that simpler
+well we threw away the whole idea that this is some process that happens in time with state
+and we just said it's a whole collection of stuff
+that's why it's simpler
+alright we've we've changed our view
+remember that's where we started today
+we've changed our view of what it is we're trying to model and we're stop modeling things that evolve in time and have steps and have state and instead we're trying to model this sort of global thing like the
+like the whole flight of the chalk rather than its its state at each instant
+any questions
+um it looks to me like uh back tracking would be searching for the first solution it can find whereas this recursive uh search would be looking for all solutions
+right
+and it seems that if you have a large enough uh area to search that that the second is going to become impossible
+okay that's the answer to that question is the whole rest of this lecture
+it's it's exactly the right question
+so you should start and without trying to anticipate the lecture too much you should start being suspicious at this point and exactly those kinds of suspicions isn't it it's wonderful but isn't it so terribly inefficient
+that's that's where we're going okay
+so i i won't answer now but i'll answer later
+okay let's take a break
+well by now you should be starting to get suspicious
+see i showed you this this simple elegant way of uh putting programs together right
+very unlike this these other sort of traditional programs that sum the odd squares or uh compute the odd fibonacci numbers right
+very unlike these programs that mix up the enumerator and the filter and the accumulator right
+and by mixing it up we just can't we don't have all of these wonderful conceptual advantages of these streams pieces these these wonderful mix and match components for putting together just lots and lots of programs
+on the other hand most of the programs you've seen look like these uh ugly ones
+why is that
+see can it possibly be that that computer scientists are so obtuse that they don't notice that if you'd merely did this thing then you can get this great programming elegance
+there's got to be a catch
+and it's it's actually pretty easy to see what the catch is
+let's let's think about the following problem
+suppose i suppose i tell you to find the second prime between ten thousand and a million or if your computer's larger say between ten thousand and and a hundred billion or something
+you say oh that's easy
+i can do that with a stream
+all i do is i enumerate the interv interval from ten thousand to a million
+so i get all those integers from ten thousand to a million i filter them for primeness
+so test all of them and see if they're prime
+and i take the second element right
+that's the head of the tail
+okay
+well that's clearly pretty ridiculous right
+i mean i don't know
+may not even have room in the machine right to store the integers in the first place much less to test them right and then i only want the second one
+see the the power of this traditional programming style is exactly its weakness
+that we're mixing up the enumerating and the testing and the accumulating
+alright
+so we sort of don't do it all
+so by the actual so the very thing that makes it sort of conceptually ugly is the very thing that makes it efficient
+alright it's this mixing up
+so it seems that all i've done this morning so far is just confuse you
+i showed you this wonderful way that programming might work except that it doesn't
+well here's where the wonderful thing happens
+turns out in this game that we really can have our cake and eat it too
+and what i mean by that is that we really can write stream programs exactly like the ones i wrote
+and arrange things so that when the machine actually runs it's as efficient as running the sort of traditional programming style that mixes up the uh
+the generation and the test
+alright well that that sounds pretty magic
+the key to this is that streams are not lists
+we'll we'll see this carefully in a second but for now let's take a look at that that slide again
+the image you should have here of this signal processing system is that what's going to happen is there's sort of this box that has the integers sitting in it and there's this filter that's connected to it
+and it's tugging on them and then there's someone who's tugging on this stuff saying what comes out of the filter
+and the image you should have is that someone says well what's the first prime and tugs on this filter and the filter tugs on the integers
+right and you look only at that much and then say oh i really wanted the second one what's the second prime
+and that no no other computation no computation gets done except when you tug on these things
+alright let me let me try that again
+this is a little little device
+this is a little stream machine invented by eric grimson who's been teaching this course at mit and images here's a see here's a stream of stuff like a whole bunch of the integers
+alright and here's some processing elements
+and if say it's uh say it's filter of filter of map or something
+and if i really tried to implement that with streams as lists what i'd say is well i've got this sort of list of things and now i do the first filter so i sort of do all this processing but i take this and i
+alright and i process and i process and i process and i process and now i've got this new stream right
+now i take that result in my hand some place and i put that through the second one and i process the whole thing
+alright and there's this new stream
+alright and then i take the result and i put it all the way through this one the same way
+that's how that's what would happen to these stream programs if streams were just lists but in fact streams aren't lists they're streams and the image you should have is something a little bit more like this
+i've got these gadgets connected up alright by this data that's flowing out of them and here's my original source of the streams
+it might be starting to generate the integers and that what happens if i want a result i sort of tug on the end here alright and this element says gee i need some more data
+so it's sort of this one come here and tugs on that one and it says
+gee i need some more data
+and this one tugs on this thing which might be a filter and says gee i need some more data
+and only as much of this thing at the end here get generated as i tugged and only as much of this stuff goes through the processing units as i'm pulling on the end in need alright
+that's the image you should have of the difference between implementing what we're actually going to do and if streams were lists
+well how do we make this thing
+i hope you have the image
+the trick is how to make it
+we want to arrange for a stream to be a data structure that sort of computes itself incrementally
+it's sort of an on demand data structure alright
+and the basic idea is again one of the very basic ideas that we're seeing throughout the whole course and that is that there's not a firm distinction between programs and data
+so what a stream is going to be is simultaneously this data structure that you think of like uh you know the stream are the leaves of this tree
+but at the same time it's gonna be a very clever procedure that has the method of computing in it
+well let me let me try this
+see it's going to turn out that we don't need anymore mechanism
+we already have everything we need simply from the fact that we know how to handle procedures as first class objects
+well let's go back to the key
+the key is remember we had these operations cons stream and head and tail
+when i started i said you can think about this as cons and think about this as car and think about that as cdr but it's not
+now let's look at what they really are
+well cons stream
+cons stream of x and y is going to be an abbreviation for is going to be an abbreviation for the following thing
+cons form a pair ordinary cons of x to a thing called delay of y
+and before i explain that let me go in and write the rest
+the head of a stream is going to be just the car and
+the tail of a stream is going to be a thing called force the cdr of a stream
+now let me explain this
+delay is going to be a special magic thing
+what delay does is take an expression and produce a promise to compute that expression when you ask for it
+it doesn't do any computation here
+it just sort of sort of gives you a rain check and it produces a promise
+and cons stream says i'm going to put together in a pair x and a promise to compute y
+now if i want the head that's the just the car that i put in the pair and the key is that the tail is going to be force force calls in that promise
+force tail says well take that promise and now
+now call in that promise namely compute that thing alright
+that's how this is going to work
+that's what cons stream head and tail really are
+now let's see how this works
+i'm going to go through this fairly carefully
+let's i'm going to see how this works in this uh example of computing the second prime
+alright between ten thousand and a million okay
+so we sort of start off and we have this expression
+the head right the the second prime
+the head of the tail of the result of filtering for primarily the integers between ten thousand and a million
+now what is that
+what that is that that interval between ten thousand and a million well if you trace through enumerate interval there builds a cons stream
+the cons and that cons stream is the cons of ten thousand to a promise to compute the integers between ten thousand and one and a million okay
+so that's what this expression is
+here i'm using the substitution model and we can use the substitution model because we don't have side effects and state okay
+so i have cons of ten thousand to a promise to compute the rest of the integers
+so one only one integer so far got enumerated
+well i'm going to filter that thing for primality
+if you get if again you go back and look at the filter code what the filter will first do is test the head
+so in this case the filter will test ten thousand and say
+oh ten thousand's not prime
+therefore what i have to do recursively is filter the tail
+and what's the tail of it
+well that's the tail of this this pair with a promise in it
+the tail now comes in and says oh i'm going to force that
+i'm going to force that promise which means now i'm going to compute the integers between ten thousand and one and a million
+okay so this filter now is looking at that
+that enumerated self well now we're back in the original enumerate situation
+the enumerate is the cons of the first thing ten thousand and one onto a promise to compute the rest
+so now the primality filter's going to go look at ten thousand and one
+it's going to decide if it likes that or not
+it turns out ten thousand and one isn't prime
+so it'll force it again and again and again and finally i think the first prime it hits is ten thousand and nine and at that point it'll stop
+and that'll be the first prime and then eventually it'll need the second prime right so at that point it'll go again
+so you see what happens is that is that no more gets generated then you actually need right
+that enumerate is not going to generate any more integers then the filter asks it for as it's pulling in things to check for primality alright
+and the filter is not going to generate any more stuff than you ask it for which is the head of the tail
+you see what's happened is we've we've put that that mixing of generation in test into what actually happens in the computer even though our p even though that's not apparently what's happening from looking at our programs
+okay well that seemed easy
+all of this mechanism got put into this magic delay
+so you're saying gee that must be where the magic is
+but but see there's no magic there either
+you know what delay is
+delay of some expression
+is just an abbreviation for well what's a promise to compute an expression
+lambda of nil right
+procedure of no arguments which is that expression right
+that's what a procedure is
+it says i'm going to compute an expression what's force
+right
+how do i take up a how do i take up a promise
+well force of some procedure we promise is just run it
+done right
+so there's no magic there at all
+well what have we done
+we said the old style traditional style of programming is more efficient and this stream thing is more is more perspicuous
+and we managed to make the pers stream procedures run like the other procedures by using delay and the thing that delay did for us was to de couple the apparent order of events in our programs from the actual order of events that happen in the machine
+that's really what delay is doing and that's exactly the whole point
+we've given up right we're giving up the idea that our procedures as they run or as as we look at them mirror some clear notion of time
+and by giving that up we give delay the freedom to arrange the order of events in the computation the way it likes alright
+that's the whole idea
+we decouple the apparent order of events in our programs from the actual order of events in the computer
+okay well there's one one more detail
+it's just technical detail but it's actually an important one
+uh as you run through these recursive programs unwinding you'll see a lot of things that look like tail of the tail of the tail alright
+that's that's the kind of thing that would happen as i go consing down a stream all the way
+and if each time i'm doing that see if each time to compute a tail i evaluate a procedure which then has to go recompute its tail and recompute its tail and recompute its tail each time
+you can see that's very inefficient compared to just say having a list where the elements are all there and i don't have to recompute each tail every time i get the next tail
+so there's one there's one little hack to slightly change the abbreviation
+change what delay is and make it a thing which is uh i'll write this way
+delay the actual implementation
+delay is an abbreviation for this thing memoproc of a procedure
+memoproc is a special thing that transforms a procedure
+what it does is it takes a procedure of no arguments and it transforms it into a procedure that'll only have to do it's computation once
+and what i mean by that is you give it a procedure the result of memoproc will be a new procedure which the first time you call it will run the original procedure remember what result it got
+and then from ever on after when you call it it just won't have to do the computation it'll it'll cash that result someplace
+and here's an implementation of memoproc
+alright one you have the idea it's easy to implement
+memoproc is this little thing
+that has two little flags in there
+it says have i already been run and initially it says no i haven't already been run and what was the result i got the last time i was run
+so memoproc takes a procedure called proc and it returns a new procedure of no arguments
+proc is supposed to be a procedure of no arguments
+and it says oh if i'm not already run then i'm going to do a sequence of things
+i'm going to compute proc i'm going to save that i'm going to stash that in the variable result
+i'm going to make a note to myself that i've already been run and then i'll return the result
+so that's if you compute it if it's not already run
+if you call it and it's already been run it just returns the result
+so that's a that's a little clever hack called memoization and in this case it short circuits having to recompute the tail of the tail of the tail of the tail of the tail so there
+there isn't even that kind of inefficiency and in fact the streams will run with pretty much the same efficiency as the other programs precisely okay
+and remember again the whole idea of this
+is that we've used the uh the fact that there's no really good dividing line between procedures and data
+we've written data structures that in fact are sort of like procedures
+and what that's allowed us to do is take is take an example of a common control structure in this place iteration d iteration
+and we've built a data structure which since itself is a procedure kind of has this iteration control structure in it and that's really what streams are
+okay questions
+your description of tail tail tail if i understand it correctly forces actually an execution of uh of a procedure if it's done without this memoproc thing
+right
+and you implied that memoproc gets around that problem
+doesn't it only get around it if if uh tail tail tail is always executing exactly the same
+oh that's sure
+i guess i missed it missed that point
+i
+oh sure
+i mean the point is yeah i mean i i have to do a computation to get the answer but the point is once i i found the tail of the stream to get the tail of the tail i shouldn't have had to recompute the first tail
+okay i
+see and if i didn't use memoproc that recomputation would have been done
+i understand now
+okay
+in one of your examples you mentioned that we were able to use the substitution law but because there there were no side effects
+what if we had a a a signal processing unit who had a side effect who had a state
+could we still practically deal with the stream model
+mmm
+maybe
+that's a hard question
+i'm going to talk a little bit later about the places where where where st substitution and side effects don't really mix very well
+but in general i think the answer is unless you're very careful any amount of side effect is going to mess up everything alright
+sorry i didn't quite understand the memoproc operation uh
+it when do you execute the lambda
+in other words uh when memoproc is executed just this lambda expression is being generated but it's not clear to me when it's executed
+right uh what memoproc does remember the thing that's going into memoproc the thing proc is a procedure of no arguments and some day you're going to call it
+memoproc translates that procedure into another procedure of no arguments which some day you're going to call
+that's that lambda
+so here where i initially built as my where i built as my tail of the stream say this procedure of no arguments which some day i'll call
+instead i'm gonn i'm gonna have the tail of the stream be memoproc of it which some day i'll call
+so that lambda of nil that gets called when you call the memoproc
+alright when you call the result of that memoproc which is which would be ordinarily when you would have called the original thing that you fed it
+okay the reason i ask is i had a feeling that when you call memoproc you just return this lambda
+that's right
+when you call memoproc you return the
+this lambda
+the lambda
+you never evaluate the expression at all until the first time that you would have evaluated it
+do do i understand it right that you actually have to build the list up but the the elements of the list don't get evaluated
+the expressions don't get evaluated but
+each stage you actually are building a list is that am i right
+ah that's that's yeah i really should have said this
+that's a that's a really good point
+no it's not quite right
+see 'cause what happens is this
+let me draw this as pairs
+suppose i'm going to make a big stream like a numerate interval one through a billion
+what that is is a pair with a one and a promise
+and that's exactly what it is
+nothing got built up
+when i go enforce this and say what happens well this thing is now also recursively a cons
+so that this promise now is the next thing which is a two and a promise to do more and so on and so on and so on
+so nothing gets built up until you walk down this stream because what's sitting here is not the list but a promise to generate a list
+and promise technically i mean procedure
+okay
+so it doesn't get built up
+yeah i should've said that
+okay thank you
+let's take a break

@@ -1,0 +1,442 @@
+the explicit control evaluator of section five point four is a register machine whose controller interprets scheme programs
+in this section we will see how to run scheme programs on a register machine whose controller is not a scheme interpreter
+the explicit control evaluator machine is universal it can carry out any computational process that can be described in scheme
+the evaluator's controller orchestrates the use of its data paths to perform the desired computation
+thus the evaluator's data paths are universal they are sufficient to perform any computation we desire given an appropriate controller
+commercial general purpose computers are register machines organized around a collection of registers and operations that constitute an efficient and convenient universal set of data paths
+the controller for a general purpose machine is an interpreter for a register machine language like the one we have been using
+this language is called the native language of the machine or simply machine language
+programs written in machine language are sequences of instructions that use the machine's data paths
+for example the explicit control evaluator's instruction sequence can be thought of as a machine language program for a general purpose computer rather than as the controller for a specialized interpreter machine
+there are two common strategies for bridging the gap between higher level languages and register machine languages
+the explicit control evaluator illustrates the strategy of interpretation
+an interpreter written in the native language of a machine configures the machine to execute programs written in a language that may differ from the native language of the machine performing the evaluation
+the primitive procedures of the source language are implemented as a library of subroutines written in the native language of the given machine
+a program to be interpreted is represented as a data structure
+the interpreter traverses this data structure analyzing the source program
+as it does so it simulates the intended behavior of the source program by calling appropriate primitive subroutines from the library
+in this section we explore the alternative strategy of compilation
+a compiler for a given source language and machine translates a source program into an equivalent program written in the machine's native language
+the compiler that we implement in this section translates programs written in scheme into sequences of instructions to be executed using the explicit control evaluator machine's data paths
+compared with interpretation compilation can provide a great increase in the efficiency of program execution as we will explain below in the overview of the compiler
+on the other hand an interpreter provides a more powerful environment for interactive program development and debugging because the source program being executed is available at run time to be examined and modified
+in addition because the entire library of primitives is present new programs can be constructed and added to the system during debugging
+in view of the complementary advantages of compilation and interpretation modern program development environments pursue a mixed strategy
+lisp interpreters are generally organized so that interpreted procedures and compiled procedures can call each other
+this enables a programmer to compile those parts of a program that are assumed to be debugged thus gaining the efficiency advantage of compilation while retaining the interpretive mode of execution for those parts of the program that are in the flux of interactive development and debugging
+in section five point five point seven after we have implemented the compiler we will show how to interface it with our interpreter to produce an integrated interpreter compiler development system
+our compiler is much like our interpreter both in its structure and in the function it performs
+accordingly the mechanisms used by the compiler for analyzing expressions will be similar to those used by the interpreter
+moreover to make it easy to interface compiled and interpreted code we will design the compiler to generate code that obeys the same conventions of register usage as the interpreter the environment will be kept in the env register argument lists will be accumulated in argl a procedure to be applied will be in proc procedures will return their answers in val and the location to which a procedure should return will be kept in continue
+in general the compiler translates a source program into an object program that performs essentially the same register operations as would the interpreter in evaluating the same source program
+this description suggests a strategy for implementing a rudimentary compiler we traverse the expression in the same way the interpreter does
+when we encounter a register instruction that the interpreter would perform in evaluating the expression we do not execute the instruction but instead accumulate it into a sequence
+the resulting sequence of instructions will be the object code
+observe the efficiency advantage of compilation over interpretation
+each time the interpreter evaluates an expression for example it performs the work of classifying the expression and testing for the end of the operand list
+with a compiler the expression is analyzed only once when the instruction sequence is generated at compile time
+the object code produced by the compiler contains only the instructions that evaluate the operator and the two operands assemble the argument list and apply the procedure to the arguments
+this is the same kind of optimization we implemented in the analyzing evaluator of section four point one point seven
+but there are further opportunities to gain efficiency in compiled code
+as the interpreter runs it follows a process that must be applicable to any expression in the language
+in contrast a given segment of compiled code is meant to execute some particular expression
+this can make a big difference for example in the use of the stack to save registers
+when the interpreter evaluates an expression it must be prepared for any contingency
+before evaluating a subexpression the interpreter saves all registers that will be needed later because the subexpression might require an arbitrary evaluation
+a compiler on the other hand can exploit the structure of the particular expression it is processing to generate code that avoids unnecessary stack operations
+as a case in point consider the combination
+before the interpreter evaluates the operator of the combination it prepares for this evaluation by saving the registers containing the operands and the environment whose values will be needed later
+the interpreter then evaluates the operator to obtain the result in val restores the saved registers and finally moves the result from val to proc
+however in the particular expression we are dealing with the operator is the symbol f whose evaluation is accomplished by the machine operation lookup variable value which does not alter any registers
+the compiler that we implement in this section will take advantage of this fact and generate code that evaluates the operator using the instruction
+this code not only avoids the unnecessary saves and restores but also assigns the value of the lookup directly to proc whereas the interpreter would obtain the result in val and then move this to proc
+a compiler can also optimize access to the environment
+having analyzed the code the compiler can in many cases know in which frame a particular variable will be located and access that frame directly rather than performing the lookup variable value search
+we will discuss how to implement such variable access in section five point five point six
+until then however we will focus on the kind of register and stack optimizations described above
+there are many other optimizations that can be performed by a compiler such as coding primitive operations in line instead of using a general apply mechanism but we will not emphasize these here
+our main goal in this section is to illustrate the compilation process in a simplified context
+in section four point one point seven we modified our original metacircular interpreter to separate analysis from execution
+we analyzed each expression to produce an execution procedure that took an environment as argument and performed the required operations
+in our compiler we will do essentially the same analysis
+instead of producing execution procedures however we will generate sequences of instructions to be run by our register machine
+the procedure compile is the top level dispatch in the compiler
+it corresponds to the eval procedure of section four point one point one the analyze procedure of section four point one point seven and the eval dispatch entry point of the explicit control evaluator in section five point four point one
+the compiler like the interpreters uses the expression syntax procedures defined in section four point one point two
+compile performs a case analysis on the syntactic type of the expression to be compiled
+for each type of expression it dispatches to a specialized code generator
+compile and the code generators that it calls take two arguments in addition to the expression to compile
+there is a target which specifies the register in which the compiled code is to return the value of the expression
+there is also a linkage descriptor which describes how the code resulting from the compilation of the expression should proceed when it has finished its execution
+the linkage descriptor can require that the code do one of the following three things
+continue at the next instruction in sequence
+return from the procedure being compiled or
+jump to a named entry point
+for example compiling the expression five with a target of the val register and a linkage of next should produce the instruction
+compiling the same expression with a linkage of return should produce the instructions
+in the first case execution will continue with the next instruction in the sequence
+in the second case we will return from a procedure call
+in both cases the value of the expression will be placed into the target val register
+each code generator returns an instruction sequence containing the object code it has generated for the expression
+code generation for a compound expression is accomplished by combining the output from simpler code generators for component expressions just as evaluation of a compound expression is accomplished by evaluating the component expressions
+the simplest method for combining instruction sequences is a procedure called append instruction sequences
+it takes as arguments any number of instruction sequences that are to be executed sequentially it appends them and returns the combined sequence
+that is if seq one and seq two are sequences of instructions then evaluating
+produces the sequence
+< seq one seq two >
+whenever registers might need to be saved the compiler's code generators use preserving which is a more subtle method for combining instruction sequences
+preserving takes three arguments a set of registers and two instruction sequences that are to be executed sequentially
+it appends the sequences in such a way that the contents of each register in the set is preserved over the execution of the first sequence if this is needed for the execution of the second sequence
+that is if the first sequence modifies the register and the second sequence actually needs the register's original contents then preserving wraps a save and a restore of the register around the first sequence before appending the sequences
+otherwise preserving simply returns the appended instruction sequences
+thus for example
+produces one of the following four sequences of instructions depending on how seq one and seq two use reg one and reg two
+by using preserving to combine instruction sequences the compiler avoids unnecessary stack operations
+this also isolates the details of whether or not to generate save and restore instructions within the preserving procedure separating them from the concerns that arise in writing each of the individual code generators
+in fact no save or restore instructions are explicitly produced by the code generators
+in principle we could represent an instruction sequence simply as a list of instructions
+append instruction sequences could then combine instruction sequences by performing an ordinary list append
+however preserving would then be a complex operation because it would have to analyze each instruction sequence to determine how the sequence uses its registers
+preserving would be inefficient as well as complex because it would have to analyze each of its instruction sequence arguments even though these sequences might themselves have been constructed by calls to preserving in which case their parts would have already been analyzed
+to avoid such repetitious analysis we will associate with each instruction sequence some information about its register use
+when we construct a basic instruction sequence we will provide this information explicitly and the procedures that combine instruction sequences will derive register use information for the combined sequence from the information associated with the component sequences
+an instruction sequence will contain three pieces of information
+the set of registers that must be initialized before the instructions in the sequence are executed
+the set of registers whose values are modified by the instructions in the sequence and
+the actual instructions in the sequence
+we will represent an instruction sequence as a list of its three parts
+the constructor for instruction sequences is thus
+for example the two instruction sequence that looks up the value of the variable x in the current environment assigns the result to val and then returns requires registers env and continue to have been initialized and modifies register val
+this sequence would therefore be constructed as
+we sometimes need to construct an instruction sequence with no statements
+the procedures for combining instruction sequences are shown in section five point five point four
+in evaluating a procedure application the explicit control evaluator always saves and restores the env register around the evaluation of the operator saves and restores env around the evaluation of each operand saves and restores argl around the evaluation of each operand and saves and restores proc around the evaluation of the operand sequence
+for each of the following combinations say which of these save and restore operations are superfluous and thus could be eliminated by the compiler's preserving mechanism
+using the preserving mechanism the compiler will avoid saving and restoring env around the evaluation of the operator of a combination in the case where the operator is a symbol
+we could also build such optimizations into the evaluator
+indeed the explicit control evaluator of section five point four already performs a similar optimization by treating combinations with no operands as a special case
+a
+extend the explicit control evaluator to recognize as a separate class of expressions combinations whose operator is a symbol and to take advantage of this fact in evaluating such expressions
+b
+alyssa p
+hacker suggests that by extending the evaluator to recognize more and more special cases we could incorporate all the compiler's optimizations and that this would eliminate the advantage of compilation altogether
+what do you think of this idea
+in this section and the next we implement the code generators to which the compile procedure dispatches
+in general the output of each code generator will end with instructions generated by the procedure compile linkage that implement the required linkage
+if the linkage is return then we must generate the instruction
+this needs the continue register and does not modify any registers
+if the linkage is next then we need n't include any additional instructions
+otherwise the linkage is a label and we generate a goto to that label an instruction that does not need or modify any registers
+the linkage code is appended to an instruction sequence by preserving the continue register since a return linkage will require the continue register if the given instruction sequence modifies continue and the linkage code needs it continue will be saved and restored
+the code generators for self evaluating expressions quotations and variables construct instruction sequences that assign the required value to the target register and then proceed as specified by the linkage descriptor
+all these assignment instructions modify the target register and the one that looks up a variable needs the env register
+assignments and definitions are handled much as they are in the interpreter
+we recursively generate code that computes the value to be assigned to the variable and append to it a two instruction sequence that actually sets or defines the variable and assigns the value of the whole expression to the target register
+the recursive compilation has target val and linkage next so that the code will put its result into val and continue with the code that is appended after it
+the appending is done preserving env since the environment is needed for setting or defining the variable and the code for the variable value could be the compilation of a complex expression that might modify the registers in arbitrary ways
+the appended two instruction sequence requires env and val and modifies the target
+note that although we preserve env for this sequence we do not preserve val because the get value code is designed to explicitly place its result in val for use by this sequence
+the code for an if expression compiled with a given target and linkage has the form
+to generate this code we compile the predicate consequent and alternative and combine the resulting code with instructions to test the predicate result and with newly generated labels to mark the true and false branches and the end of the conditional
+in this arrangement of code we must branch around the true branch if the test is false
+the only slight complication is in how the linkage for the true branch should be handled
+if the linkage for the conditional is return or a label then the true and false branches will both use this same linkage
+if the linkage is next the true branch ends with a jump around the code for the false branch to the label at the end of the conditional
+env is preserved around the predicate code because it could be needed by the true and false branches and continue is preserved because it could be needed by the linkage code in those branches
+the code for the true and false branches is appended using a special combiner parallel instruction sequences described in section five point five point four
+note that cond is a derived expression so all that the compiler needs to do handle it is to apply the cond if> transformer and compile the resulting if expression
+the compilation of sequences parallels their evaluation
+each expression of the sequence is compiled the last expression with the linkage specified for the sequence and the other expressions with linkage next
+the instruction sequences for the individual expressions are appended to form a single instruction sequence such that env and continue are preserved
+lambda expressions construct procedures
+the object code for a lambda expression must have the form
+< construct procedure object and assign it to target register linkage >
+when we compile the lambda expression we also generate the code for the procedure body
+although the body wo n't be executed at the time of procedure construction it is convenient to insert it into the object code right after the code for the lambda
+if the linkage for the lambda expression is a label or return this is fine
+but if the linkage is next we will need to skip around the code for the procedure body by using a linkage that jumps to a label that is inserted after the body
+the object code thus has the form
+construct procedure object and assign it to target register code for given linkage or compilation of procedure body after lambda
+compile lambda generates the code for constructing the procedure object followed by the code for the procedure body
+the procedure object will be constructed at run time by combining the current environment with the entry point to the compiled procedure body
+compile lambda uses the special combiner tack on instruction sequence rather than append instruction sequences to append the procedure body to the lambda expression code because the body is not part of the sequence of instructions that will be executed when the combined sequence is entered rather it is in the sequence only because that was a convenient place to put it
+compile lambda body constructs the code for the body of the procedure
+this code begins with a label for the entry point
+next come instructions that will cause the run time evaluation environment to switch to the correct environment for evaluating the procedure body namely the definition environment of the procedure extended to include the bindings of the formal parameters to the arguments with which the procedure is called
+after this comes the code for the sequence of expressions that makes up the procedure body
+the sequence is compiled with linkage return and target val so that it will end by returning from the procedure with the procedure result in val
+the essence of the compilation process is the compilation of procedure applications
+the code for a combination compiled with a given target and linkage has the form
+< <compilation of operator target proc linkage next > <evaluate operands and construct argument list in argl > compilation of procedure call with given target and linkage >
+the registers env proc and argl may have to be saved and restored during evaluation of the operator and operands
+note that this is the only place in the compiler where a target other than val is specified
+the required code is generated by compile application
+this recursively compiles the operator to produce code that puts the procedure to be applied into proc and compiles the operands to produce code that evaluates the individual operands of the application
+the instruction sequences for the operands are combined with code that constructs the list of arguments in argl and the resulting argument list code is combined with the procedure code and the code that performs the procedure call
+in appending the code sequences the env register must be preserved around the evaluation of the operator and the proc register must be preserved around the construction of the argument list
+continue must also be preserved throughout since it is needed for the linkage in the procedure call
+the code to construct the argument list will evaluate each operand into val and then cons that value onto the argument list being accumulated in argl
+since we cons the arguments onto argl in sequence we must start with the last argument and end with the first so that the arguments will appear in order from first to last in the resulting list
+rather than waste an instruction by initializing argl to the empty list to set up for this sequence of evaluations we make the first code sequence construct the initial argl
+the general form of the argument list construction is thus as follows
+argl must be preserved around each operand evaluation except the first and env must be preserved around each operand evaluation except the last
+compiling this argument code is a bit tricky because of the special treatment of the first operand to be evaluated and the need to preserve argl and env in different places
+the construct arglist procedure takes as arguments the code that evaluates the individual operands
+if there are no operands at all it simply emits the instruction
+otherwise construct arglist creates code that initializes argl with the last argument and appends code that evaluates the rest of the arguments and adjoins them to argl in succession
+in order to process the arguments from last to first we must reverse the list of operand code sequences from the order supplied by compile application
+after evaluating the elements of a combination the compiled code must apply the procedure in proc to the arguments in argl
+the code performs essentially the same dispatch as the apply procedure in the metacircular evaluator of section four point one point one or the apply dispatch entry point in the explicit control evaluator of section five point four point one
+it checks whether the procedure to be applied is a primitive procedure or a compiled procedure
+for a primitive procedure it uses apply primitive procedure we will see shortly how it handles compiled procedures
+the procedure application code has the following form
+observe that the compiled branch must skip around the primitive branch
+therefore if the linkage for the original procedure call was next the compound branch must use a linkage that jumps to a label that is inserted after the primitive branch
+the primitive and compound branches like the true and false branches in compile if are appended using parallel instruction sequences rather than the ordinary append instruction sequences because they will not be executed sequentially
+the code that handles procedure application is the most subtle part of the compiler even though the instruction sequences it generates are very short
+a compiled procedure has an entry point which is a label that designates where the code for the procedure starts
+the code at this entry point computes a result in val and returns by executing the instruction
+thus we might expect the code for a compiled procedure application with a given target and linkage to look like this if the linkage is a label
+or like this if the linkage is return
+this code sets up continue so that the procedure will return to a label proc return and jumps to the procedure's entry point
+the code at proc return transfers the procedure's result from val to the target register and then jumps to the location specified by the linkage
+in fact if the target is not val that is exactly the code our compiler will generate
+usually however the target is val so the procedure result is put directly into the target register and there is no need to return to a special location that copies it
+instead we simplify the code by setting up continue so that the procedure will return directly to the place specified by the caller's linkage
+if the linkage is a label we set up continue so that the procedure will return to that label
+if the linkage is return we do n't need to set up continue at all it already holds the desired location
+with this implementation of the return linkage the compiler generates tail recursive code
+calling a procedure as the final step in a procedure body does a direct transfer without saving any information on the stack
+suppose instead that we had handled the case of a procedure call with a linkage of return and a target of val as shown above for a non val target
+this would destroy tail recursion
+our system would still give the same value for any expression
+but each time we called a procedure we would save continue and return after the call to undo the ( useless ) save
+these extra saves would accumulate during a nest of procedure calls
+compile proc appl generates the above procedure application code by considering four cases depending on whether the target for the call is val and whether the linkage is return
+observe that the instruction sequences are declared to modify all the registers since executing the procedure body can change the registers in arbitrary ways
+also note that the code sequence for the case with target val and linkage return is declared to need continue even though continue is not explicitly used in the two instruction sequence we must be sure that continue will have the correct value when we enter the compiled procedure
+this section describes the details on how instruction sequences are represented and combined
+recall from section five point five point one that an instruction sequence is represented as a list of the registers needed the registers modified and the actual instructions
+we will also consider a label ( symbol ) to be a degenerate case of an instruction sequence which does n't need or modify any registers
+so to determine the registers needed and modified by instruction sequences we use the selectors
+and to determine whether a given sequence needs or modifies a given register we use the predicates
+in terms of these predicates and selectors we can implement the various instruction sequence combiners used throughout the compiler
+the basic combiner is append instruction sequences
+this takes as arguments an arbitrary number of instruction sequences that are to be executed sequentially and returns an instruction sequence whose statements are the statements of all the sequences appended together
+the subtle point is to determine the registers that are needed and modified by the resulting sequence
+it modifies those registers that are modified by any of the sequences it needs those registers that must be initialized before the first sequence can be run together with those registers needed by any of the other sequences that are not initialized ( modified ) by sequences preceding it
+the sequences are appended two at a time by append two sequences
+this takes two instruction sequences seq one and seq two and returns the instruction sequence whose statements are the statements of seq one followed by the statements of seq two whose modified registers are those registers that are modified by either seq one or seq two and whose needed registers are the registers needed by seq one together with those registers needed by seq two that are not modified by seq one
+thus append instruction sequences is implemented as follows
+this procedure uses some simple operations for manipulating sets represented as lists similar to the ( unordered ) set representation described in section two point three point three
+preserving the second major instruction sequence combiner takes a list of registers regs and two instruction sequences seq one and seq two that are to be executed sequentially
+it returns an instruction sequence whose statements are the statements of seq one followed by the statements of seq two with appropriate save and restore instructions around seq one to protect the registers in regs that are modified by seq one but needed by seq two
+to accomplish this preserving first creates a sequence that has the required save s followed by the statements of seq one followed by the required restore s
+this sequence needs the registers being saved and restored in addition to the registers needed by seq one and modifies the registers modified by seq one except for the ones being saved and restored
+this augmented sequence and seq two are then appended in the usual way
+the following procedure implements this strategy recursively walking down the list of registers to be preserved
+another sequence combiner tack on instruction sequence is used by compile lambda to append a procedure body to another sequence
+because the procedure body is not in line to be executed as part of the combined sequence its register use has no impact on the register use of the sequence in which it is embedded
+we thus ignore the procedure body's sets of needed and modified registers when we tack it onto the other sequence
+compile if and compile procedure call use a special combiner called parallel instruction sequences to append the two alternative branches that follow a test
+the two branches will never be executed sequentially for any particular evaluation of the test one branch or the other will be entered
+because of this the registers needed by the second branch are still needed by the combined sequence even if these are modified by the first branch
+now that we have seen all the elements of the compiler let us examine an example of compiled code to see how things fit together
+we will compile the definition of a recursive factorial procedure by calling compile
+we have specified that the value of the define expression should be placed in the val register
+we do n't care what the compiled code does after executing the define so our choice of next as the linkage descriptor is arbitrary
+compile determines that the expression is a definition so it calls compile definition to compile code to compute the value to be assigned followed by code to install the definition followed by code to put the value of the define into the target register followed finally by the linkage code
+env is preserved around the computation of the value because it is needed in order to install the definition
+because the linkage is next there is no linkage code in this case
+the skeleton of the compiled code is thus
+the expression that is to be compiled to produce the value for the variable factorial is a lambda expression whose value is the procedure that computes factorials
+compile handles this by calling compile lambda which compiles the procedure body labels it as a new entry point and generates the instruction that will combine the procedure body at the new entry point with the run time environment and assign the result to val
+the sequence then skips around the compiled procedure code which is inserted at this point
+the procedure code itself begins by extending the procedure's definition environment by a frame that binds the formal parameter n to the procedure argument
+then comes the actual procedure body
+since this code for the value of the variable does n't modify the env register the optional save and restore shown above are n't generated
+therefore the skeleton for the compiled code becomes
+a procedure body is always compiled as a sequence with target val and linkage return
+the sequence in this case consists of a single if expression
+compile if generates code that first computes the predicate then checks the result and branches around the true branch if the predicate is false
+env and continue are preserved around the predicate code since they may be needed for the rest of the if expression
+since the if expression is the final expression in the sequence making up the procedure body its target is val and its linkage is return so the true and false branches are both compiled with target val and linkage return
+the predicate is a procedure call
+this looks up the operator and places this value in proc
+it then assembles the arguments one and the value of n into argl
+then it tests whether proc contains a primitive or a compound procedure and dispatches to a primitive branch or a compound branch accordingly
+both branches resume at the after call label
+the requirements to preserve registers around the evaluation of the operator and operands do n't result in any saving of registers because in this case those evaluations do n't modify the registers in question
+the true branch which is the constant one compiles to
+the code for the false branch is another a procedure call where the procedure is the value of the symbol multiply and the arguments are n and the result of another procedure call
+each of these calls sets up proc and argl and its own primitive and compound branches
+figure five point seventeen shows the complete compilation of the definition of the factorial procedure
+notice that the possible save and restore of continue and env around the predicate shown above are in fact generated because these registers are modified by the procedure call in the predicate and needed for the procedure call and the return linkage in the branches
+consider the following definition of a factorial procedure which is slightly different from the one given above
+compile this procedure and compare the resulting code with that produced for factorial
+explain any differences you find
+does either program execute more efficiently than the other
+compile the iterative factorial procedure
+annotate the resulting code showing the essential difference between the code for iterative and recursive versions of factorial that makes one process build up stack space and the other run in constant stack space
+what expression was compiled to produce the code shown in figure five point eighteen
+what order of evaluation does our compiler produce for operands of a combination
+is it left to right right to left or some other order
+where in the compiler is this order determined
+modify the compiler so that it produces some other order of evaluation
+how does changing the order of operand evaluation affect the efficiency of the code that constructs the argument list
+one way to understand the compiler's preserving mechanism for optimizing stack usage is to see what extra operations would be generated if we did not use this idea
+modify preserving so that it always generates the save and restore operations
+compile some simple expressions and identify the unnecessary stack operations that are generated
+compare the code to that generated with the preserving mechanism intact
+our compiler is clever about avoiding unnecessary stack operations but it is not clever at all when it comes to compiling calls to the primitive procedures of the language in terms of the primitive operations supplied by the machine
+for example consider how much code is compiled to compute the code sets up an argument list in argl puts the primitive addition procedure into proc and tests whether the procedure is primitive or compound
+the compiler always generates code to perform the test as well as code for primitive and compound branches
+we have not shown the part of the controller that implements primitives but we presume that these instructions make use of primitive arithmetic operations in the machine's data paths
+consider how much less code would be generated if the compiler could open code primitives that is if it could generate code to directly use these primitive machine operations
+the expression might be compiled into something as simple as
+in this exercise we will extend our compiler to support open coding of selected primitives
+special purpose code will be generated for calls to these primitive procedures instead of the general procedure application code
+in order to support this we will augment our machine with special argument registers arg one and arg two
+the primitive arithmetic operations of the machine will take their inputs from arg one and arg two
+the results may be put into val arg one or arg two
+the compiler must be able to recognize the application of an open coded primitive in the source program
+we will augment the dispatch in the compile procedure to recognize the names of these primitives in addition to the reserved words it currently recognizes
+for each special form our compiler has a code generator
+in this exercise we will construct a family of code generators for the open coded primitives
+a
+the open coded primitives unlike the special forms all need their operands evaluated
+write a code generator spread arguments for use by all the open coding code generators
+spread arguments should take an operand list and compile the given operands targeted to successive argument registers
+note that an operand may contain a call to an open coded primitive so argument registers will have to be preserved during operand evaluation
+b
+for each of the primitive procedures equal multiply minus and plus write a code generator that takes a combination with that operator together with a target and a linkage descriptor and produces code to spread the arguments into the registers and then perform the operation targeted to the given target with the given linkage
+you need only handle expressions with two operands
+make compile dispatch to these code generators
+c
+try your new compiler on the factorial example
+compare the resulting code with the result produced without open coding
+d
+extend your code generators for plus and multiply so that they can handle expressions with arbitrary numbers of operands
+an expression with more than two operands will have to be compiled into a sequence of operations each with only two inputs
+one of the most common optimizations performed by compilers is the optimization of variable lookup
+our compiler as we have implemented it so far generates code that uses the lookup variable value operation of the evaluator machine
+this searches for a variable by comparing it with each variable that is currently bound working frame by frame outward through the run time environment
+this search can be expensive if the frames are deeply nested or if there are many variables
+for example consider the problem of looking up the value of x while evaluating the expression in an application of the procedure that is returned by
+since a let expression is just syntactic sugar for a lambda combination this expression is equivalent to
+each time lookup variable value searches for x it must determine that the symbol x is not eq to y or z nor to a b c d or e
+we will assume for the moment that our programs do not use define that variables are bound only with lambda
+because our language is lexically scoped the run time environment for any expression will have a structure that parallels the lexical structure of the program in which the expression appears
+thus the compiler can know when it analyzes the above expression that each time the procedure is applied the variable x in will be found two frames out from the current frame and will be the first variable in that frame
+we can exploit this fact by inventing a new kind of variable lookup operation lexical address lookup that takes as arguments an environment and a lexical address that consists of two numbers a frame number which specifies how many frames to pass over and a displacement number which specifies how many variables to pass over in that frame
+lexical address lookup will produce the value of the variable stored at that lexical address relative to the current environment
+if we add the lexical address lookup operation to our machine we can make the compiler generate code that references variables using this operation rather than lookup variable value
+similarly our compiled code can use a new lexical address set operation instead of set variable value
+in order to generate such code the compiler must be able to determine the lexical address of a variable it is about to compile a reference to
+the lexical address of a variable in a program depends on where one is in the code
+for example in the following program the address of x in expression e one is ( two 0 ) two frames back and the first variable in the frame
+at that point y is at address ( 0 0 ) and c is at address ( one two )
+in expression e two x is at ( one 0 ) y is at ( one 1 ) and c is at ( 0 two )
+one way for the compiler to produce code that uses lexical addressing is to maintain a data structure called a compile time environment
+this keeps track of which variables will be at which positions in which frames in the run time environment when a particular variable access operation is executed
+the compile time environment is a list of frames each containing a list of variables
+the compile time environment becomes an additional argument to compile and is passed along to each code generator
+the top level call to compile uses an empty compile time environment
+when a lambda body is compiled compile lambda body extends the compile time environment by a frame containing the procedure's parameters so that the sequence making up the body is compiled with that extended environment
+at each point in the compilation compile variable and compile assignment use the compile time environment in order to generate the appropriate lexical addresses
+exercises five point thirty nine through five point forty three describe how to complete this sketch of the lexical addressing strategy in order to incorporate lexical lookup into the compiler
+exercise five point forty four describes another use for the compile time environment
+write a procedure lexical address lookup that implements the new lookup operation
+it should take two arguments a lexical address and a run time environment and return the value of the variable stored at the specified lexical address
+lexical address lookup should signal an error if the value of the variable is the symbol unassigned
+also write a procedure lexical address set that implements the operation that changes the value of the variable at a specified lexical address
+modify the compiler to maintain the compile time environment as described above
+that is add a compile time environment argument to compile and the various code generators and extend it in compile lambda body
+write a procedure find variable that takes as arguments a variable and a compile time environment and returns the lexical address of the variable with respect to that environment
+for example in the program fragment that is shown above the compile time environment during the compilation of expression e one is
+find variable should produce
+using find variable from exercise five point forty one rewrite compile variable and compile assignment to output lexical address instructions
+in cases where find variable returns not found you should have the code generators use the evaluator operations as before to search for the binding
+test the modified compiler on a few simple cases such as the nested lambda combination at the beginning of this section
+we argued in section four point one point six that internal definitions for block structure should not be considered real define s
+rather a procedure body should be interpreted as if the internal variables being defined were installed as ordinary lambda variables initialized to their correct values using set
+section four point one point six and exercise four point sixteen showed how to modify the metacircular interpreter to accomplish this by scanning out internal definitions
+modify the compiler to perform the same transformation before it compiles a procedure body
+in this section we have focused on the use of the compile time environment to produce lexical addresses
+but there are other uses for compile time environments
+for instance in exercise five point thirty eight we increased the efficiency of compiled code by open coding primitive procedures
+our implementation treated the names of open coded procedures as reserved words
+if a program were to rebind such a name the mechanism described in exercise five point thirty eight would still open code it as a primitive ignoring the new binding
+for example consider the procedure
+which computes a linear combination of x and y
+we might call it with arguments +matrix *matrix and four matrices but the open coding compiler would still open code the plus and the multiply in as primitive plus and multiply
+modify the open coding compiler to consult the compile time environment in order to compile the correct code for expressions involving the names of primitive procedures
+we have not yet explained how to load compiled code into the evaluator machine or how to run it
+we will assume that the explicit control evaluator machine has been defined as in section five point four point four with the additional operations specified in footnote thirty eight
+we will implement a procedure compile and go that compiles a scheme expression loads the resulting object code into the evaluator machine and causes the machine to run the code in the evaluator global environment print the result and enter the evaluator's driver loop
+we will also modify the evaluator so that interpreted expressions can call compiled procedures as well as interpreted ones
+we can then put a compiled procedure into the machine and use the evaluator to call it
+to allow the evaluator to handle compiled procedures we need to change the code at apply dispatch so that it recognizes compiled procedures and transfers control directly to the entry point of the compiled code
+note the restore of continue at compiled apply
+recall that the evaluator was arranged so that at apply dispatch the continuation would be at the top of the stack
+the compiled code entry point on the other hand expects the continuation to be in continue so continue must be restored before the compiled code is executed
+to enable us to run some compiled code when we start the evaluator machine we add a branch instruction at the beginning of the evaluator machine which causes the machine to go to a new entry point if the flag register is set
+external entry assumes that the machine is started with val containing the location of an instruction sequence that puts a result into val and ends with
+starting at this entry point jumps to the location designated by val but first assigns continue so that execution will return to print result which prints the value in val and then goes to the beginning of the evaluator's read eval print loop
+now we can use the following procedure to compile a procedure definition execute the compiled code and run the read eval print loop so we can try the procedure
+because we want the compiled code to return to the location in continue with its result in val we compile the expression with a target of val and a linkage of return
+in order to transform the object code produced by the compiler into executable instructions for the evaluator register machine we use the procedure assemble from the register machine simulator
+we then initialize the val register to point to the list of instructions set the flag so that the evaluator will go to external entry and start the evaluator
+if we have set up stack monitoring as at the end of section five point four point four we can examine the stack usage of compiled code
+compare this example with the evaluation of using the interpreted version of the same procedure shown at the end of section five point four point four
+the interpreted version required one hundred forty four pushes and a maximum stack depth of twenty eight
+this illustrates the optimization that results from our compilation strategy
+with the programs in this section we can now experiment with the alternative execution strategies of interpretation and compilation
+an interpreter raises the machine to the level of the user program a compiler lowers the user program to the level of the machine language
+we can regard the scheme language as a coherent family of abstractions erected on the machine language
+interpreters are good for interactive program development and debugging because the steps of program execution are organized in terms of these abstractions and are therefore more intelligible to the programmer
+compiled code can execute faster because the steps of program execution are organized in terms of the machine language and the compiler is free to make optimizations that cut across the higher level abstractions
+the alternatives of interpretation and compilation also lead to different strategies for porting languages to new computers
+suppose that we wish to implement lisp for a new machine
+one strategy is to begin with the explicit control evaluator of section five point four and translate its instructions to instructions for the new machine
+a different strategy is to begin with the compiler and change the code generators so that they generate code for the new machine
+the second strategy allows us to run any lisp program on the new machine by first compiling it with the compiler running on our original lisp system and linking it with a compiled version of the run time library
+better yet we can compile the compiler itself and run this on the new machine to compile other lisp programs
+or we can compile one of the interpreters of section four point one to produce an interpreter that runs on the new machine
+by comparing the stack operations used by compiled code to the stack operations used by the evaluator for the same computation we can determine the extent to which the compiler optimizes use of the stack both in speed and in space
+comparing this optimized stack use to the performance of a special purpose machine for the same computation gives some indication of the quality of the compiler
+a
+exercise five point twenty seven asked you to determine as a function of n the number of pushes and the maximum stack depth needed by the evaluator to compute n using the recursive factorial procedure given above
+exercise five point fourteen asked you to do the same measurements for the special purpose factorial machine shown in figure five point eleven
+now perform the same analysis using the compiled factorial procedure
+take the ratio of the number of pushes in the compiled version to the number of pushes in the interpreted version and do the same for the maximum stack depth
+since the number of operations and the stack depth used to compute n are linear in n these ratios should approach constants as n becomes large
+what are these constants
+similarly find the ratios of the stack usage in the special purpose machine to the usage in the interpreted version
+compare the ratios for special purpose versus interpreted code to the ratios for compiled versus interpreted code
+you should find that the special purpose machine does much better than the compiled code since the hand tailored controller code should be much better than what is produced by our rudimentary general purpose compiler
+b
+can you suggest improvements to the compiler that would help it generate code that would come closer in performance to the hand tailored version
+carry out an analysis like the one in exercise five point forty five to determine the effectiveness of compiling the tree recursive fibonacci procedure
+compared to the effectiveness of using the special purpose fibonacci machine of figure five point twelve
+for fibonacci the time resource used is not linear in n hence the ratios of stack operations will not approach a limiting value that is independent of n
+this section described how to modify the explicit control evaluator so that interpreted code can call compiled procedures
+show how to modify the compiler so that compiled procedures can call not only primitive procedures and compiled procedures but interpreted procedures as well
+this requires modifying compile procedure call to handle the case of compound ( interpreted ) procedures
+be sure to handle all the same target and linkage combinations as in compile proc appl
+to do the actual procedure application the code needs to jump to the evaluator's compound apply entry point
+this label cannot be directly referenced in object code so we will add a register called compapp to the evaluator machine to hold this entry point and add an instruction to initialize it
+to test your code start by defining a procedure f that calls a procedure g
+use compile and go to compile the definition of f and start the evaluator
+now typing at the evaluator define g and try to call f
+the compile and go interface implemented in this section is awkward since the compiler can be called only once
+augment the compiler interpreter interface by providing a compile and run primitive that can be called from within the explicit control evaluator as follows
+as an alternative to using the explicit control evaluator's read eval print loop design a register machine that performs a read compile execute print loop
+that is the machine should run a loop that reads an expression compiles it assembles and executes the resulting code and prints the result
+this is easy to run in our simulated setup since we can arrange to call the procedures compile and assemble as register machine operations
+use the compiler to compile the metacircular evaluator of section four point one and run this program using the register machine simulator
+the resulting interpreter will run very slowly because of the multiple levels of interpretation but getting all the details to work is an instructive exercise
+develop a rudimentary implementation of scheme in c by translating the explicit control evaluator of section five point four into c
+in order to run this code you will need to also provide appropriate storage allocation routines and other run time support
+as a counterpoint to exercise five point fifty one modify the compiler so that it compiles scheme procedures into sequences of c instructions
+compile the metacircular evaluator of section four point one to produce a scheme interpreter written in c

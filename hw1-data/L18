@@ -1,0 +1,681 @@
+well i hope you appreciate that we have uh inducted you into some real magic uh the magic of building languages really building new languages
+what have we looked at we've looked at uh an escher picture language this language invented by peter henderson
+uh we looked at geodigital logic language
+let's see
+we've looked at the query language
+and the thing you should realize is even though these were toy examples they really are the kernels of really useful things
+so for instance uh the escher picture language was taken by henry woo who's a student at mit and developed into a real language for uh laying out pc boards
+right based just on extending those structures
+and the digital logic language jerry mentioned when he showed it to you was really extended to be used as the basis for a simulator that uh was used to design a real computer
+and the query language of course is kind of the the germ of prolog
+so we built all of these languages they were all based on lisp
+a lot of people ask what particular problems is lisp good for solving for
+the answer is lisp is not lisp is not good for solving any particular problems
+what lisp is good for is constructing within it the right language to solve the problems you want to solve
+and that's how you should think about it
+so all these languages were based on lisp now what's lisp based on
+where's that come from
+well we looked at that too
+we looked at we looked at the metacircular evaluator
+the metacircular evaluator and sort of said well lisp is based on lisp and when we started looking at that we got into some real magic right
+so what does that mean
+right
+why operators and fixed points and the idea that uh what this means is that lisp is somehow the fixed point equation for the for this funny set of things that are defined in terms of themselves
+that was sort of real magic
+well today for our final piece of magic we're going to make all the magic go away
+we already know how to do that
+the idea is we're going to take the register machine architecture and show how to implement lisp in terms of that and remember the idea of the register machine is that there's a fixed and finite part of the machine
+there's a finite state controller that does some particular thing with a particular amount of hardware
+there are particular data paths the operation the machine does and then in order to implement recursion and sustain the illusion of infinity there's some large amount of memory which is the stack
+so if we implement lisp in terms of a registry machine then everything ought to become at this point completely concrete
+all the magic should go away
+and by the end of this talk i want you to get the feeling that as opposed to this very mysterious metacircular evaluator that a lisp evaluator really is something that's concrete enough that you can hold in the palm of your hand
+it's the old imagine holding a lisp interpreter there
+all right
+how are we going to do this
+we already have all the ingredients
+see what you learned last time from jerry is how to take any particular couple of lisp procedures and hand translate them into something that runs on a register machine
+so to implement all of lisp on a register machine all we have to do is take the particular procedures that are the metacircular evaluator and hand translate them for a register machine and that does all of lisp
+all right
+so in principle we already know how to do this and indeed it's going to be no no different in kind from uh from translating say recursive factorial or recursive fibonacci it's just bigger and there's more of it
+so just be more details but nothing really conceptually new
+all right
+also when we've done that and the thing is completely explicit and we see how to implement lisp in terms of actual sequential register operations that's going to be our final most explicit model of lisp in this course
+and remember that's a progression through this course we started out with substitution which is sort of like algebra and then we went to the environment model which talked about the actual frames and how they got linked together
+and then we made that more concrete in the metacircular evaluator
+there are things the metacircular evaluator doesn't tell us and you should realize that
+for instance it left unanswered the question of how a procedure like recursive factorial here somehow takes space that grows
+on the other hand a procedure which also looks syntactically recursive called fact iter somehow doesn't take space
+we justified we justified that it doesn't need to take space by showing the substitution model
+but we didn't really say how it happens that the machine manages to do that
+right
+that has to do with the details of how arguments are passed to procedures
+and that's a thing we didn't see in the metacircular evaluator precisely because the way arguments got passed to procedures in this lisp depended on the way arguments got passed to procedures in this lisp
+right
+but now that's going to become become extremely explicit
+ok
+well before going on to the the evaluator let me just give you a sense of what a whole lisp system looks like so you can see the parts we're going to talk about and the parts we're not going to talk about
+uh
+let's see over here is a happy lisp user and the lisp user is talking to something called the reader
+the reader's job in life is to take characters to take characters from the user and turn them into data structures in something called a list structure memory
+all right so it the reader is going to take symbols parentheses and a's and b's and ones and threes that you type in and turn these into actual list structure pairs and pointers and things
+and so by the time the evaluator is going there are no characters in the world
+and of course in more modern lisp systems there's sort of a big morass here that might sit between the user and the reader you know windows systems and top levels and mice and all kinds of things
+but conceptually characters are coming in
+right
+the reader transforms these into pointers
+all right
+pointers to stuff in this memory and that's what the evaluator sees
+ok
+the evaluator has a bunch of helpers
+it has all possible primitive operators you might want so there's a completely separate box now the floating point unit or all sorts of things which do the primitive operators
+and if you want more special primitives you build more primitive operators but they're separate from the evaluator
+and the evaluator finally gets the answer and communicates that to the printer and now the printer's job in life is to take this list structure coming from the evaluator and turn it back into characters and communicate them to the user through whatever interface there is
+ok
+well today what we're going to talk about is this evaluator
+the primitive operators have nothing particular to do with lisp they're whatever however you like to implement primitive operations
+the reader and printer are actually complicated but we're not going to talk about them
+they sort of have to do with details of how you might build in build up list structure from characters
+so that is a long story but we're not going to talk about it
+the list structure memory uh we'll talk about next time
+so pretty much except for the details of reading and printing the only mystery that's going to be left after you see the evaluator is how you build list structure on conventional memories
+but we'll worry about that next time too
+ok
+well let's start talking about the evaluator
+the one that we're going to show you of course is not i think nothing special about it
+it's just a particular register machine that runs lisp and it has seven registers
+and here are the seven registers
+there's a register called exp and its job is to hold the expression to be evaluated
+and by that i mean it's going to hold a pointer to someplace in list structure memory that holds the expression to be evaluated
+there's a register called en which holds the environment in which this expression is to be evaluated and again i mean a pointer the environment is some data structure
+there's a register called fun which will hold the procedure to be applied when you go to apply a procedure a register called argul which holds the list of evaluated arguments
+what you can start seeing here is the basic structure of the evaluator remember how evaluators work there's a piece that takes expressions and environments and there's a piece that takes functions or procedures and arguments
+and going back and forth around here is the eval apply loop so those are the basic pieces of eval and apply
+then there's some other things there's continue you just saw before how the continue register is used to implement recursion and stack discipline
+there's a register that's going to hold the result of some evaluation
+and then besides that there's one temporary register called un ev which typically in the evaluator is going to be used to hold temporary pieces of the expression you're working on which you haven't gotten around to evaluate yet
+right
+so there's our machine a seven register machine
+of course you might want to make a machine with a lot more registers to get better performance
+but this is just a tiny minimal one
+well how about the data paths
+this machine has a lot of of special operations for lisp
+so here's some here's some typical data paths
+typical one might be oh assign to the eval register the contents of the exp register
+that's in terms of those diagrams you saw that's a little button on some arrow
+here's a more complicated one says branch if the thing in the expression register is a conditional to some label here called ev conditional
+and you can imagine this implemented in a lot of different ways
+you might imagine this conditional test as a special purpose subroutine and conditional is might be represented as some data abstraction that you don't care about at this level of detail so that might be done as a subroutine
+this might be a machine with hardware types and conditional might be testing some bits for a particular code all sorts of ways that's beneath the level of the abstraction we're looking at
+another kind of operation and there are a lot of different operations assign to exp the first clause of what's in exp
+this might be part of processing a conditional
+and again first clause is some selector whose details we don't care about and you can again imagine that as a subroutine which'll do some list operations where you can imagine something that's built directly into hardware
+the reason i keep saying you can imagine it built directly into hardware is even though there are a lot of operations there are still a fixed number of them forget how many maybe a hundred and fifty so it's plausible to think of building these directly into hardware
+here's a more complicated one
+you can see this has to do with looking up the values of variables it says assign to the val register the result of looking up the variable value of some particular expression
+which in this case is supposed to be a variable in some environment
+and this will be some operation that searches through the environment structure however it is represented and goes and looks up that variable
+and again that's below the level of detail that we're thinking about
+this is this has to do with the data structures for representing environments
+but anyway there is this fixed and finite number of operations in the register machine
+well what's it's overall structure
+those are some typical operations
+remember what we have to do
+we have to take the metacircular evaluator and here's a piece of the metacircular evaluator this is the the one using abstract syntax that's in the book it's a little bit different from the one that that jerry showed you
+and the main thing to remember about the evaluator is that it's doing some sort of case analysis on the kinds of expressions so if it's either self evaluating or quoted or whatever else and then in the general case where the expression it's looking at is an application there's some tricky recursions going on
+first of all eval has to call itself both to evaluate the operator and to evaluate all the operands
+so there's this sort of red recursion eval is walking down the tree that's sort of the easy recursion that's just eval walking down this tree of expressions
+then in the evaluator there's a hard recursion there's eval the red to green eval calls apply that's the case where evaluating a procedure argument reduces to applying the procedure to the list of arguments and then apply comes over here apply takes a procedure and arguments and in the general case where there's a compound procedure apply goes around and green calls red eval apply comes around and calls eval again
+eval's the body of the procedure and the result of extending the environment with the parameters of the procedure by binding the arguments
+except in the primitive case where it just calls something else primitive apply which is not really the business of the evaluator
+so this this sort of red to green to red to green right that's the eval apply loop and that's the thing we're going to want to see in the in the evaluator
+all right well it won't surprise you at all that the the two big pieces of this evaluator are correspond to eval and apply
+there's a piece called eval dispatch and a piece called apply dispatch and before we get into the details of the code the way to understand this is to think again in terms of these these pieces of the evaluator having contracts with the rest of the world
+you know what do they sort of do from the outside before getting into the grungy details
+well the contract for eval dispatch remember corresponds to eval it's got to evaluate an expression in an environment
+so in particular what this one is going to do eval dispatch will assume that when you call it that the expression you want to evaluate is in the exp register
+the environment in which you want the evaluation to take place is in the env register and continue tells you the place where the machine should go next when the evaluation is done
+eval's dispatch's contract is that it'll actually perform that evaluation and at the end of which it'll end up at the place specified by continue
+the result of the evaluation will be in the val register and just warns you that the cont it makes no promises about what happens to the rest registers
+all other registers might be destroyed
+so there's one piece
+ok
+the other big piece is apply dispatch that corresponds to apply it's got to apply a procedure to some arguments so it assumes that this register argul contains a list of the evaluated arguments fun contains the procedure those correspond to the arguments to the apply procedure in the metacircular evaluator and apply in this particular evaluator we're going to use a discipline which says the place that apply the place the machine should go to next when apply's done is at the moment apply dispatch is called at the top of the stack
+that's just discipline for the way this particular machine is organized
+and now apply is contract is given all that it'll perform the application the result of that application will end up in val the stack'll be popped and again the contents of all the other registers may be destroyed
+right
+so that's the basic organization of this machine
+let's let's break for a little bit and see if there are any questions and then we'll do a real example
+well let's take the register machine now and actually step through and really in real detail so you see it completely concrete how some how some expressions are evaluated
+all right
+so uh let's start with a very simple expression
+let's evaluate the expression of one and we need an environment
+so let's imagine that somewhere there's an environment we'll call it e zero and just since we'll use these later we obviously really don't need anything to evaluate one but just for reference later let's assume that e zero has in it an x that's bound to three and a y that's bound to four
+ok
+and now what we're going to do is we're going to evaluate one in this environment and uh so the env register has a pointer to this environment e zero
+all right
+so let's watch that watch that thing go
+what i'm going to do is step through the code and uh let's see i'll be the controller and now what i need since this gets rather complicated is a very literal execution unit
+so here's the execution unit
+ok
+ok
+ok
+all right now we're going to start
+we're going to start the machine at eval dispatch
+all right
+that's the beginning of this
+eval dispatch is going to look at the expression and dispatch
+just like eval
+we look at the very first thing
+we branch on whether or not this expression is self evaluating
+self evaluating is some abstraction we put into the machine
+it's going to be true for numbers
+to a place called ev self eval
+all right
+so me being the controller looks at ev self eval
+so we'll go over to there
+ev self eval says fine
+assign to val whatever's in the expression unit
+ok
+and i have a bug
+because what i didn't do when i initialized this machine is also say what's supposed to happen when it's done
+so i should have started out the machine with done being in the continue register
+ok
+so we assign to val and now we go to fetch of continue
+and now we change ok
+ok let's try something harder
+let's reset the machine here and we'll put in the expression register x ok
+start again at eval dispatch check is it self evaluating
+no
+is it a variable
+yes
+we go off to ev variable
+it says assign to val look up the variable value in the expression register
+right
+go to fetch of continue
+done
+all right
+ok
+all right well that's the basic idea that's a simple operation of the machine
+now let's actually do something a little bit more interesting
+let's uh look at the expression the sum of x and y
+ok
+and now we'll see how you start unrolling these expression trees
+ok
+well start again at eval dispatch
+ok
+self evaluating
+no
+variable
+no
+all the other special forms which i didn't write down like quote and lambda and set and whatever it's none of those
+turns out to be an application
+so we go off to ev application
+ok
+ev application remember what it's going to do overall
+it is going to evaluate the operator
+it's going to evaluate the arguments
+and then it's going to go apply them
+so before we start since we're being very literal we'd better remember that somewhere in this environment it's linked to another environment in which plus is bound to the primitive procedure plus before we get an unbound variable here in our machine
+ok
+so we're ev application
+ok
+assign to un ev the operands of what's in the expression register
+ok
+those are the operands
+un ev is a temporary var register where we're going to save them
+assign to exp the operator
+now notice we've destroyed that expression in exp
+but the piece that we need is now in un ev
+ok
+now we're going to get set up to recursively evaluate the operator
+save the continue register on the stack
+save the environment
+save un ev
+ok
+assign to continue a label called eval args
+now what have we done
+we've set up for recursive call we're about to go to eval dispatch
+we've set up for a recursive call to eval dispatch
+what did we do
+we took the things we're needing we're going to need later those operands that were in un ev
+the environment in which we're going eventually have to maybe evaluate those operands
+the place we eventually want to go to which in this case was done
+we saved them on the stack
+the reason we saved them on the stack is because eval dispatch makes no promises about what registers it may destroy
+so all that stuff is saved on the stack
+now we've set up eval dispatch's contract
+there's a new expression which is the operator plus
+a new environment although in this case it's the same one
+and a new place to go to when you're done which is eval args
+so that's set up
+now we're going to go off to eval dispatch
+here we are back at eval dispatch
+it's not self evaluating
+oh it's a variable
+so we'd better go off to ev variable all right
+ev variable is a sign to val to look up the variable value of the expression
+ok
+so val's the primitive procedure plus ok
+and go to fetch of continue eval args right
+which is now eval args not done
+so we come back here at eval args and what do we do
+we're gong to restore the stuff that we saved
+so we restore un ev
+notice there it wasn't necessary although in general it would be might be some arbitrary evaluation that happened
+we restore env
+ok
+we assign to fun fetch of val
+ok
+now we're going to go off and start evaluating some arguments
+well first thing we'd better do is save fun
+'cause some arbitrary stuff might happen in that evaluation
+we initialize the argument list assign to argul an empty argument list
+and go to eval argloop
+ok
+eval argloop the idea of this is we're going to evaluate the pieces of the expressions that are in un ev one by one and move them from unevaluated and un ev to evaluated in the arg list
+ok so we save argul because we're we assign to exp the first operand of the stuff in un ev
+now we check and see if that was the last operand
+in this case it is not
+right
+so we save the environment
+we save un ev
+because those are all things that we might need later
+we're going to need the environment to do some more evaluations
+we're going to need un ev to look what the rest of those arguments were
+we're going to assign continue a place called accumulate args
+or accumulate arg
+ok now we've set up for another call to eval dispatch
+ok
+all right now let me short circuit this so we don't go through the details of eval dispatch
+eval dispatch's contract says i'm going to end up the world will end up with the value of evaluating this expression in this environment in the val register and i'll end up there
+so we short circuit all of this
+and a three ends up in val
+and when we return from eval dispatch we're going to return to accumulate arg
+accumulate arg
+with three in the val register
+ok
+so that short circuited that evaluation
+now what do we do
+we're going to go back and look at the rest of the val of the arguments
+so we restore un ev ok we restore env we restore argul whoops parity error restore argul
+ok
+ok
+ok
+we assign to argul consing on fetch of the value register to what's in argul
+ok
+we assign to un ev the rest of the operands in fetch of un ev
+and we go back to eval argloop
+eval argloop
+ok
+now we're back to the next argument
+so the first thing we do is save argul
+ok
+we assign to exp the first operand of fetch of un ev
+ok
+we test and see if that's the last operand
+in this case it is
+so we're going to go to a special place that says evaluate the last argument
+'cause notice after evaluating the argument we don't need the environment any more
+that's going to be the difference
+so here at eval last arg which has a sign to continue accumulate last arg now we're set up again for eval dispatch
+we've got a place to go to when we're done
+we've got an expression
+we've got an environment
+ok
+so we'll short circuit the call to eval dispatch and what'll happen is there's a y there
+it's four in that environment so val will end up with four in it
+and then we're going to end up at accumulate last arg
+ok
+so at accumulate last arg we restore argul
+right
+we assign to argul we assign to argul cons of fetch of the new value onto it so we cons a four onto that
+we restore what was saved in the function register
+notice in this case it had not been destroyed but in general it will be
+and now we're ready to go off to apply dispatch
+right
+so we've just gone through the eval
+we've evaluated the argument the operator and the arguments and now we're about to apply them
+so we come off to apply dispatch here ok
+come off to apply dispatch and we're going to check whether it's a primitive or compound procedure
+yes
+right
+so in this case it's a primitive procedure and we go off to primitive apply
+so we go off to primitive apply and it says assign to val the result of applying primitive procedure of the function to the argument list
+i don't know how to add
+i'm just an execution unit
+well i don't know how to add either i'm just the evaluator
+so we need a primitive operator
+let's see
+if it's a primitive operator what's the sum of three and four
+seven
+ok
+seven
+thank you
+now we restore continue
+and we go to fetch of continue
+done
+ok
+well that was in as much detail as you will ever see
+we'll never do it in as much detail again
+one very important thing to notice is that we just executed a recursive procedure right this whole thing we used a stack and the evaluator was recursive
+a lot of people think the reason that you need a stack and recursion in an evaluator is because you might be evaluating recursive procedures like factorial or fibonacci
+it's not true
+because notice we did recursion here and all we evaluated was plus x y
+right
+the reason that you need recursion in an evaluator is because the evaluation process itself is recursive
+right
+it's not because the procedure that you might be evaluating in lisp is a recursive procedure
+so that's an important thing that people get confused about a lot
+the other thing to notice is that when we're done here right we're really done
+not only are we at done but there's no accumulated stuff on the stack right
+the machine is back to its initial state
+so that's part of what it means to be done
+another way to say that is the evaluation process has reduced the expression plus x y
+to the value here seven
+and by reduced i mean a very particular thing
+it means that there's nothing left on the stack the machine is now in the same state except there's something in the value register it's not part of a subproblem of anything there's nothing to go back to
+ok
+let's break
+questions
+the recursion here is uh in the stack is because the data may be recursive may have embedded expressions for instance
+yeah yes the r because you might have embedded expressions but again don't confuse that with what people sometimes mean by the data may be recursive which is to say you have these sort of list structured right recursive data list operations
+that has nothing to do with it
+it's simply that the expressions contain sub expressions
+yup
+um why is it that order of the arguments in the arg list got reversed
+ah
+yes i should i should have mentioned that
+here the reason the order is reversed is a question of what you mean by reversed
+there's a i believe it was newton
+a very early part of optics
+people realized that when you looked through the lens of your eye the image was upside down and there was a lot of argument about why that didn't mean you saw things upside down
+so it's sort of the same issue reversed from what
+see we just need some convention
+so all we n the reason that they're coming out re four three is because we're taking un ev and consing the result onto argul
+so you have to realize you've made that convention
+the place that you have to realize that well there's actually two places one is in apply primitive operator which has to realize that the arguments to primitives go in the opposite order from the way you're writing them down
+and the other one is we'll see later when you actually go to bind a function's parameters you should realize the arguments are going to come in from the opposite order of the variables to which you're binding them
+so if you just keep track of that there's no problem
+also this is completely arbitrary
+because if we'd done say an iteration through a vector assigning them they might come out in the other order
+so it's just the convention of the way this particular evaluator works
+all right let's take a break
+we just saw evaluating an expression and of course that was a very simple one but in essence it would be no different if it was big nest of expressions there would just be deeper recursion on the stack but what i want to do now is show you the last piece i want to walk you around this eval apply loop
+that's the thing we haven't seen really
+we haven't seen any compound procedures where evaluation of a procedure reduces to a point where applying a procedure reduces to evaluating the body of the procedure
+so let's just suppose we had this suppose we were looking at the procedure define uh f of a and b to be the sum of a and b
+so if we typed in that procedure previously and now we're going to evaluate f of x and y
+again in this environment e zero where x is down to three and y is down to four
+when the define is executed remember there's a lambda here and lambdas create procedures and basically what will happen is in e zero we'll end up with a binding for f which'll say f is a procedure and it's args are a and b and its body is plus ab
+so that's what the environment would have looked like had we made that definition
+then when we go to evaluate f of x and y we'll go through exactly the same process that we did before it's even the same expression
+the only difference is that f instead of having primitive plus in it will have have this thing and so we'll go through exactly the same process except this time when we end up at apply dispatch the function register instead of having primitive plus will have a thing that we'll represent as saying procedure where the args are a and b and the body is plus ab
+and again what i mean is by it's in it i mean there's a pointer to it so don't worry that i'm writing a lot of stuff there
+there's a pointer to this procedure data structure
+ok
+so we're in exactly the same situation
+we get back we get to apply dispatch
+so here we we come to apply dispatch last time we branched off to a primitive procedure here it says oh we now have a compound procedure so we're going to go off to compound apply
+now what's compound apply
+well remember what the metacircular evaluator did
+compound apply said we're going to evaluate the body of the procedure in some new environment
+where does that new environment come from
+we take the environment that was packaged with the procedure
+we bind the parameters of the procedure to the arguments that we're passing in
+and use that as a new frame to extend the procedure environment
+and that's the environment in which we evaluate the procedure body
+right that's the going around the apply eval loop that's apply coming back to call eval
+right
+ok
+so now that's all we have to do in compound apply
+what are we going to do
+we're going to manufacture a new environment we're going to manufacture a new environment that i let's see that we'll call e one
+e one is going to be some environment where the parameters of the procedure where a is bound to three and b is bound to four and it's linked to e zero because that's where f is defined and in this environment we're going to evaluate the body of the procedure
+so let's look at that
+ok
+we're going to right here we are at compound apply
+which says assign to the expression register the body of the procedure that's in the function register
+so i assign to the expression register the procedure body
+ok
+that's going to be evaluated in an environment that's formed by making some bindings using information determined by the procedure that's what's in fun and the argument list
+let's not worry about exactly what that does
+but you can see the information's there
+so make bindings will say oh the procedure itself had an environment attached to it
+i didn't write that quite here i should have said in environment because every procedure gets built with an environment so from that environment it knows what the procedure's definition environment is it knows what the arguments are it looks at argul and then you see a reversal convention here it just has to know that argul is reversed and it builds this frame e one right so let's assume that that's what make bindings returns so it assigns to env this thing e one the next thing it says is restore continue
+remember what continue was here
+it got put up in the last segment
+continue got stored
+that was the original done which said what are you going to do after you're done with this particular application
+it's one of the very first things that happened when we evaluated the application
+and now finally we're going to restore continue
+remember apply dispatch's contract it assumes that where it should go to next was on the stack and there it was on the stack
+continue has done and now we're going to go back to eval dispatch we're set up again
+we have uh an expression an environment and a place to go to
+i'm not going to go through that right because it's sort of the same expression
+ok
+ok
+but the thing again to notice is that at this point we have reduced the original expression fxy right we've reduced evaluating fxy in environment e zero to evaluate plus ab in e one and notice nothing's on the stack
+right
+it's a reduction
+at this point the machine does not contain as part of its state the fact that it's in the middle of evaluating some procedure called f
+that's gone
+right there's no accumulated state
+ok
+again that's very important idea
+that's the meaning of when we used to write in the substitution model this expression reduces to that expression and you don't have to remember anything
+and here you see the meaning of reduction
+at this point there is nothing on the stack
+see that has very important consequences
+let's go back and look at look at iterative factorial
+right remember this was some sort of loop and do an iter and we kept saying that's an iterative procedure
+right
+and what we wrote and what we wrote remember
+right are things like like we said if fact iter of five we wrote things like reduces to iter of one and one and five which reduces to iter of one and two and five and so on and so on and so on and we kept saying well look you don't have to build up any storage to do that and we waved our hands and said in principle there's no storage needed
+now you see no storage needed
+each of these is a real reduction
+right
+as you walk through right as you walk through these expressions
+right as you walk through these exp as you walk these expressions what you'll see are these expressions on the stack in some particular environment
+and these expressions sorry these expressions in the exp register in some particular environment
+and at each point there will be no accumulated stuff on the stack
+'cause each one's a real reduction
+ok
+right
+so for example just to go through it in a little bit more care
+if i start out with an expression that says something like uh oh say say fact iter of five in some environment
+right right
+that will at some point create an environment in which n is down to five
+let's call that
+and at some point the machine will reduce to the express reduce this whole thing to a thing that says that's really iter of one and one and n evaluated in this environment e one with nothing on the stack
+see at this moment the machine is not remembering that evaluating this expression iter which is the loop is part of this thing called iterative factorial
+it's not remembering that
+it's just reduced the expression to that
+right
+if we look again right at the body of iterative factorial this expression has reduced to that expression
+i shouldn't have the n here
+slightly different convention from the slide to the program
+and then right what's the body of iter
+well iter is going to be an if
+and i won't go through the details of if it'll evaluate the predicate in this case it'll be false and this iter will now reduce to the expression like iter of whatever it says star counter product and what does it say
+plus counter one in some other environment by this time e two where e two will be set up having bindings for product and counter
+right
+and it'll reduce to that
+but it won't be remembering that it's part of something that it has to return to
+and when iter calls iter again it'll reduce to another thing that looks like this but in some environment e three which has new bindings for product and counter
+so uh if you're wondering see if you've always been queasy about how it is we've been saying those procedures that look syntactically recursive are in fact iterative run in constant space well i don't know if this makes you less queasy but at least it shows you what's happening
+there really isn't any buildup there
+now you might ask well is there buildup in principle in these environment frames and the answer is yeah you have to make these new environment frames but you don't have to hang on to them when you're done
+they can be garbage collected or the space can be re used automatically
+but you see the control structure of the evaluator is really using this idea that you actually have a reduction so these procedures really are iterative procedures
+all right let's stop for questions
+all right let's break
+let me contrast the iterative procedure just so you'll see where space build does build up with a recursive procedure so you can see the difference
+let's look at the evaluation of recursive factorial right so here's fact recursive or standard factorial definition
+we said this one is still a recursive procedure but this is actually a recursive process and then just to link it back to the way we started we said oh you can see that it's going to be a recursive process by the substitution model because if i say recursive factorial of five that turns into five times what is it fact rec or rec fact
+five times recursive factorial of four turns into five times four times fact rec three turns into five times four times three times right and so on
+right
+the idea is there's this chain of stuff building up which justified in the substitution model the fact that it's recursive and now let's let's actually see that chain of stuff build up and where it is in the machine
+all right well let's imagine we're going to start out again we'll tell it to evaluate recursive factorial of five in some environment again e zero where recursive factorial is defined
+well now we know what's eventually going to happen
+right
+this is going to come along it'll evaluate those things figure out it's a procedure build somewhere off over here an environment e one which has n down to five which hangs off of e zero which would be presumably the definition environment of recursive factorial
+ok
+and in this environment it's going to go off and evaluate the body
+so again the evaluation here will reduce to evaluating the body in e one
+that's going to look at an if and i won't go through the details of the if it'll look at the predicate it'll decide it eventually has to evaluate the alternative so this whole thing again will reduce to the alternative of recursive factorial
+the alternative clause which says this this whole thing reduces to times n of recursive factorial of n minus one
+in the environment e one
+ok
+so the original expression now is going to reduce to evaluating that expression
+right
+now we have an application
+we did an application before
+remember what happens in an application
+the first thing you do is you go off and you save the value of the continue register on the stack
+so the stack here is going to have done in it
+and then you're going to set up to evaluate the sub parts
+so here we go off to evaluate the sub parts
+first thing we're going to do is evaluate the operator
+what happens when we evaluate an operator
+well we arrange things so that the operator ends up in the expression register
+the environment's in the env register
+continue someplace where we're going to go evaluate the arguments
+and on the stack we saved the original continue which is where we want it to be when we're all done and then the things we needed when we're going to get done evaluating the operator the things we'll need to evaluate the arguments namely the environment
+and those arguments those unevaluated arguments
+so there they are sitting on the stack and we're about to ready go off to evaluate the operator
+well when we return from the call from this particular call so we're about to call eval dispatch here when we return from this call the value of that operator which in this case is going to be the primitive multiply procedure will end up in the fun register
+we're going to evaluate some arguments say we'll evaluate n here
+that'll give us five in this case
+we're going to put that in the argul register
+and then we'll go off the second operand
+so at the point where we go off to evaluate the second operand and i'll skip details like computing n minus one and all of that but when we go off to evaluate the second operand that will eventually reduce to another call to fact recursive
+and what we've got on the stack here is the operator from that combination that we're going to use it in and the other argument
+ok
+so now we've now we're set up for another call to recursive factorial
+and when we're done with this one we're going to go to accumulate the last arg
+and remember what that'll do that'll say oh whatever the result of this has to get combined with that and we're going to multiply them
+but notice now we're at another recursive factorial
+we're about to call eval dispatch again
+except we haven't really reduced it because there's stuff on the stack now
+stuff on the stack says oh when you get back you'd better multiply it by the five you had hanging there
+so when we go off to we go off to make another call we evaluate the n minus one that gives us another environment in which the new n is going to be down to four and we're about to call eval dispatch again
+right
+we get another call that four is going to end up in that same that same situation
+we'll end up with another call to fact recursive n and sitting on the stack'll be the stuff from the original one and now the subsidiary one we're doing
+and both of them are waiting for the same thing
+they're going to go to accumulate a last argument and then of course when we go do the fourth call the same thing happens
+right and this goes on and on and on
+and what you see here on the stack right exactly what's sitting here on the stack the thing that says times and five and what you're going to do with that is accumulate that n into a last argument
+that's exactly this
+this is this is exactly where that stuff is hanging
+effectively the uh you know the operator you're going to apply the other argument that it's got to be multiplied by when you get back and sort of the parentheses which says yeah what you want it to do is accumulate them so you see the substitution model is not such a lie
+that really is in some sense what's sitting on the stack
+all right so that's the diff that in some sense should explain for you or at least convince you that there somehow this evaluator is managing to take these procedures and execute some of them iteratively and some of them recursively
+even though as syntactically they look like recursive procedures how is it managing to do that
+well the basic reason it's managing to do that is the evaluator said is set up to save only what it needs later
+so for example at the point where you've reduced evaluating an expression in an environment to applying a procedure to some arguments it doesn't need that original environment any more
+because any environment stuff will be packaged inside the procedures where the application is going to happen
+right
+similarly when you're going along evaluating an argument list when you've finished evaluating the list when you've finished evaluating the last argument you don't need that argument list any more
+or you don't need the environment where those arguments would be evaluated
+ok
+so the basic reason that this interpreter is being so smart is that it's not being smart at all it's being stupid
+it's just saying i'm only going to save what i really need
+well let me show you here
+here's the here's the actual thing that's making a tail recursive remember it's the restore of continue
+it's saying when i go off to evaluate the procedure body i should tell eval to come back to the place where that original evaluation was supposed to come back to
+so in some sense if you want to say what's the actual line that makes a tail recursive it's that one
+if i wanted to build a non recursive evaluator for some strange reason all i would need to do is instead of restoring continue at this point i'd set up a label down here called uh where to come back after you've finished applying the procedure
+i'd instead i'd set continue to that
+i'd go to eval dispatch and then eval dispatch would come back here
+at that point i would restore continue and go to the original one
+so here
+the only consequence of that would be to make it non tail recursive
+it would give you exactly the same answers
+except if you did that iterative factorial and all those iterative procedures would execute recursively
+well i lied to you a little bit but just a little bit
+'cause i showed you a slightly over simplified evaluator
+where it assumes that each procedure each procedure body has only one expression
+remember in general a procedure has a sequence of expressions in it
+so there's nothing really conceptually new
+let me just show you the actual evaluator that handles sequences of expressions
+this is compound apply now and the only difference with the old one is that instead of going off to eval directly it takes the whole body of the procedure which in this case is a sequence of expressions and goes off to eval sequence
+and eval sequence is a is a little loop that basically does these evaluations one at a time
+so it does an evaluation that says oh when i come back i'd better come back here to do the next one
+and when i'm all done when i want to look at the last expression i just restore my continue and go off to eval dispatch
+and again if you wanted for some reason to break tail recursion in this evaluator all you need to do is not handle the last expression specially
+just say after you've done the last expression come back to some other place after which you restore continue
+and for some reason a lot of lisp evaluators tended to work that way
+and the only consequence of that is that iterative procedures built up stack
+it's not clear why that happened
+all right
+well let me just sort of summarize since this is a lot of details in a big program
+but the main point is that it's no different conceptually from translating any other program
+the main idea is that we have this universal evaluator program the metacircular evaluator if we translate that into lisp then we have all of lisp and that's all we did
+second point is that the magic's gone away
+there should be no more magic in this whole system
+right
+in principle right right in principle very it should all be very clear except maybe for how list structure memory works
+and we'll see that later
+but that's not very hard
+uh the third point is that all this tail recursion came from the discipline of eval being very careful to save only what it needs next time
+it's not some arbitrary thing where it's saying well whenever we call a subroutine we'll save all the registers in the world and come back
+right
+see sometimes it pays to really worry about efficiency
+and when you're down in the guts of your evaluator machine it really pays to think about things like that because it makes big consequences
+well i hope what this does what this has done is really made the evaluator seem concrete
+right
+i hope you really believe that somebody could hold a lisp evaluator in the palm of their hand
+maybe help you believe that here's a here's a lisp evaluator that i'm holding in the palm of my hand
+right
+and this is a this is a chip which is actually quite a bit more complicated than the evaluator i showed you
+uh here's a maybe here's a better picture of it
+what there is is you can see the same overall structure
+this is a register array
+these are the data paths
+here's a finite state controller
+and again finite state that's all there is and somewhere there's external memory that'll worry about things
+and this particular one is very complicated because it's trying to run lisp fast and it has some very very fast parallel operations in there like uh if you want to index into an array simultaneously check that the index is an integer check that it doesn't exceed the array bands and go off and do the memory access and do all those things simultaneously
+and then later if they're all okay actually get the value there
+so there are a lot of complicated operations in these data paths for making lisp run in parallel
+it's a it's a completely sort of a non risk philosophy of evaluating lisp
+and then this microcode is pretty complicated let's see there's uh there's what
+there's about three hundred eighty nine instructions of two hundred and twenty bit microcode sitting here
+because these are very complicated data paths and the whole thing has about eighty nine thousand transistors
+ok
+ok well i hope that that sort of takes away a lot of the mystery
+uh maybe somebody wants to look at this
+hmm
+yeah
+ok
+let's stop
+questions
+sounds like what you're saying is that with the restore continue put in the proper place that procedures that would invoke a recursive process now invoke an iterative process
+just by the way that the eval sequence works
+i think the way i'd prefer to put it is that with restore continue put in the wrong place you can cause any syntactically looking recursive procedure in fact to build up stack as it runs
+but there's no reason for that
+so we you might want to play around with it
+it's just you can just switch around two or three instructions and in the way compound apply comes back and you'll get something which isn't tail recursive
+but the thing that i wanted to emphasize is there's no magic there's no it's not as if there's some very clever pre processing program that's looking at this procedure factorial iter and say oh gee uh i really notice that i don't have to push stack in order to do this
+some people think that that's what's going on
+something much much more dumb than that
+it's this one place you're putting the restore instruction
+it's it's just automatic
+ok
+but that's not affecting the time complexity is it
+it's just uh that it's handling it uh recursively instead of iteratively
+but in terms of the order of time it takes to finish the operation it's the same one way or the other right
+yes
+tail recursion is not going to change the time complexity of anything because in some sense it's the same algorithm that's going on
+what it's doing is really making this thing run as an iteration
+right
+not going to run out of memory counting up to a giant number simply because the stack would get pushed
+ok
+see the thing you really have to believe is that when we write see we've been writing all these things called iterations you know infinite loops like right define loop to be call loop
+that's as much that is as much an iteration as if we wrote do forever loop
+right
+it's just syntactic sugar is the difference these things are real honest to god iterations
+right
+they don't change the time complexity but they're they turn them into real iterations
+all right thank you

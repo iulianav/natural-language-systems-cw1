@@ -1,0 +1,148 @@
+in section five point four we will show how to implement a scheme evaluator as a register machine
+in order to simplify the discussion we will assume that our register machines can be equipped with a list structured memory in which the basic operations for manipulating list structured data are primitive
+postulating the existence of such a memory is a useful abstraction when one is focusing on the mechanisms of control in a scheme interpreter but this does not reflect a realistic view of the actual primitive data operations of contemporary computers
+to obtain a more complete picture of how a lisp system operates we must investigate how list structure can be represented in a way that is compatible with conventional computer memories
+there are two considerations in implementing list structure
+the first is purely an issue of representation how to represent the box and pointer structure of lisp pairs using only the storage and addressing capabilities of typical computer memories
+the second issue concerns the management of memory as a computation proceeds
+the operation of a lisp system depends crucially on the ability to continually create new data objects
+these include objects that are explicitly created by the lisp procedures being interpreted as well as structures created by the interpreter itself such as environments and argument lists
+although the constant creation of new data objects would pose no problem on a computer with an infinite amount of rapidly addressable memory computer memories are available only in finite sizes
+lisp systems thus provide an automatic storage allocation facility to support the illusion of an infinite memory
+when a data object is no longer needed the memory allocated to it is automatically recycled and used to construct new data objects
+there are various techniques for providing such automatic storage allocation
+the method we shall discuss in this section is called garbage collection
+a conventional computer memory can be thought of as an array of cubbyholes each of which can contain a piece of information
+each cubbyhole has a unique name called its address or location
+typical memory systems provide two primitive operations one that fetches the data stored in a specified location and one that assigns new data to a specified location
+memory addresses can be incremented to support sequential access to some set of the cubbyholes
+more generally many important data operations require that memory addresses be treated as data which can be stored in memory locations and manipulated in machine registers
+the representation of list structure is one application of such address arithmetic
+to model computer memory we use a new kind of data structure called a vector
+abstractly a vector is a compound data object whose individual elements can be accessed by means of an integer index in an amount of time that is independent of the index
+in order to describe memory operations we use two primitive scheme procedures for manipulating vectors
+returns the nth element of the vector
+sets the nth element of the vector to the designated value
+for example if v is a vector then gets the fifth entry in the vector v and changes the value of the fifth entry of the vector v to seven
+for computer memory this access can be implemented through the use of address arithmetic to combine a base address that specifies the beginning location of a vector in memory with an index that specifies the offset of a particular element of the vector
+we can use vectors to implement the basic pair structures required for a list structured memory
+let us imagine that computer memory is divided into two vectors the cars and the cdrs
+we will represent list structure as follows a pointer to a pair is an index into the two vectors
+the car of the pair is the entry in the cars with the designated index and the cdr of the pair is the entry in the cdrs with the designated index
+we also need a representation for objects other than pairs and a way to distinguish one kind of data from another
+there are many methods of accomplishing this but they all reduce to using typed pointers that is to extending the notion of pointer to include information on data type
+the data type enables the system to distinguish a pointer to a pair from pointers to other kinds of data
+two data objects are considered to be the same if their pointers are identical
+figure five point fourteen illustrates the use of this method to represent the list whose box and pointer diagram is also shown
+we use letter prefixes to denote the data type information
+thus a pointer to the pair with index five is denoted p five the empty list is denoted by the pointer e 0 and a pointer to the number four is denoted n four
+in the box and pointer diagram we have indicated at the lower left of each pair the vector index that specifies where the car and cdr of the pair are stored
+the blank locations in the cars and the cdrs may contain parts of other list structures
+a pointer to a number such as n four might consist of a type indicating numeric data together with the actual representation of the number four
+to deal with numbers that are too large to be represented in the fixed amount of space allocated for a single pointer we could use a distinct bignum data type for which the pointer designates a list in which the parts of the number are stored
+a symbol might be represented as a typed pointer that designates a sequence of the characters that form the symbol's printed representation
+this sequence is constructed by the lisp reader when the character string is initially encountered in input
+since we want two instances of a symbol to be recognized as the same symbol by eq and we want eq to be a simple test for equality of pointers we must ensure that if the reader sees the same character string twice it will use the same pointer to represent both occurrences
+to accomplish this the reader maintains a table traditionally called the obarray of all the symbols it has ever encountered
+when the reader encounters a character string and is about to construct a symbol it checks the obarray to see if it has ever before seen the same character string
+if it has not it uses the characters to construct a new symbol and enters this pointer in the obarray
+if the reader has seen the string before it returns the symbol pointer stored in the obarray
+this process of replacing character strings by unique pointers is called interning symbols
+given the above representation scheme we can replace each primitive list operation of a register machine with one or more primitive vector operations
+we will use two registers the cars and the cdrs to identify the memory vectors and will assume that vector ref and vector set are available as primitive operations
+we also assume that numeric operations on pointers use only the index portion of the typed pointer
+for example we can make a register machine support the instructions
+if we implement these respectively as
+the instructions
+are implemented as
+cons is performed by allocating an unused index and storing the arguments to cons in the cars and the cdrs at that indexed vector position
+we presume that there is a special register free that always holds a pair pointer containing the next available index and that we can increment the index part of that pointer to find the next free location
+for example the instruction
+is implemented as the following sequence of vector operations
+the eq operation
+simply tests the equality of all fields in the registers and predicates such as pair null symbol and number need only check the type field
+although our register machines use stacks we need do nothing special here since stacks can be modeled in terms of lists
+the stack can be a list of the saved values pointed to by a special register the stack
+thus can be implemented as
+similarly can be implemented as
+and can be implemented as
+these operations can be further expanded in terms of the vector operations given above
+in conventional computer architectures however it is usually advantageous to allocate the stack as a separate vector
+then pushing and popping the stack can be accomplished by incrementing or decrementing an index into that vector
+draw the box and pointer representation and the memory vector representation of the list structure produced by
+with the free pointer initially p one
+what is the final value of free
+what pointers represent the values of x and y
+implement register machines for the following procedures
+assume that the list structure memory operations are available as machine primitives
+a
+recursive count leaves
+b
+recursive count leaves with explicit counter
+exercise three point twelve of section three point three point one presented an append procedure that appends two lists to form a new list and an append procedure that splices two lists together
+design a register machine to implement each of these procedures
+assume that the list structure memory operations are available as primitive operations
+the representation method outlined in section five point three point one solves the problem of implementing list structure provided that we have an infinite amount of memory
+with a real computer we will eventually run out of free space in which to construct new pairs
+however most of the pairs generated in a typical computation are used only to hold intermediate results
+after these results are accessed the pairs are no longer needed they are garbage
+for instance the computation
+constructs two lists the enumeration and the result of filtering the enumeration
+when the accumulation is complete these lists are no longer needed and the allocated memory can be reclaimed
+if we can arrange to collect all the garbage periodically and if this turns out to recycle memory at about the same rate at which we construct new pairs we will have preserved the illusion that there is an infinite amount of memory
+in order to recycle pairs we must have a way to determine which allocated pairs are not needed
+the method we shall examine for accomplishing this is known as garbage collection
+garbage collection is based on the observation that at any moment in a lisp interpretation the only objects that can affect the future of the computation are those that can be reached by some succession of car and cdr operations starting from the pointers that are currently in the machine registers
+any memory cell that is not so accessible may be recycled
+there are many ways to perform garbage collection
+the method we shall examine here is called stop and copy
+the basic idea is to divide memory into two halves working memory and free memory . when cons constructs pairs it allocates these in working memory
+when working memory is full we perform garbage collection by locating all the useful pairs in working memory and copying these into consecutive locations in free memory
+since we do not copy the garbage there will presumably be additional free memory that we can use to allocate new pairs
+in addition nothing in the working memory is needed since all the useful pairs in it have been copied
+thus if we interchange the roles of working memory and free memory we can continue processing new pairs will be allocated in the new working memory
+when this is full we can copy the useful pairs into the new free memory
+we now use our register machine language to describe the stop and copy algorithm in more detail
+we will assume that there is a register called root that contains a pointer to a structure that eventually points at all accessible data
+this can be arranged by storing the contents of all the machine registers in a pre allocated list pointed at by root just before starting garbage collection
+we also assume that in addition to the current working memory there is free memory available into which we can copy the useful data
+the current working memory consists of vectors whose base addresses are in registers called the cars and the cdrs and the free memory is in registers called new cars and new cdrs
+garbage collection is triggered when we exhaust the free cells in the current working memory that is when a cons operation attempts to increment the free pointer beyond the end of the memory vector
+when the garbage collection process is complete the root pointer will point into the new memory all objects accessible from the root will have been moved to the new memory and the free pointer will indicate the next place in the new memory where a new pair can be allocated
+in addition the roles of working memory and new memory will have been interchanged new pairs will be constructed in the new memory beginning at the place indicated by free and the ( previous ) working memory will be available as the new memory for the next garbage collection
+figure five point fifteen shows the arrangement of memory just before and just after garbage collection
+the state of the garbage collection process is controlled by maintaining two pointers free and scan
+these are initialized to point to the beginning of the new memory
+the algorithm begins by relocating the pair pointed at by root to the beginning of the new memory
+the pair is copied the root pointer is adjusted to point to the new location and the free pointer is incremented
+in addition the old location of the pair is marked to show that its contents have been moved
+this marking is done as follows in the car position we place a special tag that signals that this is an already moved object
+in the cdr position we place a forwarding address that points at the location to which the object has been moved
+after relocating the root the garbage collector enters its basic cycle
+at each step in the algorithm the scan pointer points at a pair that has been moved to the new memory but whose car and cdr pointers still refer to objects in the old memory
+these objects are each relocated and the scan pointer is incremented
+to relocate an object we check to see if the object has already been moved
+if the object has not already been moved we copy it to the place indicated by free update free set up a broken heart at the object's old location and update the pointer to the object to point to the new location
+if the object has already been moved its forwarding address is substituted for the pointer in the pair being scanned
+eventually all accessible objects will have been moved and scanned at which point the scan pointer will overtake the free pointer and the process will terminate
+we can specify the stop and copy algorithm as a sequence of instructions for a register machine
+the basic step of relocating an object is accomplished by a subroutine called relocate old result in new
+this subroutine gets its argument a pointer to the object to be relocated from a register named old
+it relocates the designated object puts a pointer to the relocated object into a register called new and returns by branching to the entry point stored in the register relocate continue
+to begin garbage collection we invoke this subroutine to relocate the root pointer after initializing free and scan
+when the relocation of root has been accomplished we install the new pointer as the new root and enter the main loop of the garbage collector
+in the main loop of the garbage collector we must determine whether there are any more objects to be scanned
+we do this by testing whether the scan pointer is coincident with the free pointer
+if the pointers are equal then all accessible objects have been relocated and we branch to gc flip which cleans things up so that we can continue the interrupted computation
+if there are still pairs to be scanned we call the relocate subroutine to relocate the car of the next pair
+the relocate continue register is set up so that the subroutine will return to update the car pointer
+at update car we modify the car pointer of the pair being scanned then proceed to relocate the cdr of the pair
+we return to update cdr when that relocation has been accomplished
+after relocating and updating the cdr we are finished scanning that pair so we continue with the main loop
+the subroutine relocate old result in new relocates objects as follows if the object to be relocated is not a pair then we return the same pointer to the object unchanged
+otherwise we must perform the relocation
+if the car position of the pair to be relocated contains a broken heart tag then the pair has in fact already been moved so we retrieve the forwarding address and return this in new
+if the pointer in old points at a yet unmoved pair then we move the pair to the first free cell in new memory and set up the broken heart by storing a broken heart tag and forwarding address at the old location
+relocate old result in new uses a register oldcr to hold the car or the cdr of the object pointed at by old
+at the very end of the garbage collection process we interchange the role of old and new memories by interchanging pointers interchanging the cars with new cars and the cdrs with new cdrs
+we will then be ready to perform another garbage collection the next time memory runs out

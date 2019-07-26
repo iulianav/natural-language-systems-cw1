@@ -1,0 +1,232 @@
+we've seen the power of computational objects with local state as tools for modeling
+yet as section three point one point three warned this power extracts a price the loss of referential transparency giving rise to a thicket of questions about sameness and change and the need to abandon the substitution model of evaluation in favor of the more intricate environment model
+the central issue lurking beneath the complexity of state sameness and change is that by introducing assignment we are forced to admit time into our computational models
+before we introduced assignment all our programs were timeless in the sense that any expression that has a value always has the same value
+in contrast recall the example of modeling withdrawals from a bank account and returning the resulting balance introduced at the beginning of section three point one point one
+here successive evaluations of the same expression yield different values
+this behavior arises from the fact that the execution of assignment statements delineates moments in time when values change
+the result of evaluating an expression depends not only on the expression itself but also on whether the evaluation occurs before or after these moments
+building models in terms of computational objects with local state forces us to confront time as an essential concept in programming
+we can go further in structuring computational models to match our perception of the physical world
+objects in the world do not change one at a time in sequence
+rather we perceive them as acting concurrently all at once
+so it is often natural to model systems as collections of computational processes that execute concurrently
+just as we can make our programs modular by organizing models in terms of objects with separate local state it is often appropriate to divide computational models into parts that evolve separately and concurrently
+even if the programs are to be executed on a sequential computer the practice of writing programs as if they were to be executed concurrently forces the programmer to avoid inessential timing constraints and thus makes programs more modular
+in addition to making programs more modular concurrent computation can provide a speed advantage over sequential computation
+sequential computers execute only one operation at a time so the amount of time it takes to perform a task is proportional to the total number of operations performed
+however if it is possible to decompose a problem into pieces that are relatively independent and need to communicate only rarely it may be possible to allocate pieces to separate computing processors producing a speed advantage proportional to the number of processors available
+unfortunately the complexities introduced by assignment become even more problematic in the presence of concurrency
+the fact of concurrent execution either because the world operates in parallel or because our computers do entails additional complexity in our understanding of time
+on the surface time seems straightforward
+it is an ordering imposed on events
+for any events a and b either a occurs before b a and b are simultaneous or a occurs after b
+for instance returning to the bank account example suppose that peter withdraws ten dollars and paul withdraws twenty five dollars from a joint account that initially contains one hundred dollars leaving sixty five dollars in the account
+depending on the order of the two withdrawals the sequence of balances in the account is either one hundred dollars ninety dollars sixty five dollars or one hundred dollars seventy five dollars sixty five dollars
+in a computer implementation of the banking system this changing sequence of balances could be modeled by successive assignments to a variable balance
+in complex situations however such a view can be problematic
+suppose that peter and paul and other people besides are accessing the same bank account through a network of banking machines distributed all over the world
+the actual sequence of balances in the account will depend critically on the detailed timing of the accesses and the details of the communication among the machines
+this indeterminacy in the order of events can pose serious problems in the design of concurrent systems
+for instance suppose that the withdrawals made by peter and paul are implemented as two separate processes sharing a common variable balance each process specified by the procedure given in section three point one point one
+if the two processes operate independently then peter might test the balance and attempt to withdraw a legitimate amount
+however paul might withdraw some funds in between the time that peter checks the balance and the time peter completes the withdrawal thus invalidating peter's test
+things can be worse still
+consider the expression
+executed as part of each withdrawal process
+this consists of three steps ( one ) accessing the value of the balance variable ( two ) computing the new balance ( three ) setting balance to this new value
+if peter and paul's withdrawals execute this statement concurrently then the two withdrawals might interleave the order in which they access balance and set it to the new value
+the timing diagram in figure three point twenty nine depicts an order of events where balance starts at one hundred peter withdraws ten paul withdraws twenty five and yet the final value of balance is seventy five
+as shown in the diagram the reason for this anomaly is that paul's assignment of seventy five to balance is made under the assumption that the value of balance to be decremented is one hundred
+that assumption however became invalid when peter changed balance to ninety
+this is a catastrophic failure for the banking system because the total amount of money in the system is not conserved
+before the transactions the total amount of money was one hundred dollars
+afterwards peter has ten dollars paul has twenty five dollars and the bank has seventy five dollars
+the general phenomenon illustrated here is that several processes may share a common state variable
+what makes this complicated is that more than one process may be trying to manipulate the shared state at the same time
+for the bank account example during each transaction each customer should be able to act as if the other customers did not exist
+when a customer changes the balance in a way that depends on the balance he must be able to assume that just before the moment of change the balance is still what he thought it was
+the above example typifies the subtle bugs that can creep into concurrent programs
+the root of this complexity lies in the assignments to variables that are shared among the different processes
+we already know that we must be careful in writing programs that use set because the results of a computation depend on the order in which the assignments occur
+with concurrent processes we must be especially careful about assignments because we may not be able to control the order of the assignments made by the different processes
+if several such changes might be made concurrently we need some way to ensure that our system behaves correctly
+for example in the case of withdrawals from a joint bank account we must ensure that money is conserved
+to make concurrent programs behave correctly we may have to place some restrictions on concurrent execution
+one possible restriction on concurrency would stipulate that no two operations that change any shared state variables can occur at the same time
+this is an extremely stringent requirement
+for distributed banking it would require the system designer to ensure that only one transaction could proceed at a time
+this would be both inefficient and overly conservative
+figure three point thirty shows peter and paul sharing a bank account where paul has a private account as well
+the diagram illustrates two withdrawals from the shared account and a deposit to paul's private account
+the two withdrawals from the shared account must not be concurrent and paul's deposit and withdrawal must not be concurrent
+but there should be no problem permitting paul's deposit to his private account to proceed concurrently with peter's withdrawal from the shared account
+a less stringent restriction on concurrency would ensure that a concurrent system produces the same result as if the processes had run sequentially in some order
+there are two important aspects to this requirement
+first it does not require the processes to actually run sequentially but only to produce results that are the same as if they had run sequentially
+for the example in figure three point thirty the designer of the bank account system can safely allow paul's deposit and peter's withdrawal to happen concurrently because the net result will be the same as if the two operations had happened sequentially
+second there may be more than one possible correct result produced by a concurrent program because we require only that the result be the same as for some sequential order
+for example suppose that peter and paul's joint account starts out with one hundred dollars and peter deposits forty dollars while paul concurrently withdraws half the money in the account
+then sequential execution could result in the account balance being either seventy dollars or ninety dollars
+there are still weaker requirements for correct execution of concurrent programs
+a program for simulating diffusion might consist of a large number of processes each one representing a small volume of space that update their values concurrently
+each process repeatedly changes its value to the average of its own value and its neighbors' values
+this algorithm converges to the right answer independent of the order in which the operations are done there is no need for any restrictions on concurrent use of the shared values
+suppose that peter paul and mary share a joint bank account that initially contains one hundred dollars
+concurrently peter deposits ten dollars paul withdraws twenty dollars and mary withdraws half the money in the account by executing the following commands
+peter
+paul
+mary
+a
+list all the different possible values for balance after these three transactions have been completed assuming that the banking system forces the three processes to run sequentially in some order
+b
+what are some other values that could be produced if the system allows the processes to be interleaved
+draw timing diagrams like the one in figure three point twenty nine to explain how these values can occur
+we've seen that the difficulty in dealing with concurrent processes is rooted in the need to consider the interleaving of the order of events in the different processes
+for example suppose we have two processes one with three ordered events ( a b c ) and one with three ordered events ( x y z )
+if the two processes run concurrently with no constraints on how their execution is interleaved then there are twenty different possible orderings for the events that are consistent with the individual orderings for the two processes
+as programmers designing this system we would have to consider the effects of each of these twenty orderings and check that each behavior is acceptable
+such an approach rapidly becomes unwieldy as the numbers of processes and events increase
+a more practical approach to the design of concurrent systems is to devise general mechanisms that allow us to constrain the interleaving of concurrent processes so that we can be sure that the program behavior is correct
+many mechanisms have been developed for this purpose
+in this section we describe one of them the serializer
+serialization implements the following idea processes will execute concurrently but there will be certain collections of procedures that cannot be executed concurrently
+more precisely serialization creates distinguished sets of procedures such that only one execution of a procedure in each serialized set is permitted to happen at a time
+if some procedure in the set is being executed then a process that attempts to execute any procedure in the set will be forced to wait until the first execution has finished
+we can use serialization to control access to shared variables
+for example if we want to update a shared variable based on the previous value of that variable we put the access to the previous value of the variable and the assignment of the new value to the variable in the same procedure
+we then ensure that no other procedure that assigns to the variable can run concurrently with this procedure by serializing all of these procedures with the same serializer
+this guarantees that the value of the variable cannot be changed between an access and the corresponding assignment
+to make the above mechanism more concrete suppose that we have extended scheme to include a procedure called parallel execute
+each p must be a procedure of no arguments
+parallel execute creates a separate process for each p which applies p
+these processes all run concurrently
+as an example of how this is used consider
+this creates two concurrent processes p one which sets x to x times x and p two which increments x
+after execution is complete x will be left with one of five possible values depending on the interleaving of the events of p one and p two
+one hundred and one p one sets x to one hundred and then p two increments x to one hundred and one
+one hundred twenty one p two increments x to eleven and then p one sets x to x times x
+one hundred ten p two changes x from ten to eleven between the two times that p one accesses the value of x during the evaluation of
+eleven p two accesses x then p one sets x to one hundred then p two sets x
+one hundred p one accesses x ( twice ) then p two sets x to eleven then p one sets x
+we can constrain the concurrency by using serialized procedures which are created by serializers
+serializers are constructed by make serializer whose implementation is given below
+a serializer takes a procedure as argument and returns a serialized procedure that behaves like the original procedure
+all calls to a given serializer return serialized procedures in the same set
+thus in contrast to the example above executing
+can produce only two possible values for x one hundred and one or one hundred twenty one
+the other possibilities are eliminated because the execution of p one and p two cannot be interleaved
+here is a version of the make account procedure from section three point one point one where the deposits and withdrawals have been serialized
+with this implementation two processes cannot be withdrawing from or depositing into a single account concurrently
+this eliminates the source of the error illustrated in figure three point twenty nine where peter changes the account balance between the times when paul accesses the balance to compute the new value and when paul actually performs the assignment
+on the other hand each account has its own serializer so that deposits and withdrawals for different accounts can proceed concurrently
+which of the five possibilities in the parallel execution shown above remain if we instead serialize execution as follows
+give all possible values of x that can result from executing
+which of these possibilities remain if we instead use serialized procedures
+ben bitdiddle worries that it would be better to implement the bank account as follows
+because allowing unserialized access to the bank balance can result in anomalous behavior
+do you agree
+is there any scenario that demonstrates ben's concern
+ben bitdiddle suggests that it's a waste of time to create a new serialized procedure in response to every withdraw and deposit message
+he says that make account could be changed so that the calls to protected are done outside the dispatch procedure
+that is an account would return the same serialized procedure each time it is asked for a withdrawal procedure
+is this a safe change to make
+in particular is there any difference in what concurrency is allowed by these two versions of make account
+serializers provide a powerful abstraction that helps isolate the complexities of concurrent programs so that they can be dealt with carefully and ( hopefully ) correctly
+however while using serializers is relatively straightforward when there is only a single shared resource concurrent programming can be treacherously difficult when there are multiple shared resources
+to illustrate one of the difficulties that can arise suppose we wish to swap the balances in two bank accounts
+we access each account to find the balance compute the difference between the balances withdraw this difference from one account and deposit it in the other account
+we could implement this as follows
+this procedure works well when only a single process is trying to do the exchange
+suppose however that peter and paul both have access to accounts a one a two and a three and that peter exchanges a one and a two while paul concurrently exchanges a one and a three
+even with account deposits and withdrawals serialized for individual accounts exchange can still produce incorrect results
+for example peter might compute the difference in the balances for a one and a two but then paul might change the balance in a one before peter is able to complete the exchange
+for correct behavior we must arrange for the exchange procedure to lock out any other concurrent accesses to the accounts during the entire time of the exchange
+one way we can accomplish this is by using both accounts' serializers to serialize the entire exchange procedure
+to do this we will arrange for access to an account's serializer
+note that we are deliberately breaking the modularity of the bank account object by exposing the serializer
+the following version of make account is identical to the original version given in section three point one point one except that a serializer is provided to protect the balance variable and the serializer is exported via message passing
+we can use this to do serialized deposits and withdrawals
+however unlike our earlier serialized account it is now the responsibility of each user of bank account objects to explicitly manage the serialization for example as follows
+exporting the serializer in this way gives us enough flexibility to implement a serialized exchange program
+we simply serialize the original exchange procedure with the serializers for both accounts
+suppose that the balances in three accounts start out as ten dollars twenty dollars and thirty dollars and that multiple processes run exchanging the balances in the accounts
+argue that if the processes are run sequentially after any number of concurrent exchanges the account balances should be ten dollars twenty dollars and thirty dollars in some order
+draw a timing diagram like the one in figure three point twenty nine to show how this condition can be violated if the exchanges are implemented using the first version of the account exchange program in this section
+on the other hand argue that even with this exchange program the sum of the balances in the accounts will be preserved
+draw a timing diagram to show how even this condition would be violated if we did not serialize the transactions on individual accounts
+consider the problem of transferring an amount from one account to another
+ben bitdiddle claims that this can be accomplished with the following procedure even if there are multiple people concurrently transferring money among multiple accounts using any account mechanism that serializes deposit and withdrawal transactions for example the version of make account in the text above
+louis reasoner claims that there is a problem here and that we need to use a more sophisticated method such as the one required for dealing with the exchange problem
+is louis right
+if not what is the essential difference between the transfer problem and the exchange problem
+louis reasoner thinks our bank account system is unnecessarily complex and error prone now that deposits and withdrawals are n't automatically serialized
+he suggests that make account and serializer should have exported the serializer in addition to using it to serialize accounts and deposits as make account did
+he proposes to redefine accounts as follows
+then deposits are handled as with the original make account
+explain what is wrong with louis's reasoning
+in particular consider what happens when serialized exchange is called
+we implement serializers in terms of a more primitive synchronization mechanism called a mutex
+a mutex is an object that supports two operations the mutex can be acquired and the mutex can be released
+once a mutex has been acquired no other acquire operations on that mutex may proceed until the mutex is released
+in our implementation each serializer has an associated mutex
+given a procedure p the serializer returns a procedure that acquires the mutex runs p and then releases the mutex
+this ensures that only one of the procedures produced by the serializer can be running at once which is precisely the serialization property that we need to guarantee
+the mutex is a mutable object that can hold the value true or false
+when the value is false the mutex is available to be acquired
+when the value is true the mutex is unavailable and any process that attempts to acquire the mutex must wait
+our mutex constructor make mutex begins by initializing the cell contents to false
+to acquire the mutex we test the cell
+if the mutex is available we set the cell contents to true and proceed
+otherwise we wait in a loop attempting to acquire over and over again until we find that the mutex is available
+to release the mutex we set the cell contents to false
+test and set tests the cell and returns the result of the test
+in addition if the test was false test and set sets the cell contents to true before returning false
+we can express this behavior as the following procedure
+however this implementation of test and set does not suffice as it stands
+there is a crucial subtlety here which is the essential place where concurrency control enters the system the test and set operation must be performed atomically
+that is we must guarantee that once a process has tested the cell and found it to be false the cell contents will actually be set to true before any other process can test the cell
+if we do not make this guarantee then the mutex can fail in a way similar to the bank account failure in figure three point twenty nine
+the actual implementation of test and set depends on the details of how our system runs concurrent processes
+for example we might be executing concurrent processes on a sequential processor using a time slicing mechanism that cycles through the processes permitting each process to run for a short time before interrupting it and moving on to the next process
+in that case test and set can work by disabling time slicing during the testing and setting
+alternatively multiprocessing computers provide instructions that support atomic operations directly in hardware
+suppose that we implement test and set using an ordinary procedure as shown in the text without attempting to make the operation atomic
+draw a timing diagram like the one in figure three point twenty nine to demonstrate how the mutex implementation can fail by allowing two processes to acquire the mutex at the same time
+a semaphore is a generalization of a mutex
+like a mutex a semaphore supports acquire and release operations but it is more general in that up to n processes can acquire it concurrently
+additional processes that attempt to acquire the semaphore must wait for release operations
+give implementations of semaphores
+a
+in terms of mutexes
+b
+in terms of atomic test and set operations
+now that we have seen how to implement serializers we can see that account exchanging still has a problem even with the serialized exchange procedure above
+imagine that peter attempts to exchange a one with a two while paul concurrently attempts to exchange a two with a one
+suppose that peter's process reaches the point where it has entered a serialized procedure protecting a one and just after that paul's process enters a serialized procedure protecting a two
+now peter cannot proceed until paul exits the serialized procedure protecting a two
+similarly paul cannot proceed until peter exits the serialized procedure protecting a one
+each process is stalled forever waiting for the other
+this situation is called a deadlock
+deadlock is always a danger in systems that provide concurrent access to multiple shared resources
+one way to avoid the deadlock in this situation is to give each account a unique identification number and rewrite serialized exchange so that a process will always attempt to enter a procedure protecting the lowest numbered account first
+although this method works well for the exchange problem there are other situations that require more sophisticated deadlock avoidance techniques or where deadlock cannot be avoided at all
+explain in detail why the deadlock avoidance method described above avoids deadlock in the exchange problem
+rewrite serialized exchange to incorporate this idea
+give a scenario where the deadlock avoidance mechanism described above does not work
+we've seen how programming concurrent systems requires controlling the ordering of events when different processes access shared state and we've seen how to achieve this control through judicious use of serializers
+but the problems of concurrency lie deeper than this because from a fundamental point of view it's not always clear what is meant by shared state
+mechanisms such as test and set require processes to examine a global shared flag at arbitrary times
+this is problematic and inefficient to implement in modern high speed processors where due to optimization techniques such as pipelining and cached memory the contents of memory may not be in a consistent state at every instant
+in contemporary multiprocessing systems therefore the serializer paradigm is being supplanted by new approaches to concurrency control
+the problematic aspects of shared state also arise in large distributed systems
+for instance imagine a distributed banking system where individual branch banks maintain local values for bank balances and periodically compare these with values maintained by other branches
+in such a system the value of the account balance would be undetermined except right after synchronization
+if peter deposits money in an account he holds jointly with paul when should we say that the account balance has changed when the balance in the local branch changes or not until after the synchronization
+and if paul accesses the account from a different branch what are the reasonable constraints to place on the banking system such that the behavior is correct
+the only thing that might matter for correctness is the behavior observed by peter and paul individually and the state of the account immediately after synchronization
+questions about the real account balance or the order of events between synchronizations may be irrelevant or meaningless
+the basic phenomenon here is that synchronizing different processes establishing shared state or imposing an order on events requires communication among the processes
+in essence any notion of time in concurrency control must be intimately tied to communication
+it is intriguing that a similar connection between time and communication also arises in the theory of relativity where the speed of light is a fundamental constant relating time and space
+the complexities we encounter in dealing with time and state in our computational models may in fact mirror a fundamental complexity of the physical universe

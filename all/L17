@@ -1,0 +1,688 @@
+well as up till now i suppose we've been learning about a lot of techniques for organizing big programs uh symbolic manipulation a bit um some of the technology for wh usi that you use for establishing languages one in terms of another uh which is used for organizing very large programs
+in fact the nicest programs i know look more like a pile of languages than like a decomposition of a problem into parts
+well what i suppose at this point there are still however a few mysteries about how this sort of stuff works
+and so what we'd like to do now is diverge from the plan of telling you how to organize big programs and rather tell you something about the mechanisms by which these things can be made to work
+uh the main reason for this is uh demystification if you will
+uh that we've have a lot of mysteries left like exactly how it is the case that a program is controlled how a computer sort of knows what the next thing to do is or something like that
+and what i'd like to do now is make that clear to you that even if you've never played with a physical computer before the the may mechanism is really very simple and that you can understand it completely with no trouble
+so like to start by imagining that we what we're going to the way we're going to do this by the way is we're going to take some very simple list programs very simple list programs and transform them into hardware
+i'm not going to worry about some intermediate step of going through some existing computer machine language and then showing you how that computer works because that's not as illuminating
+so what i'm really going to show you is how how a piece of machinery can be built to do a job which you have written down as a program
+a program is in fact a description of a machine
+we're going to start with a very simple program proceed to show you some some simple mechanisms proceed to a little few more complicated programs and then later show you a not very complicated program how the evaluator transforms into a piece of hardware and of course at that point you've made the universal transition and can execute any program imaginable with a piece of well defined hardware
+well let's start up now give you a real concrete feeling for this sort of thing
+let's start with a very simple program
+ahem
+here's euclid's algorithm it's actually a little bit a little bit more modern than euclid's algorithm euclid's algorithm for computing the greatest common divisor of two numbers was uh invented sort of three hu three hundred fifty bc i think
+it's the oldest known algorithm uh and but here we're going to talk about the gcd of a and b the greatest common divisor of two numbers a and b and the algorithm is extremely simple
+if b is zero then the result is going to be a
+otherwise the result is the gcd of b and the remainder when a is divided by b
+so this what we have here is a ve a simple iterative process this is a simple recursive procedure recursively defined procedure a recursive definition which yields an iterative process and the way it works is that at every step it determines whether b was zero and if b is zero we got the answer in a otherwise we make another step where a is the old b and b is the remainder of the old a divided by the old b
+very simple
+now this of i've already told you some of the mechanism by just saying it that way
+i said it in time
+i said there are certain steps and that in fact one of the things you can see here is that the one of the reasons why this is iterative is nothing is needed of the last step to get the answer
+all the information that's needed to run this algorithm is in a and b
+it has two well defined state variables
+ahem
+so i'm going to define a machine for you that can compute gcds
+now let's see
+every computer that's ever been made that's a single process computer as opposed to a multiprocessor of some sort is made according to the same plan
+the plan is the computer has two parts
+a part called the data paths and a part called the controller
+the data paths correspond to a calculator that you might have it contains certain registers that remember things and you've all used calculators and has some buttons on it and some lights
+ok
+and so by pushing the various buttons you can cause operations to happen inside there among the registers and some of the results to be displayed
+that's completely mechanical
+you could imagine that that box has no intelligence in it
+now it might be very impressive that it can produce the sine of a number but that's a but that uhuh at least is k apparently possibly mechanical
+at least i could open that up in the same way i'm about to open gcd
+so this may have a whole computer inside of it but that's not interesting
+addition is certainly simple
+that can be done without any further mechanism
+now also also if we were to look at the other half the controller that's a part that's dumb too
+it pushes the buttons
+it pushes them according to the sequence which is written down on a piece of paper
+and observes the lights
+and every so often it comes to a uh comes to a place in a sequence that says if light a is on do this sequence othe otherwise do that sequence
+and thereby there's no there's no complexity there either
+let's just draw that and see what we feel about that
+ahem
+so for computing gcds what i want you to think about is that there are these registers
+a register is a place where i store a number in this case
+and this one's called a
+um
+and then there's another one for storing b
+now we have to see what things we can do with these registers
+and they're not entirely obvious what you can do with them
+but we have to see what things we need to do with them
+we're looking at the problem we're trying to solve
+one of the important things for designing a computer which i think most designers don't don't do is you study the problem you want to solve
+and then use what you learn from studying the problem you want to solve to put in the mechanisms needed to solve it in the computer you're building
+no more and no less
+now it may be that the problem you're trying to solve is everybody's problem in which case you have to build in a universal interpreter of some language
+but you shouldn't put any more in than required to build the universal interpreter of some language
+we'll worry about that in a second
+ok going back to here let's see what do we have to be able to do
+well somehow we have to be able to get b into a we have to be able to get the value a va old value of b into the value of a
+so we have to have some path by which stuff can flow whatever this information is
+ok from b to a
+i'm going to draw that with an a by an arrow saying that it is possible to move the contents of b into a replacing the value of a and there's a little button here which you push which allows that to happen
+that's what little x is here
+ok
+now it's also the case that i have to be able to compute the remainder of a and b
+now that may be a complicated mess
+on the other hand i'm going to make it a small box
+if we have to we may open up that box and look inside and see what it is
+s so here i'm going to have a little box which i'm going to draw this way which we'll call the remainder
+and it's going to take in a and it's going to take in b and it's going to put out something
+ahem
+the remainder of a divided by b
+another thing we have to see here is it's we have to be able to test whether b is equal to zero
+well that means somebody's got to be looking at a thing that's looking at the value of b we'll have a light bulb here which lights up if b equals zero
+ok
+that's its job
+and finally i suppose because of the fact that we want the new value of a to be the old value of b and simultaneously the new value of b to be something i've done with a and if i plan to make my machine such that everything happens one at a time one motion at a time and i can't put two numbers in a register then i have to have another place to put one while i'm interchanging
+ok
+i can't interchange the two things in my hands unless i either put two in one hand and then pull it back the other way or unless i put one down pick it up and put the other one like that unless i'm a juggler which i'm not as you can see
+in which case in which case i have a possibility of timing errors
+and in fact much of the type of computer design people do involves timing errors of some potential potential timing errors which i don't much like
+but so for that reason i have to have a place to put the the third thing down
+the second one of them down
+so i'll have a place called t which is a register just for temporary t ok with a button on it and then i'll take the result of that since i have to take that and put into b over here be able to take the result of that and go like this
+and a button here
+ahem
+so that's the data paths of a gcd machine
+now what's a controller
+a controller's a very simple thing too
+machine has a state the way i like to visualize that is that i've got a maze and the maze has is a bunch of places connected by directed arrows
+and what i have is a marble which represents the state of the controller the marble rolls around in the maze
+of course if i this this analogy breaks down for energy reasons i sometimes have to pump the marble up to the top because it's going to otherwise be that it perpetual motion machine
+but not worrying about that ok this is not a this is not a physical analogy this marble rolls around and every time it rolls around certain bumpers like in a pinball machine it pushes one of these buttons
+hm
+and every so often it comes to a place which is a division where it has to make a choice and there's a flap which is controlled by this
+ok
+so that's a a really mechanical way of thinking about it
+of course controllers now these days are not built that way in real computers they're built with a little bit of rom and a and a state register but there was a time like the dec pdp six where that's how you built the controller of a machine
+there was a bit that ran around in a delay line then event and it quo triggered things as it went by and it would come back to the beginning and get fed around again
+and of course there were all sorts of great bugs that you could have like two two bits going around you know two marbles and then the machine has lost its marbles that happens too
+oh well
+so anyway for this machine what i have to do is the following
+i'm going to start the i'm going to start my maze here
+and the first thing i got to do is in a notation which many of you are familiar with is b equal to zero a test hm and there's a possibility either yes in which case i'm done otherwise if no then i'm going to have to roll over some bumpers
+i'm going to do it in the following order
+i want to i want to interch do this interchange game
+now the first thing's i need both a and b but uh then the first uh anand this is not necessary i want to collect this
+this is the thing that's going to go into b
+so i'm going to say take this which depends upon both a and b and put uh uh uh and put the remainder into here
+so i'm going to push this button first ok then i'm going to transfer b to a push that button and then i transfer the temporary into b
+push that button
+so a very sequential machine very inefficient
+but that's fine right now
+we're going to name the buttons t gets remainder a gets b and b gets t and then i'm going to go around here and sta go back to start
+and if you look what are we seeing here we're seeing the various what i really have is some sort of mechanical connection where t gets r controls this thing ok and i have here that a gets b controls this fellow over here and this fellow over here boy that's an absolutely uh reverse of this pessimal the inverse of optimal every line had to cross every other line the way i drew it
+i suppose this goes here
+b gets t
+ahem
+now let's i'd like to run this machine but before i run the machine i want to write down a description of this controller just so you can see that these things of course as usual can be written down in some nice language so that we don't have to always draw these diagrams
+one of the problems with diagrams is they take up a lot of space and for a machine this small it takes two blackboards for a machine that's the evaluator machine i have trouble putting it in this room even though it isn't very big
+so i'm going to make a little language for this to just a description of that
+say define a machine i'm going to call it gcd of course to once we have something like this we have a simulator for it and the reason why we want to build a language of this form is because all of a sudden we can manipulate these expressions that i'm writing down and then of course i can write things that can algebraically manipulate these things simulate them all that sort of zuh things that i might want to do
+perhaps transform them into layout who knows
+once i have a uh uh a nice representation uh registers it has certain registers which i'm going to call a b and t
+and there's a controller actually a better language which would be more explicit which would be would be one which named every button also and said what it did
+like this button causes the contents of t to move to the contents of b
+but i don't want to do that because it's actually harder to read to do that and it takes up more space
+so i'm going to have that in the w instructions written in the controller
+ok it's going to be implicit what the operations are
+ok they can be deduced by reading these and collecting together all the different things that can be done like we look at say say well let's let's look at this things are
+there's a little loop that we go around which says branch this is the representation of the little flap that decides which way you go here if zero ok fetch a b
+the contents of b and if the contents of b is zero then go to a place called done
+now one thing you're seeing here this looks very much like a traditional computer language and what you're seeing here is things like labels that represent places in a sequence written down as a sequence
+the reason why they're needed is because over here i've written something with loops but if i'm writing english text or something like that it's hard to refer to a place i don't have arrows arrows are arrows are represented by giving names to the places where the arrows terminate and then referring to them by those names
+now this is just an encoding
+there's nothing magical about things like that
+next thing we're going to do is we're going to say how do we how do we do t gets r
+well that's easy enough
+say assign we assign to t the remainder assign is a is the name of the button ok that's the button pusher
+assign to t the remainder and here's the representation of the operation
+when we divide the fetch of a by the fetch of b
+ok and we're also going to assign to a the fetch of b assign to b to b the result of getting the contents of t of t
+of t and now i have to refer to the beginning here
+i see why don't i call that loop like i have here
+ok
+so that's that reference that arrow and when we're done we're done
+we go to here
+which is the end of the thing
+so here's just a written representation of this fragment of machinery that we've drawn here
+now the next thing i'd like to do is run this
+i want us to feel it running
+never done this before you got to do it once ok
+19 30 so let's say i take a particular problem supposing you want to compute the gcd of a equals thirty ok and b equals forty two
+i have no idea what's what that is right now but a is thirty and b is forty two
+that's how i start this thing up
+but what's the first thing i do
+i say is b equal to zero
+no
+then assign to t the remainder of the fetch of a and the fetch of b
+well the remainder of thirty when divided by forty two is itself thirty
+push that button
+now i'm going the the the marble has rolled to here
+ok
+a gets b
+that pushes this button
+so the forty two moves into here
+b gets t
+push that button
+the thirty goes here
+or just interchange them
+now let's see
+um go back to the beginning
+b zero no
+t gets the remainder
+i suppose the remainder when dividing forty two by thirty is twelve
+so i push that one
+the next thing i do is allow the thirty to go to here
+push this one allow the twelve to go to here
+ok
+go around this thing is that done no how about uh about so now i have to find out the remainder of thirty divided by twelve and i believe that's six
+so six goes here on this button push
+then the next thing i push is this one which the twelve goes into here
+ok then i push this button the six gets into here
+is six equal to zero no
+ok so then at that point the next thing to do is divide say ooh this has got a remainder of zero looks like we're almost done move the six over to here for next
+zero over here
+is the answer zero yes
+b is zero therefore the answer is in a
+ok the answer is six
+and indeed that's right because if we look at the original problem what we have is thirty is two times three times five and forty two is two times three times seven so the greatest common divisor is two times three which is six
+ok
+now normally we write one other little line here just to make it a little bit clearer which is that we leave in a connection saying that this light is the guy is the guy that that flaps looks at
+of course any real machine has a lot more complicated things in it than what i've just shown you
+let's look for a second at uh the first still store
+wow
+well you see for example one thing we might want to do is worry about d operations that are of the io form
+and we may have to uh collect collect something from the outside
+so the g estate machine that we might have the controller may have to may have to for example get an a uh a value from something and put it into register a to load it up
+i have to may have to r load up register b with another value and then later when i'm done i might want to print the answer out and of course that might be might be either simple or complicated
+i'm writing assuming print is very simple and read is very simple but in fact in the real world those are very complicated operations fairly usually much much larger and more complicated than the thing you're doing as your problem you're trying to solve
+ok uh on the other hand i can remember a time when uh i remember using ibm seventy ninety computer of sorts where things like read of r and and write of a single a single object a single number a number is a primitive operation of the of the io controller
+ok
+and so we have that kind of thing in there and in such a in such a machine well what are we really doing we we're just saying that there's a source over here called read
+which is an operation which always has a value
+we have to think about this as always having a value which can be gated into either register a or b
+hm
+and print is some sort of thing which when you gate it appropriately when you push the button on it will cause a print of the value that's currently in register a
+nothing very exciting
+so that's one sort of thing you might want to have
+but these are also other things that are a little bit worrisome
+like i've used here some complicated mechanisms
+what you see here is remainder
+what is that
+i mean that may not be so obvious how to compute
+it may be something which when you open it up you get a whole machine
+ok
+in fact that's true
+for example uh if i write down the program for remainder the simplest program for it is by repeated subtraction
+hm ok and it's because of course division can be done by repeated subtraction
+of n of numbers integers
+so the remainder remainder of n divided by d is nothing more than if n is less than d then the result is n otherwise the remainder when we subtract d from n with respect to d when divided by d
+gee this looks just like just like the gcd program
+ok
+of course it's not a very nice way to do remainders
+you'd really want to use something like binary notation and shift and things like that in a practical computer
+but the point of that is that if i open this thing up i might find inside of it a computer
+well we know how to do that
+we just made one
+and it could be another thing just like this
+on the other hand we might want to make a a more efficient or better structured machine or maybe make use of some of the registers more than once or some horrible mess like that that hardware designers like to do
+and for very good reasons so for example here's a machine that you see which you're not supposed to be able to read
+it's n it's a little bit complicated ok but what it is is the integration of the remainder into the gcd machine and it takes in fact no more registers there are three registers in the data paths ok but now there's a subtracter there are two things that are tested is b is b equal to zero or is t less than b
+and then the controller which you see over here is not much more complicated but it has two n two loops in it
+one of which is the the main one for doing the gcd and one of which is the subtraction loop for doing the remainder sub suboperation
+and there are ways of course of if you think about it taking the remainder program if i take remainder as you see over there as a lambda expression substitute it in for remainder over here in the gcd program ok then do some simplification by substituting a and b for remainder in there then i can o unwind this loop and i can get i can get this this piece of machinery
+by a ba sa basically a little bit of simplification algebraic simplification on the lambda expressions
+so i suppose you've seen your first very simple machines now
+and i wonder if there are any questions
+good
+this looks easy doesn't it
+thank you i suppose take a break
+fine
+well let's see
+now you know how to make a an iterative procedure or a procedure that yields an iterative process turn into a machine
+i suppose the next thing we want to do is worry about things that yield recursive processes
+so let's play with a simple factorial procedure
+we define factorial of n to be if n is one the result is one using one right now to decrease the amount of work i have to do to simulate it
+else it's times n factorial n minus one
+and what's different about this with this program as you know is that after i've computed factorial of n minus one here i have to do something to the result
+i have to multiply it by n
+so the w only way i can sort of visualize what this machine is doing because of the fact think of it this way that i have a machine out here which somehow needs a factorial machine in order to compute its answer
+but this machine the outer machine has to exist both before and after the factorial machine which is inside
+whereas the iterative case the outer machine doesn't need to exist after the inner machine is is running
+because you never need to go back to the outer machine to do anything
+so here we have a problem where we have a machine which has the same machine inside of it
+of an infinitely large machine
+and it's got other things inside of it like a multiplier
+which takes some inputs and there's a minus one box and things like that
+you know you can imagine sort of that's what it looks like
+but the important thing is that here i have something that happens before and after in the outer machine the execution of the inner machine
+so this machine has to have a life ok it has to know so it had it has to exist on both sides time sides of this machine
+so somehow i have to have a place to store the things that this thing needs to run
+infinite objects don't exist in the real world ok and what we have to do is arrange an illusion that we have an inf infinite object
+we have an infinite amount of hardware somewhere
+now of course of course illusion's all that really matters
+if we can arrange that every time you look at some infinite object the part of it that you look at is there then it's as infinite as you need it to be
+and of course one of the things we might want to do just look at this this thing over here
+is the organization we've had so far organization that we've had so far involves having a f part of the machine which is the controller which sits right over here which is perfectly finite and very simple
+we have some data paths which consist of registers and operators and what i propose to do here is decompose the machine into two parts
+such that there's a part which is fundamentally finite and some part where a certain amount of infinite stuff can be kept
+on the other hand this is very simple and really isn't infinite but just very large
+but it's so simple that it can be cheaply reproduced in such large amounts we call it memory ok that we can make a structure called a stack out of it which will allow us to in fact ha simulate the existence of an infinite machine which is made out of a recursive nest of many of many machines
+and the way it's going to work is that we're going to store in this place called the stack the information required after the inner machine runs to resume the operation of the outer machine
+so it will reme it will remember the important things about the life of the outer machine that will be needed by its co for its computation
+since of course these machines are nested in a recursive manner then in fact the stack will only be accessed in a in a manner which is the last thing that goes in is the first thing that comes out
+so we'll only need to access some little part of this stack memory
+ok well let's do it
+i'm going to build you a data path now and i'm going to write the controller ok and then we're going to execute this to see how you do it
+so the factorial machine isn't so bad
+it's going to have a register called a value
+where the answer is going to be stored
+and a register called n which is where the number i'm taking factorial will be stored ka factorial of and it will be necessary in some instances to connect val to n in fact one nice case of this is if i just said over here n because that would be right for n equal one n and i could just move the answer over there if that's important
+i'm not worried about that right now
+and then there are things i have to be able to do
+like i have to be able to as we see here multiply n by something where val uh something in val
+because val is the result of computing factorial and i have to put the result back into val
+so s here we're k seeing that the result of computing a factorial is n times the result of a computing a factorial
+val will be the representation of the answer of the inner factorial
+and so i'm going to have to have a a multiplier here which is going to sample the value of n and the value of val ok and put the result back into val like that
+i'm also going to have to be able to see if n is one
+so i need a light bulb
+and i suppose the other thing i'm going to need to have is a way of decrementing n
+so i'm going to have a decrementer
+which takes n and is going to put back the result into n
+that's pretty much what i need in my machine
+now there's a little bit else i need
+it's a little bit more complicated ok because i'm also going to need a way to store to save away the things that are going to be needed for resuming the computation of a factorial after i've done a subfactorial
+well what's that
+one thing i need is n
+so i'm going to build here a thing called a stack
+the stack is a bunch of stuff
+i'm going to write in sequentially
+ok and i don't know how long it is
+the longer it is the better my illusion of an infinity
+hm
+and i'm going to have to have a way of getting stuff out of n and into the stack
+and vice versa
+so i'm going to need a connection like this
+which is two way
+whereby i can save a value of n and then restore it some other time through that connection this is the stack
+i also need a way of remembering where i was in the computation of factorial in the in the outer program
+now in the case of this machine it isn't very problem a pro it isn't very much a problem
+factorial alwa always returns has to go back to the place where we multiply by n except for the last time when it has to return to whoever needs the factorial or go to done or stop
+ok
+however in general i'm going to have to remember where i have been because i might have computed factorial from somewhere else have to go back to that place and continue there
+so i'm going to have to have some way of taking the place where the marble is in the in the finite state controller the state of the b controller ok and storing that in the stack as well
+i'm going to have to have ways of restoring that back to the state of the k of the marble
+so i have to have something that moves the marble to the right place
+well we're going to have a place which is the marble now
+it was called the continue register
+called continue
+which is the place to put the marble next time i go to continue
+that's what that's for
+and so there's got to be some path of from that into the controller
+i also have to have some way of saving that on the stack and i have to have some way of setting that up to have various constants a certain nu fixed number of constants
+and that's very easy to arrange
+so let's have some constants here
+we'll call this one after fact
+ok and that's a constant which will be fed into the continue register and also another one called fact done
+ok so this is the this is the machine i want to build
+that's its data paths at least
+and it mixes a little with the controller here
+because of the fact that i have to remember where i was and restore myself to that place
+but let's write the program now which represents the controller
+i'm not going to writ the define machine thing and the register list because that's not very interesting
+just going to write down the the sequence of instructions that constitute the controller
+ok so we have a sign with the setup continue to done we have a loop which says branch if if equal one fetch n if n is one then go to the base step of the induction the simple case
+otherwise i have to remember the things that are necessary to perform a sub a subfactorial
+i'm going to go over here and i have to perform a subfactorial
+so i have to remember what's needed to do that do what i d remember what's needed after i will be done with that
+see i'm about to do something terrible
+i'm about to change the value of n
+but this guy has to know the old value of n
+but in order to make the subfactorial work i have to change the value of n
+so i have to si remember the old value
+and i also have to remember where i've been
+so i save up continue and what this is an instruction that says put something in the stack save the k save the contents of the continuation register which at this case is done
+because later i'm going to change that too because i need to go back to after fact
+as well
+we'll see that
+we save n um we need that for later
+assign to n the decrement of fetch n assign continue we'll look at this now to after we'll call it
+that's a good name for this a little bit easier and shorter and fits in here
+and now look what i'm doing here
+i'm saying if the answer is one ok i'm done i'm going to have to just get the answer
+otherwise i'm going to save the continuation save n make n one less than n remember i'm going to come back to someplace else and go back and start doing another factorial
+ok
+however i've got a different machine in me now
+n is one and continue is something else
+ok
+n is n minus one
+now after i'm done with that i can go there
+i will restore the old value of n
+which is the opposite of this save over here
+i will restore the continuation
+i will then go to here
+i will assign to the val register the product of n and fetch val
+val fetch product assign
+and then i will be done
+i will have my answer to the subfactorial in val
+at that point i'm going to return by going to the place where the continuation is pointing
+that says go to fetch continue
+ok and then i've have finally a base step which is the immediate answer assign to val fetch n and go to fetch continue
+and then i'm done
+now let's see how this executes on a very simple case
+ok because then we'll see the use of this stack to do the job we need
+this is statically what it's doing but we have to look dynamically at this
+so let's see
+first thing we do is continue gets done
+the way that happened is i pushed this
+let's call that done the way i have it
+i push that button done goes into there
+ok now
+uh also have to set this thing up to have an initial value
+let's consi consi contin consider uh a factorial of three
+a simple case
+and we're going to start out with our stack growing over here
+stacks have their own little internal state saying where they are
+where the next place i'm going to write is
+so now we say is n one
+the answer is no
+so now i'm going to save continue
+bang now that done goes in here
+and this moves to here
+the next place i'm going to write
+save n
+three
+ok
+assign to n m uh the decrement of n that means i've pushed this button this becomes two
+ok
+assign to continue aft
+so i push that button aft goes in here
+ok now
+go to loop bang so up to here
+is n one no
+so i have to save continue
+what's continue
+continue is aft
+push this button
+so this moves to here
+um i have to save n
+n is over here at a two
+push that button
+so a two gets written there
+and then this thing goes down here
+ok save n assign n to the decrement of n
+this becomes a one
+um assign continue to aft
+a f t
+gets written there again
+go to loop
+is n equal to one
+oh yes the answer is one
+ok go to go to base step
+assign to val fetch of n
+bang
+one gets put in there
+ok
+go to fetch continue so we look in continue basically i'm pushing a button over here that goes to controller
+ok k the continue becomes aft and all of a sudden program's running here
+i now have to restore the outer version of factorial
+so we go here we say what are we restore n so restore n means take the contents that's here push this button and it goes into here
+two
+and the pointer moves up
+ok
+restore continue
+pretty easy
+go push
+this button and then aft gets written in here again
+that means this thing moves up
+i've done gotten rid of something else on my stack
+um right then i go to here which says assign to val the product on n and val
+so i push this button over here bang two times one gets me a two
+get written there
+ok go to fetch continue
+continue is aft
+i go to aft
+ok
+aft says restore n
+doing a restore n means i take the value over here which is three push this up to here and move it into here
+n
+that was pushing that button
+the next thing i do is restore continue
+continue is now going to become done
+so the bu this this moves up here when i push this button done may or may not be there anymore i'm not interested but it certainly is here
+uh next thing i do is assign to val the product of the fetch of n and the fetch of val
+that's pushing this button over here bang two times three is six
+so i get a six over here
+ok
+and go to fetch continue
+whoops i got to done and i'm done
+and my answer is six
+as you can see in the val register
+ok and in fact the stack is in the state it originally was in
+now there's a bit of discipline in using these things like stacks that we have to be careful of
+ok and we'll see that in the next segment
+but first i want to ask if there are any questions for this
+are there any questions
+yes rod
+what happens when you roll off the end of the stack
+with uh
+well what do you mean roll off of
+well the larger number larger starting point of n requires more memory correct
+oh yes well i need to have a long a long enough stack
+you say what if i violate my illusion
+yes
+well then the magic doesn't work
+ok
+uh the truth of the matter is that every machine is finite and for a procedure like this there's a limit to the amount you could the number of number of subfactorials i could have
+remember when we were doing the y operator a while ago we pointed out that there was a sequence of exponentiation procedures each of which was a little better than the previous one well we're now seeing how we implement that mathematical idea
+the limiting process is only so good as as far as you take the limit
+uh if you think about it what am i using here i'm using about two chunks of piece of pieces of memory for every iteration of this for every recursion of this process uh if i would try to compute factorial of ten thousand that's not a lot of memory on the other hand it's an awful big number
+ok so the question is is that a valuable thing in this case
+but it really isn't it it really turns out not to be a terrible limit because memory is el cheapo and people are pretty expensive
+ok
+thank you
+let's take a break
+well let's see
+what i've shown you now is how to do a simple a simple iterative process and a simple recursive process
+i just want to summarize the design of the simple machines for specific applications by showing you a little bit more complicated design that of a of the thing that does doubly recursive fibonacci because it will indicate to us we'll understand a bit about about the conventions required for making stacks operate correctly
+so let's see i'm just going to write down the first of all the program i'm going to translate
+i need a the fibonacci procedure
+it's very simple
+which says if ahem n is less than two the result is n
+otherwise it's the sum of fib of n minus one and fib of n minus two
+that's the the plan i have here
+and we're just going to write down the controller for such a machine
+we're going to assume that there are registers n which holds the the number we're taking fibonacci of
+val which is where the answer is going to get put
+and continue which is the thing that's linked to the controller
+like before
+but i'm not going to draw another physical data path
+because it's pretty much the same as the last one you've seen
+and of course one of the most amazing things about computation is that after a while you build up a little more features and a few more features and all of a sudden you've got everything you need
+ok so it's it's sort of remarkable that it just gets there so fast
+i don't need much more to make a a universal computer
+but in any case let's look at the controller for the fibonacci thing
+first thing i want to do is start the thing up by assign to continue a a place called done
+called fib done here
+so that means that somewhere over here i'm going to have a a label fib done
+ok which is the place where i go when i want the machine to stop
+that's what that is
+and i'm going to make up a loop is a place i'm going to go to in order to start up computing a fib
+whatever is in n at this point fibonacci will be computed of and we will return to the place specified by continue
+so the the so what you're going to see here at this place what i want here is the contract that says i'm going to write this with a comment syntax the contract is n contains arg the argument continue is the recipient that's where it is
+and that's why that's w in other words at this point if i ever go to this place i'm expecting that this to be true
+the argument for computing the fibonacci
+now the next thing i want to do is to branch and if n is less than two by the way i'm using what looks like lisp syntax
+this is not lisp
+this does not run
+what i'm writing here does not run as a simple lisp program
+this is a representation of another language
+the reason i'm using the syntax of parentheses and so on is because i tend to use a lisp system to write an interpreter for this which allows me to simulate the machine i'm trying to build
+ok
+i don't want you to confuse this to think that this is lisp code
+it's just i'm using a lot of the pieces of lisp i'm embedding a language in lisp using lisp as pieces to make my process of making my simulator easy
+ok so i'm inheriting from lisp all of its properties
+fetch of n two i want to go to a place called immediate answer
+at the base step
+and that's somewhere over here
+just above done
+and we'll see it later
+now in the general case which is the part i'm going to write down now let's just do it
+well first of all i'm going to have to call fibonacci twice
+in each case i'm going to have to well in one case at least i'm going to have to know what to do to come back and do the next one
+i have to reme and there are i have to remember i have to remember have i done the first fib or have i done the second one
+do i k have to come back to the place where i do the second fib or do i have to come back to the place where i do the add
+in both cases i'm going to need the va uh no in the first case over the first fibonacci i'm going to need the value of n for computing for the second one
+ok so i have to store some of these things up
+so first thing i'm going to do is save continue
+that's who needs the answer
+and the reason i'm doing that is because i'm about to assign continue to the result to to the place which is the w place i want to go to after let's call it fib n minus one
+big long name classic lisp name
+ahem
+because that's because i'm going to compute the first l fib of n minus one and then after that i want to come back and do something else
+so that's the place i want to go to after i've done the first fibonacci calculation
+and i want to do a save of n
+because i'm going to need it later
+after that
+now i'm going to at this point get ready to do the fibonacci of n minus one
+so assign to n the difference of the fetch of n and one
+now i'm ready to go back to doing the fib loop
+do i have have i satisfied my contract
+the answer is yes
+n contains n minus one which is what i need ok and continue contains a place i want to go to when i'm done
+with calculating fib of n minus one
+so i've satisfied the contract and therefore i can write down here a tag after a a label after fi uh fib n minus one
+now what i'm going to do here
+here's a place where i now have to get ready to do fib of n minus two
+ok
+but in order to do a fib n minus two look i don't know i've clobbered my n over here and presumably my n is counted down all the way to one or zero or something
+at this point
+so i have to i don't know what k value of n in the n register is
+i want the value of n that was on the stack that i saved over here so that i could restore it over here
+i saved up the value of n which is this value of n
+at this point
+so that i could restore it after computing fib of n minus one so i could count that down to n minus two and then compute fib of n minus two
+so let's restore that
+restore of n
+now i'm about to do something which is superstitious and we will remove it shortly
+i am about to finish the sequence of doing the subroutine call if you will
+i'm going to say well i also saved up the continuation since i'm i'm going to restore it now
+but actually i don't have to because i'm not going to need it
+we'll fix that in a second
+so we'll do a restore of continue
+which is what i would in general need to do
+and we're just going to see what was called where you would call in the the compiler world a peephole optimization which says whoops you didn't have to do that
+ok so the next thing i see here is that i have to get ready now to do fibonacci of n minus two
+but i don't have to save n anymore
+the reason why i don't have to save n anymore is because i don't need n after i've done fib of n minus two because the l next thing i do is add
+so i'm just going to set up my n that way assign n minus the difference of fetch n and two
+ahem
+now i have to s finish the setup for calling fibonacci on n minus two
+well i'll have to save up continue
+and assign continue continue to the place which is after fib n two that place over here somewhere
+however i got to be very careful
+the old value the value of fib of n minus one i'm going to need later
+the value of fibonacci of n minus one i'm going to need and i can't clobber it
+because i'm going to have to add it to the value of fib of n minus two
+that's in the value register
+so i'm going to save it
+ok so i'll have to save this right now
+save up val and now i can go off to my subroutine
+go to fib loop
+now before i i go any further and continue and and finish this program i just want to look at this segment so far and see oh yes there's a sequence of instructions here if you will
+that i could do something about
+here i have a restore of continue a save of continue and an assign of continue
+with no other references of continue in between
+the restore followed d by the save leaves the stack unchanged
+the only difference is that i've set the continue register to a value which is the value that was on the stack
+since i now clobber that value as is in it was never referenced these instructions are unnecessary
+ok so we will remove these
+ok but i couldn't have seen that unless i'd written them down
+was that really true
+well i don't know
+ok so now we've about to we've k now gone off to compute fibonacci of n minus two
+so after that what are we going to do
+well i suppose the first thing we have to do we've got two things we've got a thing in the value register which is now valuable
+we also have a thing on the stack that can be restored into the value register
+ok and what i have to be careful with now is i want to shuffle this right so i can do the multiply
+now there are various conventions i might use but i'm going to be v very very picky and say i only going to restore into a register i've so saved from
+ok if that's the case i have to do a shuffle here
+ok so because i uh it's the same problem with how many hands i have
+so i'm going to assign to n because i'm not going to need n anymore n is useless the current value of val
+which was the value of fib of n minus two
+ok
+and i'm going to restore the value register now
+this restore matches this save
+and if you're very carefully examine it very carefully what goes on ok restores and saves are always matched
+ok now there's an outstanding save of course that we have to get rid of soon
+ahem
+and so i restored the value register
+now i restore the continue one
+which matches this one
+dot dot dot dot dot dot dot
+down to here
+now restoring that continuation
+that continuation is the continuation of fib of n
+which is the problem i was trying to solve but major problem i'm trying to solve
+so that's the guy i have to go back to who wants fib of n
+i saved him all the way up here when i realized n was not less than two and so i had to do a complicated operation
+now i've got everything i need to do it so i'm going to restore that
+assign to val the sum of fetch val and fetch of kin of n
+and go to continue
+so now i've returned
+i've returned from the i've returned from computing fibonacci of n
+then the general case
+now what's left is just to con to fix up a few a few details
+like there's the base case of this induction immediate answer
+at
+which is nothing more than assign to val fetch of n because n was less than two and therefore the answer is n
+in our original program
+and return
+continue
+bobble bobble
+almost
+and uh finally fib done
+ok
+so that's a a fairly complicated program i re reason i wanted you to see that because i want you to see the particular flavors of stack discipline that i was obeying because first of all i don't want to save anything that i'm not going to need later
+i was being very careful and it's very important and there are all sorts of other disciplines people make with frames and things like that of some sort where you save all sorts of junk you're not going to need later and restore it because in some sense it's easier to do that
+that's going to lead to various disasters
+ok which we'll see in see a little later
+the it's crucial to save exactly what you're going to need later
+it's an important idea
+and the responsibility of that is whoever saves something is the guy who restores it because he needs it
+and such a si such a discipline you can see what things are unnecessary
+operations that are unimportant
+ahem
+now one other thing i want to tell you about is very simple is that of course the picture you've see is not the whole picture
+supposing i had systems that had things like other operations car cdr cons
+building a uh uh a a vector and referencing the nth element of it
+or things like that
+well we could k at this level of detail whatever it is we could conceptualize those as primitive operations in the data path
+in other words we could say that some machine that for example has has the append machine which has to do cons of the car of x with the append of the cdr of x and y oh gee that's exactly the same as the fa uh factorial structure
+well it's got about the same structure
+and what do we have we have some sort of things in it which may be registers x and y and they w x may has to some t how move to why sometimes or x has to give the value of y and then we may have to be able to do something which is a cons i don't remember if i need to like this in this m in this in this uh system but cons is lo sort of like subtract or add or something
+it combines two things producing a thing which is the cons which we may then think goes into there
+ok and there may be a thing called the car
+which will produce i can get the car of something
+and maybe i can get the cdr of something and so on
+well we shouldn't be too afraid of saying things this way because the worst that could happen is if we open up cons what we're going to find is some machine ok and cons may in fact overlap with car and cdr and it always does in the same way that plus and minus overlap and are really the same business
+cons car and cdr are going to overlap and we're going to find is a little controller a little data path ok which may have some registers in it some stuff like that
+and maybe inside it and they they may also be an infinite part a part that's semi infinite or something which is a lot of very uniform stuff which we'll call memory
+ok and i wouldn't be so horrified if that were the way it works
+in fact it does and we'll talk about that later
+so are there any questions
+gee what an unquestioning audience
+supposing i told you a horrible pile of lies
+ok
+well thank you let's take our break

@@ -1,0 +1,384 @@
+well hal just uh told us how you build robust systems
+well the key idea was and i'm sure that many of you don't really assimilate that yet but the key idea is that in order to make a system that's robust it has to be insensitive to small changes
+that is a small change in the problem should lead to only a small change in the solution
+there ought to be a continuity
+the space of solutions ought to be continuous in the sta space of problems
+and the way he was explaining how do that was instead of solving a particular problem at every level of decomposition of the problem into sub problems what you saw was a class of problems which are a neighborhood of the particular problem that you're trying to solve
+the way you do that is by producing a language at that level of detail in which the solutions to those pro that class of problems is representable in that language
+therefore when you change make small changes to the problem that you're trying to solve you generally only have to make only small local changes to the solution you've constructed because at the level of detail that you're working there is a language where you can express the various solutions to alternate problems of the same type
+well that's the beginning of a very important idea the most important perhaps idea that makes computer science more powerful than most of the other kinds of engineering disciplines we've we we know about
+what we've seen so far is sort of how to use embedding of languages and of course the power of embedding languages partly comes from procedures like this one that i showed you yesterday
+what you see here is the derivative program that we described yesterday is a procedure that takes a procedure as an argument and returns a procedure as a value
+ok
+and using such things is very nice you can make things like push combinators and all that sort of wonderful thing that you saw last time
+however now i'm going to really muddy the waters
+you see this r confuses the issue of what's a procedure and what is data but not very badly
+what we really want to do is confuse it very badly and the best way to do that is to get involved with the manipulation of the algebraic expressions that the procedures are themselves expressed in
+so at this point i want to talk about instead of things like on this slide the derivative procedure being a thing that manipulates a procedure
+this is a numerical method that you see here and what you're seeing is uh a representation of the numerical approximation to the derivative
+that's what here
+in fact what i'd like to talk about is instead things that look like this
+and what we have here ok are rules from a calculus book
+these are rules for finding the derivatives of the expressions that one might write in some in some algebraic language
+it says things like the derivative of a constant is 0
+the derivative of the variable with respect to which you are taking the derivative is 1
+the derivative of a constant times a function is the constant times the derivative of the function
+and things like that
+these are exact expressions these are not numerical approximations
+can we make programs and in fact it's very easy to make programs that that manipulate these expressions
+well let's see let's look at these rules in some detail
+ok
+you all have seen these rules in your elementary calculus class at one time or another and you know from calculus that it's easy to produce derivatives from arbitrary expressions
+you also know from your elementary calculus that it's hard to produce integrals
+yet integrals and derivatives are opposites of each other they're inverse operations
+and they have the same rules
+what is special about these rules that makes it possible for one to produce derivatives easily and integrals why it's so hard
+let's think about that uh very very simply look at these rules every one of these rules when used in the direction for taking derivatives which is in the direction of this arrow ok
+the left side is matched against your expression and the right side is the thing which is the derivative of that expression
+the arrow is going that way
+ok
+in each of these in each of these rules the expressions on the right hand side of the rule that are contained within derivatives are sub expressions are proper sub expression of the expression on the left hand side
+so here we see the derivative of a sum which is the le expression on the left hand side is the sum of the derivatives of the pieces
+so the rules moving to the right are reduction rules the problem becomes easier i make i turn a big complicated problem into lots of smaller problems and then combine the results
+a perfect place for recursion to work
+if i'm going in the other direction like this if i'm trying to produce integrals well there are several problems you see here first of all if i'm tr trying to integrate an expression like a sum more than one rule matches
+here's one that matches
+here's one that matches
+i don't know which one to take and they may be different i may get to different explore different things
+also the expressions become larger in that direction and when the expressions become larger then there's no guarantee that any particular path i choose will terminate because it will only terminate by accidental cancellation
+and so that's why integrals are complicated searches and hard to do
+right now i don't want to do anything as hard as that let's work on derivatives for awhile
+well these rules are ones you know for the most part hopefully so let's see if we can write a program which is these rules and that should be very easy
+just write the program see because what i showed you is that it's a reduction rule it's something appropriate for a recursion
+and of course what we have for each of these rules is you have a case in some case analysis
+so i'm just going to write this program down
+now of course i'm going to be saying something that you have to believe right
+what you have to believe is i can represent these algebraic expressions that i can grab their parts that i can put them together
+we've invented lisp structures so that you can do that
+but you don't want to worry about that now right now i'm going to write the program that encapsulates these rules independent of the representation of the algebraic expressions
+you have a derivative of an expression with respect to a variable
+this is a different thing than the derivative of a function and that's what we saw last time that numerical approximation
+it's something you can't open up a function it's just the answers
+ok
+derivative of an expression is the way it's written and therefore it's a syntactic phenomenon and so a lot of what we're going to be doing today is worrying about syntax syntax of expressions and things like that
+well there's a case analysis
+any time we do anything complicated there by a recursion we presumably need a case analysis it's the essential way to begin
+and that's usually a conditional of some large kind
+ok
+well what are their possibilities
+the first rule that you saw is is this something a constant
+and what i'm asking is is the expression a constant with respect to the variable given
+if so the result is 0 because the derivative represents the rate of change of something
+ok
+if however the expression that i'm the expression that i'm uh taking the derivative of is the variable i'm varying then this is the same variable
+the expression bar
+then the rate of change of the expression with respect to the variable is one
+it's the same one
+well now there are a couple of other possibilities ok it could for example be a sum
+well i don't know how i'm going to express sums yet
+actually i do but i haven't told you yet
+but is it a sum
+i'm imagining that there's some way of telling
+i'm doing a dispatch on the type of the expression here
+absolutely essential in building languages because languages are made out of different expressions and see we're going to see that in our more powerful methods of building languages on languages
+is an expression a sum
+if it's a sum well we know the rule for the derivative of the sum is the s deriv sum of the derivatives of the parts
+one of them's called the add end and the other's the aug end but i don't have enough space on the blackboard to use such long names so i'll call them a1 and a2
+i want to make a sum
+do you remember which is the subterhead of the menu end
+or the was it the dividend and the divisor or something like that
+make sum of the derivative of the a1 i'll call it it's the add end of the expression with respect to the variable and the derivative of the a2 of the expression
+those are the two arguments to the of the addition with respect to the variable
+ok
+and another rule that we know is product rule which is if the expression is a product by the way it's a good idea when you're defining things when you're defining predicates to give them a name that ends in a question mark
+this question mark doesn't mean anything it's for us as an agreement it's a conventional interface between humans so that you can read my programs more easily
+ok and so i want you to when you write programs if you define a predicate procedure that's something that's returns true or false it should have a name which ends in a question mark
+lisp doesn't care
+it's i care
+then i want to make a sum because the product the derivative of a product is the sum of the first times the derivative of the second plus the second times the derivative of the first
+make a sum of two things a product of well i'm going to say the m1 of the expression and the derivative of the m2 of the expression
+with respect to the variable and the product of the derivative of m1 the multiplier of the expression with respect to the variable
+and it's a product of that and the multiplicand m2 of the expression with re uh make that product
+make the sum
+close that case
+and of course i could add as many cases as i like here for as complete set of rules you might find in a calculus book
+so this is this is what it takes to encapsulate those rules
+and you see you have to realize there's a lot of wishful thinking here
+right i haven't told you anything about how i'm going to make these representations
+now once i've decided that this is my set of rules i think it's time to play with the representation
+let's attack that
+well first of all i'm going to play a pun it's an important pun it's key to it's key to sort of a powerful idea
+if i want to represent sums and products and differences and quotients and things like that why not use the same language as i'm writing my program in
+i write my program in algebraic expressions that look like the sum of the product of a and the product of x and x
+ok
+and things like that
+and the product of b and x and c or whatever make that a sum of a product
+right now i don't want to have procedures with unknown numbers of arguments
+the product of b and x and c
+this is lisp structure
+ok
+and the reason why this is nice is because any one of these objects has the property but i know where i know where the car is the car is the operator and the operands are the successive cdrs
+i'm sorry the successive cars of the cdrs of the lisp that this is
+ok
+so it makes it very convenient i have i don't have to parse it it's been done for me
+i'm using the embedding and lisp to advantage
+so for example let's write down let's start using lisp structure to write down the uh the representation that i'm implicitly assuming here
+well i have to define various things that are implied in this representation
+like i have to find out how to do a constant how to do same variable
+let's do those first
+that's very easy enough
+now i'm going to be introducing lots of primitives here because these are the primitives that come with lisp structure
+ok you define a constant and a c what i mean by a constant an expression is constant with respect to a variable is that the expression is something simple i can't take it into pieces and yet it isn't that variable
+i can't break it up and yet it isn't that variable
+now that does not mean that there are more maybe other expressions that are more complicated that are constants it's just that i'm going to look at the primitive constants in this way
+so for examp so what this is is it says that it's the and i can combine predicate expressions which return true or false with and something atomic
+an expression is atomic meaning it cannot be broken into parts it doesn't have a car and a cdr
+it's not a lisp
+and it's a special test built into this system
+ok and it's not ex identically equal to eq to that variable
+i'm representing my variables by things that are symbols which cannot be broken into pieces
+things like x and y
+things like this
+whereas of course something like this can be broken up into pieces
+and the same variable of an expression with respect to a variable ok is in fact an atomic expression i want to have an ex atomic expression which is identical
+i don't want to look inside this this stuff anymore
+these are these are primitive maybe but it doesn't matter
+i've defined i'm using using things that were given with me wi to me with the language
+i'm not terribly interested in them
+now how do we deal with sums
+ah something very interesting will happen
+a sum is something which is not atomic and begins with the plus symbol
+that's what it means
+so here i will define an expression is a sum if if and it's not atomic and its its head its beginning its car of the expression is the symbol plus
+now you're about to see something you haven't seen before this quotation
+why do i have that quotation there
+say your name
+susanna
+louder
+susanna
+say your name
+your name
+louder
+your name
+ok
+what i what i've showing you here is that the words of english are ambiguous
+i was saying say your name
+i was also possibly saying say your name
+but that cannot be distinguished in speech
+however we do have a notation in writing which is quotation for distinguishing these two these two possible meanings
+in particular over here in lisp we have a notation for distinguishing these meanings
+if i were to just write a plus here a plus symbol i would be asking is the first element of the expression is the operator position of the expression the addition operator
+i don't know
+i would have to have written the addition operator there which i can't write
+however this way i'm asking is this the symbolic object plus which normally stands for the addition operator
+and that's what i want that's the question i wanted to ask
+now before i go any further i want to point out that quotation is a very complex concept and adding it to a language causes a great deal of troubles
+consider the next slide here's a a deduction which we should all agree with
+we have alyssa is smart and alyssa is george's mother
+this is an equality
+is
+ok
+what from those two we can deduce that george's mother is smart because we can always substitute equals for equals in expressions
+or can we
+here's a case where we have chicago has seven letters
+the quotation means that i'm discussing the word chicago not what the word represents
+ok
+here i have that chicago is the biggest city in illinois
+as a consequence of this i would like to deduce that the biggest city in illinois has seven letters but that's manifestly false
+wow
+it works
+ok so once we have things like that our language becomes much more complicated because it's no longer true that things we tend to like to do with languages like substituting equals for equals and getting right answers are going to work without being very careful
+we can't substitute into what's called referentially opaque contexts of which a quotation is the prototypical type of referentially opaque context
+if you don't know what that means you can s consult a philosopher
+presumably there is one in the room
+in any case
+let's continue now now that we at least have an operational understanding of a 2000 year old issue that has to do with name and mention and all sorts of things like that
+i have to define what i mean how to make a sum of two things an a1 and a2 and i'm going to do this very simply it's a lisp of the symbol plus and a1 and a2
+and i can determine the the first element define a1 to be cadr oops
+i've just introduced another primitive this is the car of the cdr of something
+you might want to know why car and cdr are in the names of these primitives and why they have survived even though there are much better ideas like left and right we could have called them things like that
+ok
+well first of all the names come from the fact that in great past when lisp was invented i suppose in fifty eight or something it was a seven oh four or something like that which had a machine
+it was a machine that uh had an address register and a decrement register
+and these were the contents of the address register and the decrement register
+so it's a historical accident
+now why have these names survived
+it's because lisp programmers like to talk to each other over the phone and if you want to have a long ca sequence of cars and cdrs you might say cadadadr and which can be understood
+but left of right of right of left is not so clear if you're if you get good at it
+so that's why that's why we have those words
+all of them up to four deep are defined in ge ih typically in a lisp system
+a2 to be and of course you can see that if i looked at one of these expressions like the sum of 3 and 5 what that is is a lisp containing the symbol plus and a number 3 and a number 5
+then the car is the symbol plus the car of the cdr well i take the cdr and then i take the car and that's how i get to the 3
+that's the first argument
+and the car of the cdr of the cdr gets me to this one the 5
+and similarly of course i can define what's going on with products
+let's do that very quickly
+is the expression of product yes if and if it's true then it's not atomic
+and it's eq quote the asterisk symbol which is the operator for multiplication
+you need to make a pro make product of an m1 and an m2 to be list quote the asterisk operation and m1 and m2
+and i define m1 to be cadr and m2 to be cadadr
+if you get to be a good lisp programmer you start talking that way i cdred down lists and consed them up and so on
+now now that we have essentially a complete program for finding derivatives you can add more rules if you like what kind of behavior do we get out of it
+i'll have to clear that x
+well supposing i define foo here to be to be the sum of the product of x square and b x plus c
+that's the same thing we see here as the algebraic expression written in the more conventional notation over there
+well the derivative of foo with respect to x which we can see over here ok is this horrible horrendous mess
+i would like it to be two a x plus b but it's not
+it's equivalent to it
+what is it
+i have here um what do i have
+i have the derivative of the product of x and x over here is of course the sum of x times 1 and 1 times x
+yeah well that's the first times the derivative of the second plus the second times the derivative of the first
+it's right
+ok
+so that's that's two x of course
+a times two x is two a x plus zero x squared doesn't count plus b over here plus a bunch of zeros
+well the answer is right but i give people take off points on an exam for that
+sadly enough
+let's worry about that in the next segment
+are there any questions
+yes
+if you had left the quote off when you put the plus then would that be referring to the procedure plus and could you do a comparison between that procedure and some other procedure if you wanted to
+yes
+good question
+if i had left if i had left this quotation off at this point ok
+if i had asked have left that quotation off at that point then i would be referring here to the procedure which is the the thing that plus is defined to be
+ok
+and indeed i could compare i could compare some procedures with each other for identity
+now what that means is not clear right now and i don't want you to think about it because i don't know exactly what it would mean to compare procedures
+there are reasons why that may make no sense at all
+however the symbols we understand
+ok and so that's why i put that quote in i want to talk about the symbol that's apparent on the page
+any other questions
+ok
+thank you
+let's take a break
+well let's see we've just developed a fairly plausible program for computing the derivatives of algebraic expressions
+it's an incomplete program you would like to add more rules and perhaps you might extend it to deal with uses of of addition with any number of arguments and multiplication with any number of arguments and that's all rather easy
+however there is a little fly in that ointment
+if you go back to this uh this slide we see that the expressions that we get are rather bad
+this is a rather bad expression
+how did we get such an expression
+why do we have that expression
+well let's look at this expression in some detail let's find out where all the pieces come from
+as we see here we have a sum just what i showed you at the end of the last time of x times 1 plus 1 times x
+that is the derivative of this product
+the product of a times that where a does not depend upon x and therefore is constant with respect to x is this sum which goes from here all the way through here and through here because it is the first thing times the derivative of the second plus the derivative of the first times the second as the program we wrote on the blackboard indicated we should do
+and of course the deri the the product of b x over here manifests itself as b times 1 plus 0 times x because we see that b depends upon b does not depend upon x
+and so the derivative of b is this 0 and the derivative of x with respect to itself is the 1
+ok
+and of course the sums the derivative of the sums over here turn into these two sums of the derivatives of the parts
+so what we're seeing here is exactly the thing i was trying to tell you about with fibonacci numbers awhile ago that the form of the process is expanded as lo as from the local rules that you see in the procedure
+that the procedure represents a set of local rules for the expansion of this process
+and here the process left behind some stuff which was the which is the answer and it was constructed by the walk it takes of the tree structure which is the expression
+so every part in the answer we see here derives from some part of the problem
+now we could look at for example the derivative of foo which is a x squared plus b x plus c with respect to other things
+like here for example we can see that the derivative of foo with respect to a
+and it's a very similar it's in fact the identical algebraic expression except for the fact that these zeros and ones are in different places
+because the only degree of freedom we have in this tree walk is what's constant with respect to the variable we're taking ts the derivative with respect to and what's the same variable
+in other words if we go back to this blackboard and we look ok
+we have no choice what to do when we ta when you take the derivative of the sum
+or a product
+the only interesting place here is is the expression is the expression the variable or is the expression a constant with respect to that variable for very very small expressions in which case we get various ones and zeros which if we go back to this slide
+we can see that the zeros that appear here for example uh this one over here is the derivative of the foo with respect to a which gets us a a an x square because that one gets us the multiply of x and x into the answer
+that one is is 0 over here where i'm taking the derivative of foo with respect to c
+but the shapes of these expressions are the same
+see all those shapes
+are the same
+well is there anything wrong with our rules
+no they're the right rules
+we've been through this one before
+one of the things you are going to begin to discover is that there are not too many good ideas
+ok
+when we were looking at rational numbers yesterday the problem was that we got 6/8ths rather than 3/4ths the answer was unsimplified
+the problem of course is very similar
+there are things i would like to be identical by simplification that don't become identical and yet the rules for doing addition and multiplication of rational numbers were correct so the way we might solve this problem is doing the same we did last time which always works
+if something worked last time it ought to work again just change the representation
+perhaps in the representation we could put in a simplification step that produces a simplified representation
+this may not always work of course i am not trying to say that it always works but it is one of the things one of the pieces of artillery we have in our war against complexity
+you see because we solved our problem very carefully
+what we have done is we divided the world into several parts
+there are derivative rules
+and general rules for algebra of some sort and at his level of detail and i have an abstraction barrier
+an abstraction barrier
+and i have the representation of the algebraic expressions
+this structure
+and if this barrier i have the interface procedures i have constant
+i have things like same var
+i have things like sum
+make sum
+i have a1 a2 i have products and things like that all the other things i might need for various kinds of algebraic expressions
+making this barrier allows me to arbitrarily change the representation without changing the rules that i have written in terms of that representation
+so if i can make the problem go away by changing the representation ah this the decomposition of the problem into these two parts has helped me a great deal
+so let's take a very simple case of this
+what was one of the problems
+let's go back to this transparency again and we see here oh yes there is horrible things like here is the sum of an expression and zero
+well that's no reason to think of ze anything other than the expression itself
+why should the summation operation have made up this addition
+we can be smarter than that
+where here for example is a multiplication of something by 1 it's another thing like that
+or here is a product of something with zero which is certainly zero
+so we don't have to make this construction
+so why don't we just do that
+i mean to change the representation works
+almost here
+make sum
+to be
+well now it's not something so simple
+i'm not going to make a list containing the symbol plus and things unless i need to
+well what are the possibilities
+if
+i have some sort of cases here
+if i have the numbers
+if a1 is a number
+and here is another primitive i've just introduced it's possible to tell whether something is a number
+and if number
+a2 meaning they're not symbolic expressions then why not do the addition now
+the result is just a plus of a1 and a2
+i'm not asking if these represent numbers of course all of these symbols represent numbers
+ok
+i'm talking about whether the one i've got is the number three
+right now
+and for example
+supposing a1 is a number
+if a1 is a number and it's equal to zero
+well then the answer is just a2
+there's no reason to make anything up
+and if
+if a2 is a number and equal a to zero
+then the result is a1
+and only if i can't figure out something better to do with the situation will i construct a lisp
+otherwise
+i want the representation to be the list
+containing the quoted symbol plus 'kay and a1 and a2
+and of course a very similar thing can be done for products and i think i will avoid boring you with them i was going to write it on the blackboard i don't think it's necessary you know what to do
+it's very simple
+but now let's just see
+let's just see the kind of results we get out of changing our program in this way
+well here's the derivatives
+after having just changed the con the constructors for expressions
+the same fa foo x square plus b x plus c and what i get is nothing more than
+derivative of that is two a x plus b
+well it's not completely simplified
+i would like to collect common terms and sums
+oh that's more work and of course programs that do this sort of thing are huge and complicated algebraic simplification is a very complicated mess
+there's a very famous program you may have heard of called maxima developed at mit in the past which is ah five thousand pages of lisp code mostly the algebraic simplification operations
+but that's the there we see ah the derivative of foo
+in fact x is at least something i wouldn't dare take off more than one point for on an elementary calculus class and the derivative of foo with respect to a well it's gotten down to x x x which isn't so bad
+and the derivative of foo with respect to b is just x itself and the derivative of foo with respect to c comes out 1
+so i am pretty pleased with this
+what you've seen is of course a little bit contrived carefully organized example to show you how we can manipulate algebraic expressions how we do that abstractly in terms of abstract syntax rather than concrete syntax and how we can use the abstraction to control what goes on in building these expressions
+but the real story isn't just such a simple thing as that
+the real story is in fact that i'm manipulating these expressions and the expressions are the same expressions going back to the slide as the ones that were our lisp expressions
+there's a pun here
+i've chosen my representation to be the same as the representation in my language
+of similar things
+by doing so i've invoked the necessity i created the necessity to have things like quotation because of the fact that my language is capable of writing expressions that talk about expressions of the language
+i need to have something that says this is an expression i'm talking about rather than this expression is talking about something and i want to talk about that
+so quotation stops and says i'm talking about this expression itself
+now given that power if i can manipulate expressions of a language i can begin to build even much more powerful layers upon layers of languages 'cause i can write languages that not only are imbedded in lisp or whatever language you start with but languages language that are completely different
+that are just
+as we say interpreted in lisp or something like that
+we'll get to understand those words more in the future but right now i just want to leave you with the fact that we've gotten over a we've hit a line which makes it ma gives us tremendous power
+at this point we've bui bought our sledgehammer we have to be careful on wh to what flies when we apply it
+thank you

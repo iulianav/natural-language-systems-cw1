@@ -1,0 +1,552 @@
+well now that we've uh given you some power to make independent local state and to model objects
+thought we'd do a bit of uh programming of a very complicated kind just to illustrate what you can do with this sort of thing
+i suppose as i said we were motivated by physical systems and the ways we like to think about physical systems which is that there are these things that the world is made out of and each of these things has particulars
+independent local state and therefore it's a it is a thing
+that's what makes it a thing
+and then we're going to say that in the model in the world the we have a world and a model of in our minds and in the computer of that world and what i want to make is a correspondence between the objects in the world and the objects in the computer
+the relationships between the objects in the world and the relationship between those same ob the model objects in the computer and the functions that relate things in the world to the functions that relate things in the computer
+this buys us modularity
+if we really believe the world is like that if it's made out of these little pieces
+and of course we could arrange our world to be like that
+we can only model those things that are like that right then we can inherit the modularity in the world into our programming
+that's why we would invent some of this object oriented programming
+well let's take the best kind of objects i know
+they're completely they're completely wonderful electrical systems
+electrical systems really are the physicists best best objects
+you see over here i have some piece of machinery alright here's a piece of machinery okay
+and it's got an electrical wire connecting one part of the machinery with another part of them machinery
+and one of the wonderful properties of the electrical world is that i could say this is an object and this is an object and there the connection between them is clear
+eh in principle there is no connection that i didn't describe with these wires
+i say if i have b light bulbs if i have a light bulb and a power supply it's plugged into a the outlet then the connection is perfectly clear
+there's no other connections that we know of
+if i were to tie a knot in the wire that connects the light bulb to the power supply the light remains lit up
+it doesn't care that these that the way the physics is arranged is such that the connection can be made abstract at least through low frequencies and things like that
+so in fact we have captured all of the connections there really are
+well let's even go one step further and talk about the most abstract types of uh electrical systems we have
+digital digital circuits
+in here there are certain kind of objects
+for example in digital circuits we have things like inverters we have things like and gates we have things like or gates
+we connect them together by sort of wires which represent represent abstract signals
+we don't even care as physical variables whether these are voltages or currents or some combination or anything like that or water water pressure okay
+we these abstract variables represent certain signals okay
+and we build systems by wiring these things together with wires
+so today what i'm going to show you right now we're going to build up an imbedded language in lisp
+imbedded in the same sense that henderson's picture language was imbedded which is not the same sense as the language of pattern match and substitution was done yesterday
+the pattern match substitution language was interpreted by a list program but the but the imbedding of henderson's program is that we just build up more and more procedures that encapsulate the structure we want
+so for example here i'm going to have some various primitive kinds of objects as you see
+that one and that one
+i'm going to use wires to combine them
+the way i represent attaching make i can make wires
+so let's say a is a wire and b is a wire and c is a wire and d is a wire and e is a wire and s is a wire
+well an or gate that has both inputs the inputs being a and b and the output being wire d you notate like this
+an and gate which has inputs a and b and output c you notate like that
+by making such a sequence of declarations like this i can wire together an arbitrary circuit
+so i've just told you a set of primitives and means of combination for biddl building digital circuits
+well what i need more in a real language is abstraction and so for example here i have
+here i have a uh half adder
+it's something you all know if you've done any digital design hm
+it's used for adding numbers together on a and b and putting out a sum and carry hm
+and in fact the wiring diagram is exactly what i told you
+a half adder with things that come out of the box
+you see the box the boundary the abstraction is always a box and there are things that come out of it a b s and c
+those are the declared variables the declared variables of a lambda expression which is the one that defines half adder
+and internal to that i make up some more wires d and e which i'm going to use for the inter connect
+here e is this one and d is this wire the inter connect that doesn't come through this walls of the box okay and wire things together as you just say
+and the nice thing about this that i've just shown you is this language is hierarchical in the right way
+if a language isn't hierarchical in the right way if it turns out that you that a compound object doesn't look like a primitive there's something wrong with the language right at least the way i feel about that
+so here we have here we instead of starting with mathematical functions or things that compute mathematical functions which is what we've been doing up 'til now instead of starting with things that look like mathematical functions or compute such things we're starting things with things that are electrical objects and we build up more electrical objects
+and the glue we're using is basically the lisp structure lambdas
+lambda is the ultimate glue if you will
+and of course half adder itself can be used in a more complicated abstraction called a full adder
+which in fact involves two half adders as you see here hooked to together with some extra wires that you see here s c one and c two
+and an or gate to manufacture a full adder which takes a um input number another input number a carry in and produces output a sum and a carry out
+and out of full adders you can make real adder eh eh adder chains and big adders okay
+so we have here a language so far that has primitives means of combination and means of abstraction to real language
+now how are we going to implement this
+well we'll let's look athe let's do it easily
+let's look at the primitives
+you see the only problem is we have to implement the primitives
+nothing else has to be implemented because we're picking up the means of combination and abstraction from lisp
+we're inheriting them in the imbedding
+ok so let's look at a particular primitive and inverter is a nice one right
+now inverters has two wires coming in an in and an out
+and somehow it's going to have to know what to do when a signal comes in
+so somehow it's going to have to tell it's input wire and now we're going to talk about objects and we're going to see this in a little more detail soon well it's going to tell its input wire that
+when you change tell me
+so this object the object which is the inverter has to tell the object which is the input wire hi my name is george and my my job is to do something with results when you change
+so when you change when you get a change tell me about it because i gotta do something with that
+okay well that's done down here by adding an action on the input wire called invert in where invert in is defined over here to be a procedure of no arguments
+which gets the logical knot of the signal on the input wire and after some delay which is the inverter delay
+all these electrical objects have delays okay will do the following thing set the signal on the output wire to the new value
+a very simple program
+now you have to imagine that the output wire has to be sensitive and know that when it's sa signal changes then they have to tell other guys
+hey wake up
+ah my value has changed
+so when you hook together inverter with an and gate or something like that there has to be a lot of communication going on in order to make sure that the signal propagates right
+and down here is nothing very exciting
+this is just the definition of logical knot for some particular representations of the logical values one and zero in this case
+and we can look at things more complicated like and gates
+and gates take two inputs uh a one and a two we'll call them and produce an output a but the structure of the and gate is identical to the one we just saw
+there's one called an and action procedure that's defined which is the thing that gets called when an input is changed
+and what it does of course is nothing more then compute the logical and of the signals on the inputs and after some delay called the and gate delay call this procedure which sets a signal on the output to a new value
+now how i implement these things is all wishful thinking
+as you see here i have an assignment operation
+it's not set
+it's a derived assignment operation in the same way we had functions that were derived from car and cdr okay
+that as i by convention label that with an exclamation point
+and over here you see there's an add action which is to inform the wire called a one locally in this and gate
+to make a to call the and action procedure when it gets changed and the wire a two to call the and action procedure when it gets changed
+it's all very simple
+well let's talk a little bit about this communication that must occur between these various parts
+suppose for example i have a very simple circuit which contains an and with wires a and b and that connects through a wire called c
+to an inverter which has a wire output called d hm
+what are the computa this is a here's the physical world it's an abstraction of the physical world
+you know i can buy these out of little pieces that you get at radio shack for a few sense and there are boxes that act like this which have little numbers on them like ls 04 or something
+now supposing i were to to try to say what's the computational model
+what is the thing that corresponds to that that part of reality in the mind of us and in the computer
+well i have to assign for every object in the world an object in the computer and for every and and for every relationship in the world between them a relationship in the computer
+that's my goal
+so let's ta do that
+well i have some sort of thing called the signal a
+this is a
+it's a signal
+it's a cloudy thing like that
+and i have another one down here which gonna call b
+and it's another signal
+now this signal these two signals are somehow ha gonna have to hook together in a a box let's call it this which is the and gate action procedure
+that's the and gate's action procedure
+and it's going to produce well it's going to interact with a signal object which we call c okay a wire object excuse me we call c
+and then the this is going to c put out again or connect to another action procedure which is one associated with the inverter in the world knot
+and i'm going to have a another another wire which we'll call d
+so here's my layout of stuff
+now we have to say what's inside them and what they have to know to compute
+well every every one of these wires has to know what the value of the signal that's on that wire is
+so there's going to be some variable inside here
+we'll call it signal and he owns the value okay
+so there must be some environment associated with this and for each one of these there must be an environment that binds signal hm
+and there must be a signal here therefore
+and presumably signals have value that's either one or zero and signal
+now we also have to have some list of people to inform if the signal here changes
+well i'm going to have to inform this
+so i've got that list
+we'll call it the action procedures a p and it's presumably a list but the first thing on the list in this is this guy
+okay and the action procedures of this one happens to have some list of stuff
+there might be other people who are sharing a who are looking at it okay
+so there might be other guys on this list like somebody over there that we don't know about
+it's other guy attached to a
+and the action procedure here also has to point at that list of action procedures
+and of course that means this one it's action procedures has to point off to here
+this is the things it ha people it has to inform
+and this guy has some too but i don't know what they are because i didn't draw it in my diagram for things connected to d
+now it's also the case that when the and action procedure is awakened saying one of the people who know that you've told one of the people you've told to wake you up if their signal changes okay
+you have to look and ask them what's their signal so you can do the and and produce a signal for this one okay
+so there has to be for example information here saying a one my a one is this guy and my a two is this guy and not only that
+when i do my and i'm going to have to tell this guy something so i need an output
+meaning this guy
+and similarly this guy is going to have to have a thing called the input that he interrogates to find out what the value of the signal on the input is
+when the signal wakes up and says i've changed and sends a message this way saying i've changed
+this guy says okay what's your value now okay
+and when he gets that value then he's going to have to say
+okay output changes this guys changes this guy and so on
+and so i have to have at least that much connectedness
+now let's go back and look for example at the and gate
+here we are back on this slide okay and we can see some of these parts
+for any particular and gate there is an a one there is an a two in the output and those are
+those are and environment that was created at the those produced a frame at the time and gate was called a frame where a one a two and output are have as their values
+their bound to the wires which i already said which they were which were passed in
+in that environment i constructed a procedure
+this one right there
+and action procedure was constructed in that environment
+that was the va result of evaluating the lambda expression
+so it hangs onto the frame where these were defined
+local part of its local state is that okay
+the and action procedure therefore has access to a one a two and output as we see here a one a two and output
+now we haven't looked inside of a wire yet
+that's all that remains
+well let's look at a wire
+like the overhead
+very good
+well the wire again is a somewhat complicated mess
+oh
+wrong one right
+it's a big complicated mess like that
+but let's look at it in detail and see what's going on
+well the wire is one of these and it has to have two things that are part of it that its state
+one of them is the signal we see here
+hud when we call makewire to make a wire then the first thing we do is we create some variables which are the signal and the action procedures for this wire
+in that context we define various functions or procedures
+excuse me procedures
+one of them is called set my signal to a new value and what that does is takes a new value in
+if that's equal to my current value of my signal i'm done otherwise i set the signal to the new value and call each of the action procedures that i've been that i've been uh what's the right word that i've been introduced to
+i get introduced when when the adder when the and gate recru was applied to me okay by add action procedure at the bottom
+also i have to define a way of accepting an action procedure which is what you see here which incrim in increments my action procedures using set to the result of consing up a new proce a new procedure which is past to me onto my action procedures list
+and for technical reasons i have to call that procedure one so i'm not going to tell you anything about that that has to do with with invention and simulations and getting them started okay which takes a little bit of thinking
+and finally i'm going to define a thing called the dispatcher which is a way of passing a message to a wire which is going to use be used to extract from it various information like what is the current signal value
+what is the method of setting your signal
+i want to get that out of it
+how do i how do i add another action procedure
+and i'm going to return that dispatch that procedure as a value
+so the wire that i've constructed is a message accepting object which accepts message like like
+what's your method of adding action procedures
+in fact it'll give me a procedure which is but the add action procedure which i can then apply to an action procedure to create another action procedure in the wire okay
+so that's a permission
+says it's given me permission to change your action procedures
+and in fact you can see that over here
+next slide
+ha
+this is nothing very interesting the call each of the action procedures is just a cdr ing down a list and i've not even going to talk about that anymore
+we're too advanced for that
+however if i want to get a signal from a wire i ask the wire which is what is the wire
+the wire is the dispatch returned by creating the wire
+it's a procedure
+i call that dispatch on the si the message get signal and what i should expect to get is a method of getting a signal
+and when actually i get the signal
+if i want to set a signal okay i want to change a signal then what i'm going to do is take a wire as an argument and a new value for the signal i'm going to ask the wire for permission to set it's signal and use that permission
+which is a procedure on the new value
+and if we be go back to the overhead here okay thank you
+if we go back to the overhead here we see that the met if i ask for the method of setting the signal that's over here
+it's set my signal a procedure that's defined inside the wire which if we look over here is the thing that says set my internal value called the signal my internal variable which is the signal
+to the new value which is passed to me as an argument and then call each of the action procedures waking them up
+very simple
+okay going back to that slide we also have the one last thing which i'm i suppose now you can easily work out for yourself is the way you add an action
+you ta you gotta take a wire a wire and an action procedure and i ask the wire for permission to add an action
+getting that permission i use that permission to give it an action procedure
+so that's a real object
+there's a few more details about this hm
+for example how am i going to how am i going to control this thing
+how do i do these delays okay
+let's look at that for a second
+next one here
+let's see
+we know when we looked at the and gate or the not gate that when a signal changed on the input there was a delay and then it was going to call a procedure which is going to change the output hm
+well how are we going to do this
+we're going to make up some mechanism a fairly complicated mechanism at that which we're going to have to be very careful about but after a delay we're going to do an action
+a delay is a number and an action's a procedure
+what that's going to be is they're going to have a special structure called an agenda which is a thing that organizes time in actions and we're going to see that in a while
+i don't want to get into that right now
+but the agenda has a moment at which at which something happens
+we're setting up for later at some moment which is the sum of the time which is the delay time plus the current time that the agenda thinks things is now okay
+we're going to set up to do this action and add that to the agenda
+and the way this machine will now run is very simple
+we have a thing called propagate which is the way things run
+if the agenda is empty we're done if there's nothing more to be done
+otherwise we're going to take the first item off the agenda and that's a procedure of no arguments so that we're going to see extra parenthesis here we call that on no arguments
+that takes the action
+then we remove that first item from the agenda and we go around the propagation loop hm
+so that's the overall structure of this thing
+now there's a few other things we can look at and then we're going to look into the agenda a little while from now
+may i have the overhead again
+well in order to set this thing going i just want to show you some behavior out of this this simulator
+by the way you may think the simulator is very simple and probably too simple to be useful
+the factor of the matter is that this simulator has been used to manufacture a fairly large computer okay so this is a real live example
+actually not exactly this simulator because i'll tell you the difference
+the difference is that there were many more different kinds of primitives
+there was not just the word inverter or and gate
+there were things like edge l edge triggered uh flip flops and uh and uh latches right transparent latches and and a adders and things like that and the difficulty with that is that there's pages and pages of the daf definitions of all these primitives
+with numbers ls 04 hm and then there's many more parameters of them for their it's not just one delay
+it's things like set up times and hold times and all that
+but with the exception of that part of the complexity the structure of the simulator it that we use for do building a real computer that works hm is exactly the what you're seeing here
+well in any case what we have here is a few simple things like there's inverter delays being set up and making a new agenda and then uh we can make some inputs okay
+and as input one input two a sum and a carry which are wires i'm going to put a special kind of object called a probe uh onto onto some of the wires uh to summon on to carry okay
+a probe is a a probe is an object that has the property that when you sa change change a wire it's attached to it types out a message
+that's an easy thing to do
+and then once we have that of course the when you put the probe on the first thing it does it says the current value of the sum at time zero is zero
+and i'm because i just noticed it and the value of the carry at time zero this is a time is zero
+and then we go off and we build some structure like we can build a structure here that says um you have a half adder on input one input two sum and carry and we're going to set the signal on input one to one
+we do some propagation
+at time eight which you could see going through this thing if you wanted to the new value of sum became one and the thing says i'm done
+that wasn't very interesting
+but we can set it some more signals like we set signal on input two to be one and at that time if we propagate then it carried at at eleven
+the carry becomes one and at sixteen the sum's new value becomes zero
+okay you might want to work out that if you like about the digital circuitry
+it's true and it works and it's not very interesting but that's the kind of behavior we get out of this thing
+so what i've shown you right now is a large scale picture
+how you at a bigger sc a big scale you implement an event driven simulation of some sort
+how you might organize it to have nice hierarchical structure allowing you to build abstract boxes that you can instantiate
+but i haven't told you any of the details about how this agenda and things like that work
+that we'll do next and that's going to involve change and mutation of data and things like that
+are there any questions now before i go on
+thank you
+let's take a break
+well we've been making a simulation and the simulation is an event driven simulation where the s the objects in the world are the objects in the computer
+and the changes of state that are happening in the world in time are organized to be time in the computer so that if something have to happens after something else in the world then we have it happen after
+after the corresponding events happen in the same order in the computer hm
+that's where we have assignments when we make that alignment
+well right now i want to show you a way of organizing time which is an agenda or a priority queue it's sometimes called and we'll do some
+i'm going to do a little bit of just understanding what are the things we need to be able to do to make agendas
+and so we're going to have alright right now i'm here we're going to write down a bunch of primitive operations for manipulating agendas
+okay but i'm not going to show you the code for them because they're all very simple and you've got listings of all that anyway
+so what do we have
+we have things like makeagenda which pro produces a new agenda
+we can ask is a we can get the current time of an agenda of an agenda which gives me a number a time
+we can get we can ask whether an agenda is empty empty agenda
+and that produces either a true or a false okay
+we can add an o object to an agenda
+actually what we add to an agenda is an operation is an action to be done and that takes a time the action itself and the agenda i want to add it to okay
+that inserts it in the appropriate place in the agenda
+i can get the first item off an agenda the first thing i have to do which is going to give me an action
+and i can remove the first item from an agenda
+that's what i have to be able to do with agendas
+that is a big complicated mess
+from an agenda
+well let's see how we can organized this thing as a data structure a bit
+well an agenda is going to be some kind of list and it's going to be a list that i'm going to have to be able to modify
+so we're going to have to talk about modifying of lists because i'm going to add things to it and delete things from it and things like that
+it's organized by time
+it's probably good to keep it in sorted order
+but sometimes there are lots of things that happen at the same time approximate same time
+what i have to do is say group things by the time at which they're supposed to happen
+so i'm going to make an er agenda as a list of segments okay and so i'm going to draw you a data structure for an agenda
+a perfectly reasonable one
+here's an agenda
+it's a thing that begins with a name
+i'm going to do it right now out of list structure
+it's got a header
+there's a reason for the header
+we're going to see the reason soon okay
+and it will have a segment
+it will have it will be a list of segments
+supposing this agenda has two segments okay there the cars successive cars of this list
+each segment is going to have a time say for example ten
+this says that things that happen in this segment are at time ten
+and what i'm going to have in here is another data structure which i'm not going to describe which is a queue of things to do at time ten
+is a queue and we'll talk about that in a second
+but abstractly the queue is just a list of things to do at a particular time and i can add things to a queue
+this is a queue
+there's a time there's a segment
+now i may have another segment in this in this agenda
+supposing this is stuff that happens at time thirty
+it has of course another queue of things that are queued up to be done at time thirty
+well there are various things i have to be able to do to an agenda
+supposing i want to add to an agenda another thing to be done at time ten
+well that's not very hard
+i'm going to walk down here looking for e for ta the segment of time ten
+it is possible that there is no segment of time ten
+we'll can cover that case in a second
+now i'm lu but if i find a segment in time ten then if i want to add another thing to be done at time ten i just increase that queue
+just increase isn't such an obvious idea but i increase the things to be done at that time
+now supposing i want to add something to be done at time twenty
+there is no segment for time twenty
+i'm going to have to create a new segment
+i want my time twenty segment to exist between time ten and time thirty
+well that takes a little work
+i'm going to have to do a cons
+i'm going to have to make a new
+a new element of the agenda list list of segments
+i'm going to have to change here's change
+i'm going to have to change the cdr of the cdr of the agenda to point at a new cons
+of the new segment and the cdr of the cdr of the cdr of the agenda
+the cdddr okay
+and this is going to have a new a new segment now of time twenty with its own queue which now has one element in it
+if i wanted to add something at the end i'm going to have to replace the cdr of this of this list with something
+we have to change that piece of data structure so i'm going to need new primitives for doing this but i'm just showing you why i need them
+and finally if i wanted to add a ta a thing to be done at time five i'm going to have to change this one because i'm going to have to add it in over here which is why i planned ahead and had a header cell which has a place
+if i'm going to change things i have to have places for the change okay
+i have to have a place to make the change
+if i remove things from the agenda that's not so hard
+removing them from the beginning is pretty easy which is all the only case i have
+i can go looking for the first the first segment
+i see if it has a non empty queue
+if it has a non empty queue well i'm going to delete one element from the queue like that
+if the queue ever becomes empty then i have to delete the whole segment and then this this changes to point to here
+so there's quite a complicated data structure ca manipulation going on the details of which are not really very exciting
+now let's talk about queues
+they're similar because each of these agendas has a queue in it
+what's a queue
+a queue is going to have the following primitive operations
+to make a queue
+this gives me a new queue
+i'm going to have to be able to insert into a queue a new item
+i'm going to have to be d able to delete from the queue the first item in the queue
+and i want to be able to get the first thing in the queue
+from some queue
+i also have to be able to test whether a queue is empty
+and when you invent things like this i want you to be very careful to use the kinds of conventions i use for naming things
+notice that i'm careful to say these change something and that tests it and presumably i did the same thing over here
+okay and there should be an empty test over here
+okay well how would i make a queue
+a queue wants to be something i can add to at the end of and pick up the thing at the beginning of
+i should be able to lead from the beginning and add to the end
+well i'm going to show you a very simple structure for that
+we can make this out of conses as well
+here's a queue
+it has it has a queue header which contains two parts a front pointer and a rear pointer
+and here i have a queue with two items in it
+the first item i don't know it's perhaps the a one and the second item i don't know let's give it a two
+the reason why i want two pointers in here a front pointer and a rear pointer is so i can add to the end without having to chase down from the beginning
+so for example if i wanted to add one more item to this queue if i wanted to add on another item to be worried about later all i have to do is make a cons which contains that item
+say it's three that's for inserting three into the queue okay
+then i have to change this pointer here
+okay to here and i have to change this one to point to the new rear
+if i wish to take the first element to the queue the first item as it goes chasing down the front point 'til i find the first one and pick it up
+if i wish to delete the first item from the queue delete queue all i do is move the front pointer along this way
+the new front of the queue is now this
+so queues are very simple too
+so what you've seen now is that i need a certain number of na new primitive operations
+i'm going to give them some names and then we're going to look into how they work and how they're used
+we have set the car of a of some pair or thing produced by consing to a new value
+and set the cdr of a pair to a new value and then we're going to look into how they work
+i needed setting car over here to delete the first element of the queue
+this is the car and i had to set it
+i had to be set be able to set the cdr to be able to move the rear pointer or to be able to increment the queue here
+all of the operations i did were made out of those that i just show you on the last blackboard
+good let's close the time take a little break then
+when we originally introduced pairs made out of cons made by cons
+we only said a few axioms about them which were of the form were they
+for all x and y of the car of the cons of x and y
+is x and the cdr of the cons of x and y is y
+and these say nothing about whether a cons has an identity like a person
+in fact all they say is something sort of abstract that a cons is the parts it's made out of
+and of course if two things are made out of the same parts they're the same at least from the point of view of these axioms
+but by introducing assignment in fact mutable data is a kind of assignment
+we had a set a car and a set cdr
+by introducing those these axioms no longer tell the whole story and they're still true if written exactly like this but they don't tell the whole story because
+if i'm going to set a particular car in a particular cons the questions are well is that setting all cars and all conses of the same two things or not
+if i cons we use conses to make up things like rational numbers
+there were things like three over four
+supposing i had two three fourths
+are they the same one or are the different
+well in the case of number it doesn't matter because there's no meaning to changing the denominator of a number
+what you could do it make a number which has a different denominator but the concept of changing a number which has to have a different denominator is sort of a very weird and sort of not supported by what you think of as mathematics
+however when these conses represent things in the physical world then changing something like the car is like removing a piece of the finger nail
+and so conses have an identity
+let me show you what i mean about identity first of all okay
+let's do some little example here
+supposing i define a to be the cons of one and two
+well what that means first of all is that somewhere in some environment i've made a symbol a to have a value which is a pair consisting of pointers to a one and pointer to a two just like that
+now supposing i also say define b b to be the cons doesn't matter but i like it better
+it's prettier of a and a okay
+well first of all i'm using the name a twice
+at this moment i'm going to think of conses as having identity
+this is the same one
+and so that means is i make another pair which i'm gonna call b and it contains two pointers to a
+at this point i have three names for this object
+a is its name the car of b is its name and the cdr of b is its name
+it has several aliases they're called
+now supposing i do something like set the car the car
+of the car of b to three
+what that means is i find the car of b
+that's this
+i set the car of that to be three changing this
+i've changed a
+if i were to ask what's the car of a
+of a now i would get out three even though here we see that a was the cons of one and two
+i caused a to change by changing b
+there is sharing here
+that's sometimes what we want
+surely in the queues and things like that
+that's exactly what we defined our on this organized our data structures to facilitate sharing
+but inadvertent sharing unanticipated interactions between objects is the source of most of the bugs that occur in complicated programs
+so by introducing this possibility of things having identity and sharing and having multiple names for the same thing we get a lot of power but we're going to pay for it with lots of complexity and bugs hm
+so also for example if i just looked at this just to drive that home the cadr of b okay which has nothing to do with even the car of a uh car of b apparently
+the cadr of b what's that
+take the cdr of b and now take the car of that
+oh that's three also
+so i can have non local interactions by sharing and i have to be very careful of that
+well so far of course it seems i've introduced several different assignment operators set set car set cdr well maybe i just get rid of set car and set cdr
+maybe they're not worthwhile
+well the answer is that once you let the camel's nose into the tent the rest of him follows okay
+all i have to have is set and i can make all of the all of the bad things that can happen okay
+let's play with that a little bit
+a couple of days ago when we introduced compound data you saw hal show you a definition of cons in terms of a message acceptor
+i'm going to show you even even even more horrible thing
+a definition of cons in terms of nothing but fa nothing but air okay hot air
+what is the definition of the cons int of the of the old functional kind in terms of purely lambdic expressions procedures
+because i'm going to then modify this definition to get a assignment to be only one kind of assignment to get rid of the set car and set cdr in terms of set
+so what if i define cons of x and y to be a procedure of one argument called a message m
+which calls that message on x and y okay
+this f idea was invented by alonzo church
+he was the greatest programmer of the twentieth century although he never saw a computer
+it was done in the nineteen thirties
+he was a logician i suppose at princeton at the time
+define car of x to be the result of applying x to that procedure of two arguments a and d which selects a
+i will define cdr of x to that be that procedure to be the result of applying x to that procedure of a and d
+which selects d hm
+now you may not recognize this as car cdr and cons but i'm going to demonstrate to you that it satisfies the original axioms just once
+and then we're going to do some playing of games
+consider the problem car of cons of say thirty five and forty seven hm
+well what is that
+it is the result of substituting and of taking car of the result of substituting thirty five and forty seven for x and y in the body of this
+well that's easy enough
+that's car of the result of substituting into lambda of m m of thirty five and forty seven hm
+but what cal what this is is the result of substituting this object for x in the body of that
+so that's just lambda of m that's substituting that's because this object is being substituted for x which is at the beginning of a list
+lambda of m m of thirty five and forty seven okay applied to that procedure of a and d which gives me a
+oh but after result of substituting this for m here alright
+so that's the same thing as lambda of a d a applied to thirty five and forty seven
+oh well that's thirty five
+i'm substituting thirty five for a and four forty seven for d in a
+so i don't need any data at all
+not even numbers okay
+this is alonzo church's hack okay
+well now we're going to do something nasty to him
+being a logician he wouldn't like this but as programmers let's look at the overhead and here we go okay
+i'm going to change the definition of cons okay
+it's almost the same as alonzo church's but not quite
+what do we have here
+the cons of two arguments x and y is going to be that procedure of one argument m which applies to x and y as before but also to two permissions
+the permission to set x to n and the permission to set y to n given that i have an n okay
+so besides the things that i had here in church's definition what i have is that the thing that cons returns
+will apply its argument to not just the values of the x and y that c the cons is made of but also permissions to set x and y to new values
+now of course just as before car is exactly the same
+the car of x is nothing more than applying x as in church's definition to a procedure in this case of four arguments which selects out the first one
+and just as we did before okay that will be the value of x that was in that was contained in the procedure which is the result of evaluating this lambda expression in the environment where x and y are defined over here
+that's the value of cons
+now however the exciting part
+cdr of course is the same the exciting part set car and set cdr
+well they're nothing very complicated anymore
+set car of a cons x to a value new value y is nothing more than applying that cons
+which is the procedure of four procedure of one argument which applies its argument to four things to a procedure which is of four arguments
+the value of x the value of y permission to set x the permission to set y and using it
+using that permission to set x to to the new value
+and similarly set cdr is the same thing
+so what you've just seen is that i didn't introduce any new primitives at all
+i whether or not i want to implement it this way is a matter of engineering and the answer is of course i don't implement it this way for reasons that have to do with engineering
+however in principle logically once i introduced one assignment operator i've assigned i've introduced them all okay
+are there any questions
+yes david
+um i can follow you up until you get i follow all of that but when you bring in the permissions um defining cons in terms of uh the lambda n i m i don't follow where n gets passed
+oh i'm sorry i'll show you
+tey let's follow it
+of course we could do it on the blackboard
+it's not so hard but it's also easy here
+supposing i wish to set cdr of x to y okay
+okay
+see that right there
+set of cdr of x to y
+x is presumably a cons a thing resulting from evaluating cons
+mmm hmm
+right
+therefore x comes from a place over here okay that that uh that x is of the result of evaluating this lambda expression
+right
+right
+that when i evaluated that lambda expression i evaluated it it ip in an environment where the argument to cons were defined
+that means that as free variables in this lambda expression there is the there are in the frame which re which is the parent frame of the this lambda expression that uh of the procedure resulting from this lambda expression
+x and y have places and is possible to set them
+i set them to an n which is the argument of the permission
+the permission is a procedure which is passed to m which is the argument that cons the cons object gets passed
+now let's go back here in the set cdr
+the cons object which is the first argument of set cdr gets passed an argument
+that there's a procedure of four things indeed because that's the same thing as this m over here which is applied to four objects
+the object over here s d is in fact this permission
+when i use s d i apply it to y right there
+so that comes from this
+so
+so
+what do you uh
+so n the n so finish that
+the n that was here is the y which is here okay
+how's that
+right okay
+now when you do a set cdr uh x is the value the cdr is going to become
+the x the x over here
+i'm sorry sorry that's not true
+the x is the set cdr has two arguments
+the cons i'm changing and the and the od the value i'm changing it too
+so you have them backwards
+oh
+okay okay
+that's all
+are there any other questions
+well thank you
+it's time for lunch

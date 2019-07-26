@@ -1,0 +1,173 @@
+when we introduced compound procedures in chapter one we used the substitution model of evaluation to define what is meant by applying a procedure to arguments
+to apply a compound procedure to arguments evaluate the body of the procedure with each formal parameter replaced by the corresponding argument
+once we admit assignment into our programming language such a definition is no longer adequate
+in particular section three point one point three argued that in the presence of assignment a variable can no longer be considered to be merely a name for a value
+rather a variable must somehow designate a place in which values can be stored
+in our new model of evaluation these places will be maintained in structures called environments
+an environment is a sequence of frames
+each frame is a table of bindings which associate variable names with their corresponding values
+each frame also has a pointer to its enclosing environment unless for the purposes of discussion the frame is considered to be global
+the value of a variable with respect to an environment is the value given by the binding of the variable in the first frame in the environment that contains a binding for that variable
+if no frame in the sequence specifies a binding for the variable then the variable is said to be unbound in the environment
+figure three point one shows a simple environment structure consisting of three frames labeled i ii and iii
+in the diagram a b c and d are pointers to environments
+c and d point to the same environment
+the variables z and x are bound in frame ii while y and x are bound in frame i
+the value of x in environment d is three
+the value of x with respect to environment b is also three
+this is determined as follows we examine the first frame in the sequence and do not find a binding for x so we proceed to the enclosing environment d and find the binding in frame i
+on the other hand the value of x in environment a is seven because the first frame in the sequence contains a binding of x to seven
+with respect to environment a the binding of x to seven in frame ii is said to shadow the binding of x to three in frame i
+the environment is crucial to the evaluation process because it determines the context in which an expression should be evaluated
+indeed one could say that expressions in a programming language do not in themselves have any meaning
+rather an expression acquires a meaning only with respect to some environment in which it is evaluated
+even the interpretation of an expression as straightforward as depends on an understanding that one is operating in a context in which plus is the symbol for addition
+thus in our model of evaluation we will always speak of evaluating an expression with respect to some environment
+to describe interactions with the interpreter we will suppose that there is a global environment consisting of a single frame that includes values for the symbols associated with the primitive procedures
+for example the idea that plus is the symbol for addition is captured by saying that the symbol plus is bound in the global environment to the primitive addition procedure
+the overall specification of how the interpreter evaluates a combination remains the same as when we first introduced it in section one point one point three
+to evaluate a combination
+one
+evaluate the subexpressions of the combination
+two
+apply the value of the operator subexpression to the values of the operand subexpressions
+the environment model of evaluation replaces the substitution model in specifying what it means to apply a compound procedure to arguments
+in the environment model of evaluation a procedure is always a pair consisting of some code and a pointer to an environment
+procedures are created in one way only by evaluating a lambda expression
+this produces a procedure whose code is obtained from the text of the lambda expression and whose environment is the environment in which the lambda expression was evaluated to produce the procedure
+for example consider the procedure definition
+evaluated in the global environment
+the procedure definition syntax is just syntactic sugar for an underlying implicit lambda expression
+it would have been equivalent to have used
+which evaluates and binds square to the resulting value all in the global environment
+figure three point two shows the result of evaluating this define expression
+the procedure object is a pair whose code specifies that the procedure has one formal parameter namely x and a procedure body
+the environment part of the procedure is a pointer to the global environment since that is the environment in which the lambda expression was evaluated to produce the procedure
+a new binding which associates the procedure object with the symbol square has been added to the global frame
+in general define creates definitions by adding bindings to frames
+now that we have seen how procedures are created we can describe how procedures are applied
+the environment model specifies to apply a procedure to arguments create a new environment containing a frame that binds the parameters to the values of the arguments
+the enclosing environment of this frame is the environment specified by the procedure
+now within this new environment evaluate the procedure body
+to show how this rule is followed figure three point three illustrates the environment structure created by evaluating the expression in the global environment where square is the procedure generated in figure three point two
+applying the procedure results in the creation of a new environment labeled e one in the figure that begins with a frame in which x the formal parameter for the procedure is bound to the argument five
+the pointer leading upward from this frame shows that the frame's enclosing environment is the global environment
+the global environment is chosen here because this is the environment that is indicated as part of the square procedure object
+within e one we evaluate the body of the procedure
+since the value of x in e one is five the result is or twenty five
+the environment model of procedure application can be summarized by two rules
+a procedure object is applied to a set of arguments by constructing a frame binding the formal parameters of the procedure to the arguments of the call and then evaluating the body of the procedure in the context of the new environment constructed
+the new frame has as its enclosing environment the environment part of the procedure object being applied
+a procedure is created by evaluating a lambda expression relative to a given environment
+the resulting procedure object is a pair consisting of the text of the lambda expression and a pointer to the environment in which the procedure was created
+we also specify that defining a symbol using define creates a binding in the current environment frame and assigns to the symbol the indicated value
+finally we specify the behavior of set the operation that forced us to introduce the environment model in the first place
+evaluating the expression in some environment locates the binding of the variable in the environment and changes that binding to indicate the new value
+that is one finds the first frame in the environment that contains a binding for the variable and modifies that frame
+if the variable is unbound in the environment then set signals an error
+these evaluation rules though considerably more complex than the substitution model are still reasonably straightforward
+moreover the evaluation model though abstract provides a correct description of how the interpreter evaluates expressions
+in chapter four we shall see how this model can serve as a blueprint for implementing a working interpreter
+the following sections elaborate the details of the model by analyzing some illustrative programs
+when we introduced the substitution model in section one point one point five we showed how the combination evaluates to one hundred thirty six given the following procedure definitions
+we can analyze the same example using the environment model
+figure three point four shows the three procedure objects created by evaluating the definitions of f square and sum of squares in the global environment
+each procedure object consists of some code together with a pointer to the global environment
+in figure three point five we see the environment structure created by evaluating the expression
+the call to f creates a new environment e one beginning with a frame in which a the formal parameter of f is bound to the argument five
+in e one we evaluate the body of f
+to evaluate this combination we first evaluate the subexpressions
+the first subexpression sum of squares has a value that is a procedure object
+the other two subexpressions are evaluated by applying the primitive operations plus and multiply to evaluate the two combinations and to obtain six and ten respectively
+now we apply the procedure object sum of squares to the arguments six and ten
+this results in a new environment e two in which the formal parameters x and y are bound to the arguments
+within e two we evaluate the combination
+this leads us to evaluate where square is found in the global frame and x is six
+once again we set up a new environment e three in which x is bound to six and within this we evaluate the body of square which is
+also as part of applying sum of squares we must evaluate the subexpression where y is ten
+this second call to square creates another environment e four in which x the formal parameter of square is bound to ten
+and within e four we must evaluate
+the important point to observe is that each call to square creates a new environment containing a binding for x
+we can see here how the different frames serve to keep separate the different local variables all named x
+notice that each frame created by square points to the global environment since this is the environment indicated by the square procedure object
+after the subexpressions are evaluated the results are returned
+the values generated by the two calls to square are added by sum of squares and this result is returned by f
+since our focus here is on the environment structures we will not dwell on how these returned values are passed from call to call however this is also an important aspect of the evaluation process and we will return to it in detail in chapter five
+in section one point two point one we used the substitution model to analyze two procedures for computing factorials a recursive version
+and an iterative version
+show the environment structures created by evaluating using each version of the factorial procedure
+we can turn to the environment model to see how procedures and assignment can be used to represent objects with local state
+as an example consider the withdrawal processor from section three point one point one created by calling the procedure
+let us describe the evaluation of
+followed by
+figure three point six shows the result of defining the make withdraw procedure in the global environment
+this produces a procedure object that contains a pointer to the global environment
+so far this is no different from the examples we have already seen except that the body of the procedure is itself a lambda expression
+the interesting part of the computation happens when we apply the procedure make withdraw to an argument
+we begin as usual by setting up an environment e one in which the formal parameter balance is bound to the argument one hundred
+within this environment we evaluate the body of make withdraw namely the lambda expression
+this constructs a new procedure object whose code is as specified by the lambda and whose environment is e one the environment in which the lambda was evaluated to produce the procedure
+the resulting procedure object is the value returned by the call to make withdraw
+this is bound to w one in the global environment since the define itself is being evaluated in the global environment
+figure three point seven shows the resulting environment structure
+now we can analyze what happens when w one is applied to an argument
+we begin by constructing a frame in which amount the formal parameter of w one is bound to the argument fifty
+the crucial point to observe is that this frame has as its enclosing environment not the global environment but rather the environment e one because this is the environment that is specified by the w one procedure object
+within this new environment we evaluate the body of the procedure
+the resulting environment structure is shown in figure three point eight
+the expression being evaluated references both amount and balance
+amount will be found in the first frame in the environment while balance will be found by following the enclosing environment pointer to e one
+when the set is executed the binding of balance in e one is changed
+at the completion of the call to w one balance is fifty and the frame that contains balance is still pointed to by the procedure object w one
+the frame that binds amount is no longer relevant since the procedure call that constructed it has terminated and there are no pointers to that frame from other parts of the environment
+the next time w one is called this will build a new frame that binds amount and whose enclosing environment is e one
+we see that e one serves as the place that holds the local state variable for the procedure object w one
+figure three point nine shows the situation after the call to w one
+observe what happens when we create a second withdraw object by making another call to make withdraw
+this produces the environment structure of figure three point ten which shows that w two is a procedure object that is a pair with some code and an environment
+the environment e two for w two was created by the call to make withdraw
+it contains a frame with its own local binding for balance
+on the other hand w one and w two have the same code the code specified by the lambda expression in the body of make withdraw
+we see here why w one and w two behave as independent objects
+calls to w one reference the state variable balance stored in e one whereas calls to w two reference the balance stored in e two
+thus changes to the local state of one object do not affect the other object
+in the make withdraw procedure the local variable balance is created as a parameter of make withdraw
+we could also create the local state variable explicitly using let as follows
+recall from section one point three point two that let is simply syntactic sugar for a procedure call
+is interpreted as an alternate syntax for
+use the environment model to analyze this alternate version of make withdraw drawing figures like the ones above to illustrate the interactions
+show that the two versions of make withdraw create objects with the same behavior
+how do the environment structures differ for the two versions
+section one point one point eight introduced the idea that procedures can have internal definitions thus leading to a block structure as in the following procedure to compute square roots
+now we can use the environment model to see why these internal definitions behave as desired
+figure three point eleven shows the point in the evaluation of the expression where the internal procedure good enough has been called for the first time with guess equal to one
+observe the structure of the environment
+sqrt is a symbol in the global environment that is bound to a procedure object whose associated environment is the global environment
+when sqrt was called a new environment e one was formed subordinate to the global environment in which the parameter x is bound to two
+the body of sqrt was then evaluated in e one
+since the first expression in the body of sqrt is
+evaluating this expression defined the procedure good enough in the environment e one
+to be more precise the symbol good enough was added to the first frame of e one bound to a procedure object whose associated environment is e one
+similarly improve and sqrt iter were defined as procedures in e one
+for conciseness figure three point eleven shows only the procedure object for good enough
+after the local procedures were defined the expression was evaluated still in environment e one
+so the procedure object bound to sqrt iter in e one was called with one as an argument
+this created an environment e two in which guess the parameter of sqrt iter is bound to one
+sqrt iter in turn called good enough with the value of guess as the argument for good enough
+this set up another environment e three in which guess is bound to one
+although sqrt iter and good enough both have a parameter named guess these are two distinct local variables located in different frames
+also e two and e three both have e one as their enclosing environment because the sqrt iter and good enough procedures both have e one as their environment part
+one consequence of this is that the symbol x that appears in the body of good enough will reference the binding of x that appears in e one namely the value of x with which the original sqrt procedure was called
+the environment model thus explains the two key properties that make local procedure definitions a useful technique for modularizing programs
+the names of the local procedures do not interfere with names external to the enclosing procedure because the local procedure names will be bound in the frame that the procedure creates when it is run rather than being bound in the global environment
+the local procedures can access the arguments of the enclosing procedure simply by using parameter names as free variables
+this is because the body of the local procedure is evaluated in an environment that is subordinate to the evaluation environment for the enclosing procedure
+in section three point two point three we saw how the environment model described the behavior of procedures with local state
+now we have seen how internal definitions work
+a typical message passing procedure contains both of these aspects
+consider the bank account procedure of section three point one point one
+show the environment structure generated by the sequence of interactions
+where is the local state for acc kept
+suppose we define another account
+how are the local states for the two accounts kept distinct
+which parts of the environment structure are shared between acc and acc two

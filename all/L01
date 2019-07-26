@@ -1,0 +1,536 @@
+i'd like to welcome you to this course on computer science
+actually that's a terrible way to start
+uh computer science is a terrible name for this business
+first of all it's not a science
+it uh might be engineering or it might be art or we'll actually see that computer so called science actually has a lot in common with magic and we'll see that in this course
+so it's not a science
+it's also not really very much about computers
+and it's not about computers in the same sense that that physics is not really about particle accelerators
+and uh biology's not really about microscopes and petri dishes
+and uh it's not about computers in the same set sense that geometry is not really about uh using surveying instruments
+in fact there's a lot of uh commonality between computer science and geometry
+geometry first of all is another subject with a lousy name
+uh the name comes from gaia meaning the earth and metron meaning to measure
+geometry originally meant measuring the earth or or surveying
+and the reason for that was that thousands of years ago the egyptian priesthood developed the rudiments of geometry in order to figure out how the restore the the boundaries of fields that were destroyed in the annual flooding of the nile
+and to the egyptians who did that geometry really was the use of surveying instruments
+now the reason we think computer science is about computers is pretty much the same reason that the egyptians thought geometry was about surveying instruments and that is when some field is just getting started and you don't really understand it very well it's very easy to confuse the essence of what you're doing with the tools that you use
+and indeed on some absolute scale of things we probably know less about the essence of computer science than the ancient egyptians really know about geometry
+well what's what do i mean by the essence of computer science what do i mean by the essence of geometry
+see it's certainly true that these egyptians went off and used surveying instruments
+but when we look back on them after a couple of thousand years we say gee what they were doing the important stuff they were doing was to begin to formalize notions about space and time
+to start a way of talking about mathematical truths formally that led to the axiomatic method that led to sort of all of modern mathematics
+figuring out a way to talk precisely about so called declarative knowledge what is true
+well similarly i think in the future people will look back and say yes those those primitives in the twentieth century were fiddling around with gadgets called computers
+but really what they were doing is starting to learn how to formalize formalize intuitions about process
+how to do things
+right
+right
+starting to to develop a way to talk precisely about about how to knowledge as opposed to geometry that talks about what is true
+let me give you an example of that
+let's let's take a look
+here is a piece of a piece of mathematics right
+that says what a square root is
+right
+the square root of x is the number y such that y squared is equal to x and y is greater to than zero
+now that's a fine piece of mathematics but just telling you what a square root is doesn't really say anything about about how you might go out and find one
+all right
+so let's contrast that with a piece of imperative knowledge right
+how you might go out and find a square root
+this in fact also comes from egypt not not uh not ancient ancient egypt this is an algorithm due to huron of alexandria called how to find a square root by successive averaging
+and what it says is that in order to find a square root in order to find a square root you uh make a guess you improve that guess and the way you improve the guess is to average the guess and x over the guess
+and we'll talk a little bit later about what why that's a reasonable thing
+and you keep improving the guess until it's good enough
+but that's a method
+that's how to do something as opposed to declarative knowledge that says what you're looking for
+right
+that's a process
+well what's a process in general
+it's kind of hard to say
+you can think of it as like a magical spirit that sort of lives in the computer and does something
+and uh the thing that directs a process is a pattern of rules called a procedure
+so procedures are the are the spells if you like that uh control these magical spirits that are the processes and uh well i guess you know everyone needs a magical language
+and sorcerers all right real sorcerers use ancient akkadian or or sumerian or babylonian or whatever we're going to conjure our spirits in magical language called lisp
+which is a language designed for talking about for casting the spells that are procedures to direct the processes
+now it's very easy to learn lisp
+in fact in a few minutes i'm going to teach you essentially all of lisp
+i'm going to teach you essentially all of the rules and you shouldn't find that uh that particularly surprising
+that's sort of like saying it's very easy to learn the rules of chess and indeed in a few minutes you can tell somebody the rules of chess but of course that's very different from saying you understand the implications of those rules and how to use those rules to become a masterful chess player
+well lisp is the same way
+we're going to state the rules in a few minutes and it'll be very easy to see but what's really hard is going to be the implications of those rules
+right
+how you exploit those rules to be a master programmer
+and the implications of those rules are going to take us the well the whole rest of thus subject and of course way beyond
+ok so in computer science we're in the business of formalizing this sort of how to imperative knowledge
+right
+how to do stuff
+and the real issues of computer science are of course not you know telling people how to do square roots
+because if that was all it was there wouldn't be no big deal
+the real problems come when we try to build very very large systems right
+computer programs that are that are thousands of pages of long so long that nobody can really hold them in their heads all at once
+and the only reason that that's possible is because there are techniques there are techniques for controlling the complexity of these large systems
+and these techniques for compol controlling complexity are what this course is really about
+and in some sense that's really what computer science is about
+now that may seem like a very strange thing to say because after all a lot of people besides computer scientists deal with controlling complexity are they
+a large airliner is an extremely complex system and the aeronautical engineers who designed that are you know are dealing with immense complexity
+but there's a difference between that kind of complexity and what we deal with in computer science
+and that is that that computer science in some sense isn't real
+you see when an engineer is designing a physical system that's made out of real parts right the engineers who worry about that have to address problems of tolerance and approximation and noise in the system
+so for example as an electrical engineer i can go off and easily build a one stage amplifier or a two stage amplifier and i can imagine cascading a lot of them to build a million stage amplifier but it's ridiculous to build such a thing because by the long before the millionth stage the thermal noise in those components way at the beginning is going to get amplified and make the whole thing meaningless
+computer science deals with idealized components
+right we know as much as we want about these little program and data pieces that we're fitting things together
+right
+so there's we don't have to worry about tolerance and that means that in building a large program there's not all that much difference between what i can build and what i can imagine
+because the parts are these abstract entities that i know as much as as much as i want
+i know about them as precisely as i'd like
+so as opposed to other kinds of engineering where the constraints on what you can build are the constraints of physical systems the constraints of physics and noise and approximation the constraints imposed in building large software systems are the limitations of our own minds
+so in that sense computer science is like an abstract form of engineering
+it's a kind of engineering where you ignore the constraints that are imposed by reality
+ok well what are what are some of these techniques
+they're not special to computer science
+first technique which is used in all of engineering is kind of abstraction called black box abstraction
+right
+take something and uh you know build a box about it
+let's see for example uh we looked at at that square root method
+i might want to take that and build a box that sort of says to find the square root of x and that might be a whole complicated set of rules and that might end up being a kind of thing where i can put in say thirty six and say what's the square root of thirty six
+and out comes six
+right
+and the important thing is that i'd like to design that so so that if uh george comes along and would like to compute say the square root of a plus the square root of b he can take this thing and use it as a as a module without having to look inside and build something that looks like this
+it might be an a and a b and a squareroot box and another squareroot box and then something that adds that would put out the answer
+and you can see just from the fact that i want to do that is from george's point of view the internals of what's in here should not be important
+so for instance it shouldn't matter that when i wrote this i said i want to find the square root of x
+i could have said the square root of y or the square root of a or or anything at all
+right
+that's the fundamental notion of a of putting something in a box using black box abstraction to suppress detail
+and the reason for that is you want to go off and build build bigger boxes
+now there's another reason for doing black box abstraction other than you want to suppress detail for building bigger boxes
+sometimes you want to say that your way of doing something your how to method is an instance of a more general thing
+and you'd like your language to be able to express that generality
+let me uh show you another example sticking with square root let's go back and take another look at at that uh slide with the square root algorithm on it
+right
+remember what that says that says in order to to do something i make a guess and i improve that guess and i sort of keep improving that guess
+very nice sort of so there's the general strategy of i'm looking for something and the way i find it is that i keep improving it
+now that's a particular case of another kind of strategy for finding a fixed point of something
+so you've a fixed point of a function a fixed point of a function is something is a value fixed point of a function f is a value y such that that f of y equals y
+and the way i might do that is start with a guess and if i want something that doesn't change when i keep applying f is i i'll keep applying f over and over until that result doesn't change very much
+right
+so there's a general strategy
+and then for example to compute the square root of x i can try and find a fixed point of the function which takes y to the average of x over y
+and the idea of that is that if i really had y equal to the square root of x then y and x over y would be the same value
+they'd both the square root of x right
+right because the x over the square root of x is the square root of x
+and so the average if y were equal to the square root of x then the average wouldn't change
+right
+so the square root of x is a fixed point of that particular function
+now what i'd like to have i'd like to express the general strategy for finding fixed points
+so what i might imagine doing is to find is to be able to use my language to define a box that says fixedpoint
+just like i could make a box that says squareroot and i'd like to be able to express this is in my language
+right
+so i'd like to express not only the imperative how to knowledge for a particular thing like square root but i'd like to be able to express the imperative knowledge of how to do a general thing like how to find fixedpoint
+and in fact let's go back and look at that slide again
+see not only is is this a piece of imperative knowledge how to find a fixed point but over here on the bottom there's another piece of imperative knowledge which says one way to compute squareroot is to apply this general fixedpoint method
+so i'd like to also be able to express that imperative knowledge
+well what would that look like
+that would say this fixedpoint box is such that if i input to it the function that takes y to the average of y and x over y then what should come out of that fixedpoint box is a method for finding square roots
+so in these boxes we're building we're not only building boxes that you input numbers and output numbers we're going to be building in boxes that in effect compute methods like finding square root
+and my take is their inport inputs functions
+like y goes to the average of y and x over y
+right
+the reason we want to do that see the reason this is a procedure or will end up being a procedure as we'll see whose value is another procedure
+the reason we want to do that is because procedures are going to be our ways of talking about imperative knowledge
+and the way to make that very powerful is to be able to talk about other kinds of knowledge
+so here is a procedure that in effect talks about another procedure
+right
+a general strategy that itself talks about general strategies
+ok well our first topic in this course there'll be three maj major topics will be black box abstraction
+let's look at that in a little bit more detail
+what we're going to do is we will we'll start out talking about how lisp is built up out of primitive objects
+right what does the language supply with us
+and we'll see that there are primitive procedures and primitive data
+then we're going to see how do you take those primitives and combine them to make more complicated things
+right
+means of combination and what we'll see is that there are ways of putting things together putting primitive procedures together to make more complicated procedures and we'll see how to put primitive data together to make compound data
+then we'll say well having made those compound things how do you abstract them
+how do you put those black boxes around them so you can use them as components in more complex things
+and we'll see that's done by defining procedures and a technique for dealing with compound data called data abstraction
+and then what's maybe the most important thing is going from just the rules to how does an expert work
+how do you express common patterns of doing things like saying well there's a general method of fixedpoint and squareroot is a particular case of that
+and we're going to use i've already hinted at it something called higher order procedures namely procedures whose inputs and outputs are themselves procedures
+and then we'll also see something very interesting we'll see as we go further and further on and become more abstract there'll be very well the line between what we consider to be data and what we consider to be procedures is going to blur at an incredible rate
+ok
+all right well that's a that's our first subject black box abstraction
+let's look at the second topic and introduce it introduce it like this
+see suppose i i want to express the idea right
+and remember we're we're talking about ideas
+suppose i want to express the idea that i can take something and multiply it by the sum of two other things
+so for example i might say if i had one and three and multiply that by two i get eight
+but i'm talking about the general idea of what's called linear combination that you can add two things and multiply them by something else
+it's very easy when i think about it for numbers
+but suppose i also want to use that same idea to think about i could add two vectors a one and a two and then scale them by some factor x and get another vector
+or i might say i want to think about a one and a two as being polynomials and i might want to add those two polynomials and then multiply them by two to get a more complicated one
+or a one and a two might be electrical signals and i might want to think about summing those two electrical signals and then amp putting the whole thing through an amplifier multiplying it by by some factor of two or something
+the idea is i want to think about the general notion of of that
+now if our language is going to be a good language for expressing those kind of general ideas see if i really really can do that so i'd like to be able to say i'm going to multiply by x the sum of a one and a two and i'd like that to express the general idea of all different kinds of things that a one and a two could be
+now if you think about that there's a problem because after all the actual primitive operations that go on in the machine are obviously going to be different if i'm adding two numbers than if i'm adding two polynomials
+or if adding the representation of two electrical signals or waveforms
+somewhere there has to be the knowledge of the kinds of various things that you can add and the ways of adding them
+now to construct such a system the question is where do i put that knowledge
+how do i think the different kinds of choices i have
+and if tomorrow george comes up with a new kind of object that might ki be added and multiplied how do i add george's new object to this system without screwing up everything that was already there
+all right well that's going to be the the second big topic the way of controlling that kind of complexity
+and the way you do that is by establishing conventional interfaces
+right we're agreed upon ways of plugging things together just like uh in electrical engineering people have standard impedances for connectors
+and then you know if you build something with one of those standard impedances you can plug it together with something else
+right
+so that's going to be our second large topic conventional interfaces
+what we're going to see is we're first we're going to talk about the problem of generic operations which is the one i alluded to things like plus that that have to work with all different kinds of data
+and we talk about generic operations then we're going to talk about really large scale structures
+how do you put together very large programs that model the kinds of complex systems in the real world that you'd like to model
+and what we're going to see is that there are two very important metaphors for putting together such systems
+and one is called object oriented programming where you sort of think of your system as a kind of society full of little things that interact by sending information between them
+and then the second one is operations on aggregates called streams where you think of a large system put together kind of like a signal processing engineer puts together a large electrical system
+ok
+that's going to be our second topic
+now the third thing we're going to come to the third basic technique for controlling complexity is making new languages
+because sometimes when you're sort of overwhelmed by the complexity of a design the way that you control that complexity is to pick a new design language and the purpose of the new design language will be to highlight different aspects of the system
+it will suppress some kinds of details and emphasize other kinds of details
+this is going to be the sort of the most magical part of the course
+we're going to start out by actually looking at the technology for building new computer languages and we're going to the first thing we're going to do is actually build in lisp a pro we're going to express in lisp the process of interpreting lisp itself
+and that's going to be a very sort of self circular thing
+there's a little mystical symbol that has to do with that we'll see it's a the process of interpreting lisp is sort of a uh a giant wheel of two processes apply and eval which sort of re constantly reduce expressions to each other
+then we're going to see all sorts of other magical things
+here's another another magical sys symbol this is kind of the this is sort of the y operator which is in some sense the expression of infinity inside our procedural language
+we'll take a look at that
+in any case this section of the course is called meta linguistic abstraction
+right
+talking abstracting by talking about how you construct new languages
+as i said we're going to start out by looking at the process of interpretation we're going to look at this this apply eval loop and build lisp
+then just to show you that this is very general we're going to use exactly the same technology to build a very different kind of language a so called logic programming language where you don't really talk about procedures at all that have inputs and outputs
+what you do is talk about relations between things
+and then finally we're going to talk about how you implement these things very concretely on the very simplest kind of machines even uh we'll see something like this which is this is a picture of a of a chip which is the lisp interpreter that we will be talking about done in hardware
+ok
+well there's there's an outline of the course three big topics black uh box abstraction conventional interfaces meta linguistic abstraction
+now let's take a break now and then we'll get started
+all right well let's let's actually start in learning lisp now
+actually we'll start out by learning something much more important maybe the very most important thing in this course which is not lisp in particular of course but rather a general framework for thinking about languages that i already alluded to
+when somebody tells you they're going to show you a language what you should say is all right what i'd like you to tell me is what are the what are the what are the primitive elements
+what does the language come with
+then what are the ways you put those together
+what are the means of combination
+what are the things that allow you to take these primitive elements and build bigger things out of them
+what are the ways of putting things together
+and then what are the means of abstraction
+how do we take those complicated things and draw those boxes around them
+how do we name them so that we can now use them as if they were primitive elements in making still more complex things and so on and so on and so on
+so when someone says to you gee i have a great new computer language you don't say how many characters does it take to invert a matrix
+right
+it's irrelevant
+all right what you say is how if the language did not come with matrices built in or with something else built in how could i then build that thing
+what are the means of combination which would allow me to do that
+and then what are the means of abstraction which allow me then to use those as elements in making more m complicated things yet
+great well we're going to see that lisp has some primitive data and uh some primitive procedures
+in fact let's let's really start uh and here's a piece of primitive data in lisp
+let's see
+all right
+number three
+actually if i'm being very pedantic that's not the number three that's some symbol that represents uh you know plato's concept of the number three
+right
+and uh here's another and here's some more p primitive data in lisp right
+right
+seventeen point four actually some representation of seventeen point four
+and uh here's another one five
+here's another primitive object that's built in lisp
+addition actually use the same kind of pedantic this is a name for the primitive method of adding things just like this is a name for plato's number three this is a name for plato's concept of how you how you add things
+right so those are some primitive elements uh i can put them together i can say gee what's the sum of three and seventeen point four and five
+and the way i do that is to say let's apply the sum operator to these three numbers and i should get what eight seventeen twenty five point four so i should be able to ask lisp what the value of this is and it'll return twenty five point four
+uh
+let's introduce some names this thing that i typed is called a combination and a combination consists in general of applying an operator so this is an operator to some operands
+these are the operands
+and of course i can make more complex things
+the reason i can get complexity out of this is because the operands themself in general can be combinations
+so for instance i could say what is the sum of three and the product of five and six and eight and two
+and i should get let's see uh thirty forty forty three so lisp should tell me that that's forty three
+forming combinations uh is the basic means of combination that we'll be looking at
+and then well you see some some syntax here
+lisp uses what's called prefix notation which means that the operator that the operator is written to the the left of the operands
+it's just a convention
+and notice it's fully parenthesized
+and the parentheses make it completely unambiguous so by looking at this i can see that there's the operator and there are one two three four operands right
+and i can see that the second operand here is itself some combination that has one operator and two operands
+parentheses in lisp are a little bit well are very unlike parentheses in conventional mathematics
+in mathematics we sort of use them to mean grouping and it sort of doesn't hurt if sometimes you leave out parentheses if people understand that that's a group and in general it doesn't hurt if you put in extra parentheses that because that maybe makes the grouping more distinct lisp is not like that
+in lisp you cannot leave out parentheses and you cannot put in extra parentheses
+right
+because putting in parentheses always mean exactly and precisely this is a combination which has meaning apply an operator to operands
+and if i left this out if i left those parentheses out it would mean something else
+in fact the way to think about this is really what i'm doing when i writ something like this is writing a tree
+so this combination is a tree that has a plus and then a three and then a something else and an eight and a two and then the something else here is itself a little subtree that has a star and a five and a six and the way to think of that is really what's going on while we're writing these trees and parentheses are just a way to write this two dimensional structure as a linear character string
+may because at least when lisp first started and people had teletypes or punch cards or whatever this was more convenient and they couldn't maybe if lisp started today we would the syntax of lisp would look like that
+well let's let's look at what that actually looks like on the computer
+right here i have a lisp interaction setup
+there's an editor and on the top i'm going to type some values and ask lisp what they are so for instance i can say to lisp what's the value of that symbol
+that's three
+and i ask lisp to evaluate it and there you see lisp has returned on the bottom and said oh yeah that's three
+or i can say uh what's the sum of three and four and eight
+all right what's that combination
+and ask lisp to evaluate it all right and that's fifteen
+or i can type in something more complicated i can say what's the sum of the product of three and the sum of seven and uh nineteen and a half
+and you'll notice here that lisp has something built in that helps me keep track of all these parentheses
+watch as i type the next close parentheses which is going to close the combination starting with the star the opening one will flash there
+here i'll rub those out and do it again type close and you see that closes the plus close again that closes the star
+all right now i'm back to the sum and maybe i'm going to add that all to four that closes the plus now i have the complete combination and i can ask lisp for the value of that
+that kind of paren balancing is something that's that's built into a lot of lisp systems to help you keep track because it is kind of hard just by hand doing all these parentheses
+there's another there's another kind of convention for keeping track of parentheses let me write another complicated combination
+let's take the sum of the product of three and five and add that to something and now what i'm going to do is i'm going to indent so that the operands are written vertically which the sum of that and the product of forty seven and uh let's say the product of forty seven with the difference of twenty and six point eight that means subtract six point eight from twenty
+and then you see the parentheses close close the minus close the star and now let's get another operator
+you see the lisp editor here is indenting to the right position automatically to help me keep track
+all right or do that again i'll close that last parentheses again you see it balances the plus all right now i can say what's the value of that
+all right
+so uh those two things indenting to the right level which is called pretty printing and flashing parentheses are two things that a lot of sy lisp systems have have built in to keep track and you should learn how to use them
+ok well those are the primitives
+there's a means of combination
+now let's go up to the means of abstraction
+all right i'd like to be able to take the idea that i do some combination like this and abstract it and give it a simple name so i can use that as an element and i do that in lisp with define
+so i could say for example define a to be the product of five and five right
+and now i could say s say for example to lisp what is the product of a and a
+right and this should be twenty five and this should be six twenty five
+and then crucial thing i can now use a here i've used it in a combination but i can use that in other more complicated things that i name in turn
+so i could say define b to be the sum of let's say a and the product of five and a
+enclose the plus
+let's take a look at that on the computer and see how that looks
+right so i'll i'll just type what i wrote on the board i could say define a to be the product of five and five and i'll tell that to lisp and notice what lisp responded there with was an a on the bottom
+in general when you type in a definition at lisp it responds with the the nee the symbol being defined now i could say to lisp what is the product of a and a
+it says that's six twenty five
+i can define b to be the sum of a and the product of five and a close the paren closes the star close the plus close the define
+lisp says ok b there on the bottom
+and now i can say to lisp what's the value of b
+and i can say something more complicated like what's the sum of a and the quotient of b and five
+that slash is divide another primitive operator
+here i've divided b by five added it to a lisp says ok that's fifty five
+all right so there's what it looks like
+there's the basic means of defining thom something it's the simplest kind of naming
+but uh it's not really very powerful
+see what i'd really like to name and we're talking about general methods i'd like to name oh the general idea that for example i could multiply five by five
+or uh six by six
+or uh a thousand and one by a thousand and one
+a thousand and one point seven by a thousand and one point seven right
+i want i'd like to be able to name the general idea of multiplying something by itself
+we know what that is that's called squaring
+the way i can do that in lisp is i can say define to square something x multiply x by itself
+and then having having done that i could say to lisp for example what's the square of ten
+and lisp will say a hundred
+let's see now let's actually look at that a little more closely ok
+right there's the definition of square
+to square something right
+multiply it by itself right
+you see this x here right
+that x is kind of a pronoun which is the something that i'm going to square right
+and what i do with it is i multiply x all right i multiply it by itself
+ok
+all right so there's a notation for uh for defining a procedure
+actually this is a little bit confusing because this is sort of how i might use square and i say square of x or square of ten but it's not making it very clear that i'm actually naming something
+so let me write this definition in another way that makes it a little more clear that i'm naming something
+i'll say define square to be lambda of x times x x
+right
+right
+here i'm naming something square right just like over here i'm naming something a
+the thing that i'm naming square here i named the thing i named a was the value of this combination
+here the thing that i'm naming square is this thing that begins with lambda and lambda is lisp's way of saying make a procedure
+let's look at that more closely on the slide
+the way i read that definition is to say i define square to be make a procedure that's what the lambda is make a procedure with an argument named x and what it does is return the result of multiplying x by itself
+now in general we're going to be using we're going to be using this top form of defining just 'cause it's a little bit more convenient but don't lose sight of the fact that it's really this
+in fact as far as the lisp interpreter is concerned there's no difference between typing this to it and typing this to it
+and there's a word for that word sort of syntactic sugar
+what syntactic sugar means it's having somewhat more convenient surface forms for typing something
+so this is really just syntactic sugar for this underlying whe thing with the lambda
+and the reason you should remember that is don't forget that when i write something like this i'm really naming something
+i'm naming something square and the something that i'm naming square is a procedure that's getting constructed
+ok well let's let's look at that on the computer too
+ok
+so i'll come in i'll say define square of x to be times x x and i can ok and i'll i'll tell lisp that
+it says square see i've named something square
+now having done that i can ask lisp for what's the square of a thousand and one
+or in general i could say uh what's the square of the sum of five and seven
+all right
+square of twelve's a hundred and forty four
+or i can use square itself as an element in some combination i can say what's the sum of the square of three and the square of four
+right
+nine and sixteen is twenty five
+or i can use square as an element in some much more complicated thing
+i can say what's the what's the square of the square of the square of uh one thousand and one
+right
+and there's the square of the square of the square of one thousand and one
+or i can say to lisp what is square itself
+what's the value of that
+and lisp returns some conventional way of telling me that that's a procedure
+it says compound procedure square
+remember the value of square is this procedure and the thing with the stars and the brackets are just lisp's conventional way of of describing that
+ok
+let's look at at two more examples of defining
+here on this all right here are here are two more procedures
+i can define the average of x and y to be the sum of x and y divided by two
+or having had average and uh meansquare having having had average and square i can use that to talk about the meansquare of something which is the average of the square of x and the square of y
+so for example having done that i could say what's the meansquare of two and three and i should get the average of four and nine which is six and a half
+the key thing here is that having defined square i can use it as if it were primitive
+right
+so if we look here on the slide if i look at meansquare right
+the person defining meansquare doesn't have to know at this point whether square was something built into the language or whether it was a procedure that was defined
+and that's key thing in lisp that you do not make arbitrary distinctions between things that happen to be primitive in the language and things that happen to be built in
+the person using that shouldn't even have to know
+so the things you construct get used with all the power and flexibility as if they were primitives
+in fact you can drive that home by looking on the computer one more time we talked about plus and in fact if i come here on the computer screen and say what is the value of plus
+notice what lisp types out
+on the bottom there it typed out compound procedure plus
+because in this system it turns out that the addition operator is itself a compound procedure and if i didn't just type that in you'd never know that and it wouldn't make any difference anyway we don't care
+it's below the level of the abstraction that we're dealing with
+so the key thing is you cannot tell should not be able to tell in general the difference be things between things that are built in and things that are compound
+why is that
+because the things that are compound have an abstraction wrapper wrapped around them
+ok we've seen almost all the elements of lisp now
+there's only one more we have to look at and that is how to make a case analysis
+let me show you what i mean
+we might want to think about the the mathematical definition of the absolute value function
+so i might say the absolute value of x is the function which has the property that it's negative of x for x less than zero it's zero for x equal to zero and it's x for x greater than zero and lisp has a way of making case analyses
+let me define for you absolutevalue
+say define the absolutevalue of x is conditional all right this means case analysis cond ok
+if x is less than zero the answer is negate x
+all right what i've written here is a clause this is a this whole thing is a conditional clause and it has two parts
+this part here is a is a predicate for a condition that's a condition
+and the condition is expressed by something called a predicate and a predicate in lisp is some sort of thing that returns either true or false
+and you see lisp has a primitive procedure lessthan that tests whether something's true or false
+and the other part of a clause is an action or a thing to do in the case where that's true
+and here what i'm doing is negating x
+the negation operator well the minus sign in lisp is a little bit funny
+if there are more than if there are two or more argument if there's two arguments it subtracts the second one from the first we saw that and if there's one argument it negates it
+all right so this corresponds to that and then there's another cond clause it says in the case where x is equal to zero the answer is zero and in the case where x is greater than zero the answer is x
+ok close that clause close the cond close the definition and there's a definition of absolute value and you see it's a case analysis that looks very much like the case analysis you use in mathematics
+ok there's a a somewhat different way of writing a restricted case analysis
+often you have a case analysis where you only have one case where you tests something and then depending on whether it's true or false you do something
+and uh here's another definition of absolutevalue which looks almost the same which says if x is less than zero the result is negate x
+otherwise the answer is x
+and we'll be using if a lot
+but again the things to remember is that this form of absolutevalue that you're looking at here and then this one over here that i wrote on the board are essentially the same
+and if and cond are or whichever way you like it you can think of cond as syntactic sugar for if or you can think of if as syntactic sugar for cond and it doesn't make any difference
+the person implementing a lisp system will pick one and implement the other in terms of that
+and it doesn't matter which one you pick
+ok why don't we break now and then take some questions
+how come sometimes when i write define i put an open paren here and say define open paren something or other and sometimes when i write this i don't put an open paren
+ok the answer is this particular form of define where you say define some expression is this very special thing for defining procedures
+but again what it really means is i'm defining the symbol square to be that
+so the way you should think about it is what define does is you write define and the second thing you write is the symbol here no open paren the symbol you're defining and what you're defining it to be that's like here and like here that's sort of the basic way you use define and then there's this special syntactic trick which allows you to define procedures that look like this
+so the difference is it's whether or not you're defining a procedure
+all right well believe it or not you actually now know enough lisp to write essentially any numerical procedure that you'd write in a language like fortran or basic or whatever or essentially any other language
+you're probably saying that's a that's not believable right
+because you know that these languages have things like for statements and and do until while or something
+but uh we don't really need any of that
+in fact we're not going to use any of that in this course
+let me let me show you by again looking back at at squareroot
+let's go back to this uh square root algorithm of huron of alexandria remember what that said
+it said to uh find an approximation to the square root of x you make a guess you improve that guess by averaging the guess and x over the guess you keep improving that until the guess is good enough
+and i already alluded to the idea the idea is that if the initial guess that you took if that initial guess was actually equal to the square root of x then g here would be equal to x over g so if you hit the square root averaging them wouldn't change it
+if the g that you picked was larger than the square root of x then x over g will be smaller than the square root of x so that when you average g and x over g you get something in between right
+so if you pick a g that's that's too small your answer will be too large
+if you pick a g that's too large if your g is larger than the square root of x then x over g will be smaller than the square root of x so averaging always gives you something in between and then it's not quite trivial but it's it's possible to show that in fact if g misses the square root of x by a little bit the average of g and x over g will actually keep getting closer to the square root of x
+so if you keep doing this enough you'll eventually get as close as you want and then there's another fact that you can always start out this process by using one as an initial guess
+and it'll always converge to the square root of x
+all right so that's this method of successive averaging due to huron of alexandria
+let's uh let's write it in lisp
+well the central idea is uh what does it mean to try a guess for the square root of x
+right
+let's write that
+so we'll say define to try a guess for the squareroot of x what do we do
+we'll say if the guess is goodenough if the guess is goodenough to be a guess for the squareroot of x then as an answer we'll take the guess
+otherwise we will try the improved guess or improve that guess for the squareroot of x and we'll try that as a guess for the squareroot of x
+now close the try close the if close the define
+so that's how we try a guess
+and then the next part of the process said in order to compute square roots we'll say define to compute the squareroot of x we will try one as a guess for the square root of x
+then well we have to define a couple more things
+uh we have to say how is a guess goodenough and how do we improve a guess
+so let's look at that
+the algorithm to improve a guess right
+to improve a guess for the squareroot of x we average that was the algorithm we average the guess with the quotient of dividing x by the guess right that's how we improve a guess
+and to tell whether a guess is goodenough well we have to decide something
+let's this is supposed to be a guess for the squareroot of x so one possible thing you can do is say when you take that guess and square it do you get something very close to x
+for examp so what that one way to say that is to say i square the guess subtract x from that and see if the absolutevalue of that whole thing is less than some small number which depends on my purposes
+right
+ok so there's a there's a complete procedure for how to compute the squareroot of x
+let's uh look at the structure of that a little bit
+right
+i have the whole thing i have the notion of how to how to compute a squareroot that's some kind of module that's some kind of black box it's defined in terms of right
+it's defined in terms of how to try a guess for the squareroot of x
+try is defined in terms of well telling whether something's goodenough and telling how to improve something
+so goodenough try is defined in terms of goodenough and improve and let's see what else do i fill in
+well if we all go down this tree goodenough was defined in terms of absolutevalue and square and improve was defined in terms of something called averaging and then some other primitive operator so try squareroot's defined in terms of try try is defined in terms of goodenough and improve but also try itself
+so try is also defined in terms of how to try itself
+here well that may give you give you some problems right
+your your high school geometry teacher probably told you that it's it's naughty to try and define things in terms of themselves because it doesn't make sense but that's false
+right
+sometimes it makes perfect sense to define things in terms of themselves and this is a case and we can look at that and we can write down what this means and say suppose i ask lisp what the squareroot of two is
+ok well what's the squareroot of two mean
+well that means i try one as a guess for the squareroot of two
+all right
+and now i look i say gee is is one a goodenough guess for the squareroot of two
+and that depends on the test that goodenough does
+and in this case it'll goodenough will say no one is not a good enough guess for the squareroot of two
+so that'll reduce to saying i have to try the improved an improved improve one as a guess for the squareroot of two and try that as a guess for the square root of two
+improving one for the as a guess for the squareroot of two means i average one and two divided by one right
+so this is going to be the average this piece here will be the average of one and the quotient of two by one all right so that's that's this piece here and i'm going to try all right and this is one point five so this squareroot of two reduces to trying one for the squareroot of two which reduces to trying one point five as a guess for the squareroot of two
+all right
+so that makes that makes sense
+let's look at the rest of the process here
+i if i try one point five all right that reduces one point five turns out to be not goodenough as a guess for the squareroot of two so that reduces to trying the average of one point five and two divided by one point five as a guess for the squareroot of two
+that average turns out to be one point three three three
+so this whole thing reduces to trying one point three three three as a guess for the squareroot of two and then so on
+right
+that reduces to another call to goodenough one point four something or other and then it keeps going until the process finally stops with something that that goodenough thinks is good enough which in this case is one point four one four two something or other
+right
+so the process makes makes perfect sense
+uh this by the way is called a recursive definition and the ability to make recursive definitions is a source of incredible power and as you can already see i've hinted at it's the thing that effectively allows you to do these infinite computations that go on until something is true all right without having any other constructs other than the ability to call a procedure
+well actually there's one more thing that i see let me show you a variant of this definition of squareroot uh here on the slide
+here's a here's a sort of the same thing
+what i've done here is packaged the definitions of improve and goodenough and try inside squareroot
+so in effect what i've done is i've built a squareroot box so i built a box that's this squareroot procedure that someone can use they might put in thirty six and get out six and then packaged inside this box are the definitions of try and goodenough and uh improve
+all right so they're hidden inside this box
+and the reason for doing that is that if someone's using the squareroot if george is using the squareroot george probably doesn't care very much that when i implemented squareroot i had things inside there called try and goodenough and improve
+and in fact harry might have a cuberoot procedure that has try and goodenough and improve and in order to not get the whole system confused it would be good for harry to package his internal procedures inside his cuberoot procedure
+by the way this is called block structure this particular way of packaging internals inside of a definition
+and uh let's go back and look at the slide again
+the way to read this this kind of procedure is to say to define squareroot well inside that definition i'll have the definition of an improve and the definition of goodenough and the definition of try and then subject to those definitions the way i do squareroot is to try one
+and notice here i don't have to say one as a guess for the squareroot of x because since it's all inside this squareroot it sort of has this x known
+ok
+ok
+ok well let me let me summarize
+we started out with the idea that what we're going to be doing is expressing imperative knowledge
+and in fact here's a here's a slide that summarizes the way we we looked at lisp
+we started out by looking at some primitive elements and addition and multiplication some predicates for testing whether something's less than or something's equal and in fact we saw a really sneakily in the system we're actually using these aren't actually primitives but it doesn't matter
+what matters is we're going to use them as if they're primitives we're not going to look inside
+we also have some primitive data like some numbers
+we saw some means of composition means of combination
+the basic one being composing functions and building combinations with operators and operands
+and there were some other things like cond and if and define
+but the main thing about define in particular was that is was the means of abstraction
+it was the way that we named things
+you can also see from this slide not only where we've been but holes we have to fill and at some point we'll have to talk about how you combine primitive data to get compound data
+and how you abstract data so you can use large glomps of data as if they were primitive
+so that's where we're that's where we're going but uh before we do that for the next couple of lectures we're going to be talking about first of all how it is that you make a link between these procedures we write and the processes that happen in the machine and then how it is that you start using the power of lisp to talk not only about these individual little computations but about general conventional methods of doing things
+ok are there any questions
+yes
+if we defined a using parentheses instead of as we did what would be the difference
+if i wrote this if i wrote that what i would be doing is defining a procedure named a in this case a procedure of no arguments which when i ran it would give me back five times five
+right
+i mean you'd come out with the same thing except for you've really got a different
+right
+and the difference the difference would be in the old one let me be a little bit clearer here
+let's let's call this a like here and that pretend here just for contrast i wrote define uh d to be the product of five and five
+and the difference between those let's think about interactions with the lisp interpreter
+i would i could type in a and lisp would return twenty five
+i could type in d if i just typed in d lisp would return compound procedure d
+because that's what it is it's a procedure
+i could run d i could say what's the value of running d
+here is a combination with no operands
+and i see there are no operands i didn't put any after d
+and it would say oh that's twenty five
+or i could say uh just for completeness if i typed in what's the value of running a
+i get an error
+and the error would be the same one as as over there it would be the error would say uh sorry twenty five which is the value of a is not an operator that i can apply to something
+ok

@@ -1,0 +1,19 @@
+preface to the second edition
+the material in this book has been the basis of mit's entry level computer science subject since 1980
+we had been teaching this material for four years when the first edition was published and twelve more years have elapsed until the appearance of this second edition
+we are pleased that our work has been widely adopted and incorporated into other texts
+we have seen our students take the ideas and programs in this book and build them in as the core of new computer systems and languages
+in literal realization of an ancient talmudic pun our students have become our builders
+we are lucky to have such capable students and such accomplished builders
+in preparing this edition we have incorporated hundreds of clarifications suggested by our own teaching experience and the comments of colleagues at mit and elsewhere
+we have redesigned most of the major programming systems in the book including the generic arithmetic system the interpreters the register machine simulator and the compiler and we have rewritten all the program examples to ensure that any scheme implementation conforming to the ieee scheme standard will be able to run the code
+this edition emphasizes several new themes
+the most important of these is the central role played by different approaches to dealing with time in computational models objects with state concurrent programming functional programming lazy evaluation and nondeterministic programming
+we have included new sections on concurrency and nondeterminism and we have tried to integrate this theme throughout the book
+the first edition of the book closely followed the syllabus of our mit one semester subject
+with all the new material in the second edition it will not be possible to cover everything in a single semester so the instructor will have to pick and choose
+in our own teaching we sometimes skip the section on logic programming we have students use the register machine simulator but we do not cover its implementation and we give only a cursory overview of the compiler
+even so this is still an intense course
+some instructors may wish to cover only the first three or four chapters leaving the other material for subsequent courses
+the world wide web site www mitpress.mit.edu / sicp provides support for users of this book
+this includes programs from the book sample programming assignments supplementary materials and downloadable implementations of the scheme dialect of lisp

@@ -1,0 +1,161 @@
+Task 1: POS tagging
+
+To run the program for task 1 you just have to run the following command:
+
+! You must make sure that the 'inaugural' corpus from nltk.corpus.inaugural is downloaded !
+
+`python pos_tagging.py`
+
+Output:
+
+```
+Dictionary with 5 highest POS tag frequencies:
+POS tag: number of occurences
+NN : 20675
+IN : 19235
+DT : 16230
+JJ : 10447
+NNS : 8322
+
+Disambiguation:
+Tag sequence probability for sentence 1) : 0.000292318259729
+Tag sequence probability for sentence 2) : 0.0
+The correct POS tagging result is 1): the correct POS tag for the word "race" is NN.
+```
+
+
+Task 3: Distributional semantics
+
+To run the program for task 1 you just have to run the following command:
+
+
+`python cluster.py <targetwords.txt> <nr. of clusters> <context window size> <corpus name>`
+
+ex: `python cluster.py ctargetwords.txt 50 10 ntext`
+
+Please provide the following arguments:
+
+1) Name of the .txt file containing the target words (NOT reveresed words) to cluster:
+	- 1 word per line
+
+2) Nr. of clusters for K-means to produce
+
+3) Context window size k (k words before + after target word)
+
+4) Corpus (name of a folder containing all the files - NO subfiles - in a corpus)
+
+Output example for `python cluster.py targetwords.txt 50 10 ntext`
+
+! targetwords.txt contains only the original target words, 1 per line! Their reverses will be automatically computed for analysis !
+! The program also automatically randomly substitutes in the give corpus half ot the target words with their reverses for analysis !
+
+```
+CLUSTERING RESULT:
+
+abstraction : 18
+noitcartsba : 18
+actually : 38
+yllautca : 38
+add : 35
+dda : 35
+address : 10
+sserdda : 10
+answer : 5
+rewsna : 49
+argument : 15
+tnemugra : 15
+arguments : 9
+stnemugra : 9
+back : 38
+kcab : 38
+call : 25
+llac : 25
+car : 40
+rac : 40
+case : 39
+esac : 5
+cdr : 16
+rdc : 16
+computer : 30
+retupmoc : 30
+course : 38
+esruoc : 38
+dictionary : 38
+yranoitcid : 38
+different : 45
+tnereffid : 42
+evaluator : 4
+rotaulave : 33
+function : 21
+noitcnuf : 21
+general : 24
+lareneg : 24
+got : 38
+tog : 38
+idea : 49
+aedi : 49
+kind : 1
+dnik : 1
+lambda : 31
+adbmal : 31
+machine : 6
+enihcam : 32
+mean : 38
+naem : 38
+object : 26
+tcejbo : 26
+operator : 27
+rotarepo : 12
+order : 0
+redro : 41
+pair : 34
+riap : 34
+part : 48
+trap : 48
+particular : 5
+ralucitrap : 5
+pattern : 19
+nrettap : 44
+place : 5
+ecalp : 5
+problem : 12
+melborp : 12
+process : 17
+ssecorp : 46
+product : 27
+tcudorp : 27
+program : 3
+margorp : 3
+reason : 38
+nosaer : 38
+register : 37
+retsiger : 7
+result : 11
+tluser : 11
+set : 8
+tes : 36
+simple : 43
+elpmis : 23
+structure : 20
+erutcurts : 20
+system : 14
+metsys : 14
+they : 22
+yeht : 22
+together : 28
+rehtegot : 28
+using : 29
+gnisu : 2
+variable : 13
+elbairav : 47
+why : 38
+yhw : 38
+zero : 38
+orez : 38
+
+Nr. of orrectly clustered pairs: 36
+
+Total nr. of clusters: 50
+
+Accuracy: 0.72
+```

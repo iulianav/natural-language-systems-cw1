@@ -1,0 +1,660 @@
+so far in this course we've been talking a lot about data abstraction and remember the idea is that we build systems that have these uh horizontal barriers in them these abstraction barriers that separate that separate use the way you might use some data object from the way you might represent it
+or another way to think of that is up here you have the boss who's going to be using some sort of data object and down here is george who's implemented it
+now this notion of of separating use and representation so you can think about these two problems separately is a very very powerful programming methodology right data abstraction
+on the other hand it's not really sufficient for really complex systems
+and the problem with this is is george
+or or actually the problem is that there are a lot of georges
+let's be concrete
+let's suppose there's george and uh there's also martha
+ok now george and martha are both working on the system both designing representations and absolutely are incompatible
+right they wouldn't cooperate on a representation under any circumstances
+and the problem is you would like to have some system where both george and martha are designing representations and yet if you're above this abstraction barrier you don't want to have to worry about that whether something's done by george or by martha and you don't want george and martha to interfere with each other
+somehow in designing a system you not only want these horizontal barriers but you also want some kind of some kind of vertical barrier to keep george and martha separate
+now let me let me be a little bit more more concrete
+uh imagine that you're thinking about personnel records for a company a large company with a lot of a lot of loosely linked divisions that don't cooperate very well either
+and imagine that uh gee imagine even that this company is formed by merging a whole bunch of companies that already have their personnel record system set up
+and imagine that you know once these divisions are all linked in some kind of very sophisticated satellite network and all these databases are put together and what you'd like to do is from any place in the company be able to say things like uh oh what's the what's the name in a personnel record
+or what's the you know what's the job description in a personnel record
+and not have to worry about the fact that uh each division obviously is going to have completely separate conventions for how you might implement these records
+from this point you don't want to know about that
+well how could you possibly do that
+one way of course is to send down an edict from somewhere that everybody has to change their format to some to some fixed compatible thing
+that's that's what people often try and of course it never works
+another thing that you might want to do it somehow arrange it so you can have these vertical barriers so that when you ask for the name of the personnel record somehow whatever format it happens to be name will figure out how to do the right thing
+you'd want name to be so called a generic operator
+generic operator means what it sort of precisely does depends on the kind of data that it's looking at
+more than that you'd like to design the system so that the next time the next time a new division comes into the company they don't have to make any big changes in what they're already doing to link into the system and the rest of the company doesn't have to make any big changes to admit their stuff to the system
+so that's that's the problem you should be thinking about
+you'd like it sort of just just to work
+you want to be able to include new things by making minimal changes
+ok well that's the problem that we'll be talking about today
+and you should have this this sort of distributed personnel record system in your mind
+but actually the one i'll be talking about is a problem that's a little bit more self contained than that that'll bring up the issues i think more clearly
+that's the problem of doing a system that does arithmetic on complex numbers
+so it's let's take a look here
+just as a little review there are things called complex numbers
+right a complex number you can think of as a point in the plane or z
+and uh you can represent a point either by its real part and its imaginary part so if this is z then its real part is is this much and its imaginary part is that much and you write z equals x plus iy
+or another way to represent a complex number is by saying what's the distance from the origin and what's what's the angle
+so that represents a complex number as its radius times an angle
+this one's called the original one's called rectangular form rectangular representation the real and imaginary part
+or polar representation magnitude and angle
+and if you know the real and imaginary part you can figure out the magnitude and angle
+if you know x and y you can get r by this formula square root of sum of the squares and you can get the angle as an arctangent
+or conversely if you know r and a you could figure out x and y
+x is r times the cosine of a and y is r times the sine of a
+all right so there's these two they're complex numbers they're you can think of them either in polar form or rectangular form
+what we would like to do is make a system that does does arithmetic on complex numbers
+in other words what we'd like just like the rational number example is to have some operations plusc which is going to take two complex numbers and add them subtract them and multiply them and divide them
+ok well there's a little bit of of mathematics behind that
+what are the actual formulas for manipulating such things
+it's sort of not important where they come from but just as an implementer let's let's say you can think if you want to add two complex numbers it's pretty easy to get its real part and its imaginary part
+the real part of the sum of two complex numbers the real part of z1 plus z2 is the real part of z1 plus the real part of z2
+ok
+and the imaginary part of z1 plus z2 is the imaginary part of z1 plus the imaginary part of z2
+right so it's pretty easy to add complex numbers
+you just add the corresponding parts and make a new complex number with those parts
+if you want to multiply them it's kind of nice to do it in polar form 'cause if you have two complex numbers the magnitude of their product is here the product of the magnitudes and the angle of the product is the sum of the angles
+so that's sort of mathematics that allows you to to do arithmetic on complex numbers
+let's actually think about the implementation
+well we do it just like rational numbers
+we come down we assume we have some some constructors and selectors
+what would we like
+well let's assume that we make a data object cloud which is a complex number that has some stuff in it uh and that we can get out from a complex number the real part or the imaginary part or the magnitude or the angle
+we want some ways of making complex numbers not only selectors but constructors so we'll assume we have a thing called makerectangular
+what make what makerectangular is going to do is take a real part and an imaginary part and construct a complex number with those parts
+similarly we can have makepolar which will take a magnitude and an angle and construct a complex number which has that magnitude and angle
+so here's a system we'll have two constructors and four selectors
+and now just like before in terms of that abstract data we'll go ahead and implement our complex number operations and here you can see translated into lisp code just the the arithmetic formulas i put down before right
+if i want to add two complex numbers i will make a complex number out of its real and imaginary parts
+the real part of the complex number i'm going to make is the sum of the real parts
+the imaginary part of the complex number i'm going to make is the sum of the imaginary parts
+right i put those together make a complex number that's how i implement complex number addition
+subtraction is essentially the same
+all i do is subtract the parts rather than add them
+to multiply two complex numbers i use the other formula
+i'll make a complex number out of a magnitude and angle
+the magnitude is going to be the product of the magnitudes of the two complex numbers i'm multiplying
+and the angle is going to be the sum of the angles of the two complex numbers i'm multiplying
+so there's multiplication
+and then division division is almost the same
+here i divide the magnitudes and subtract the angles
+all right well now i've implemented the operations and uh well what do we do
+we call on george right we've done the the use let's worry about the representation
+we'll call on george and and say to george go ahead and build us a complex number representation
+well that's fine
+uh george can say we'll implement a complex number simply as a pair that has the real part and the imaginary part
+so if i want to make a complex number with a certain real part and an imaginary part i'll just use cons to form a pair and that will that's george's representation of a complex number
+so if i want to get out the real part of something i just extract the car the first part
+if i want to get the imaginary part i extract the cdr
+how do i deal with the magnitude and angle
+well if i want to extract the magnitude of one of these things i i get the square root of the sum of the square of the car plus the square of the cdr
+if i want to get the angle i compute the arctangent of the cdr and the car this is a a lisp procedure for computing arctangent
+and if somebody hands me a magnitude and an angle and says make me a complex number well i compute the real part and the imaginary part r cosine of a and r sine of a and stick them together into a pair
+ok so we're done
+in fact what i just did conceptually is absolutely no different from the rational number representation that we looked at last time
+it's the same sort of idea
+you implement the operators you pick a representation
+right nothing different
+now however let's worry about martha
+see martha has a different idea
+she doesn't want to imp represent a complex number as a pair of a real part and an imaginary part
+what she would like to do is represent a complex number as a pair of a magnitude and an angle
+so if instead of calling up george we asked martha to design our representation we'd get something like this
+we'd get makepolar sure if i give you a magnitude and an angle we're just going to form a pair that has magnitude and angle
+if you want to extract the magnitude that's easy you just pull out the car of the pair
+if you want to extract the angle sure that's easy you just pull out the cdr
+if you want to look for real parts and and imaginary parts well then you have to do some work
+if you want the real part you have to get r cosine a in other words r the car of the thi of the pair times the cosine of the cdr of the pair sorry this is this is r times the cosine of a and that's the real part
+if you want to get the imaginary part it's r times the sine of a
+and if i hand you a real part and an imaginary part and say make me a complex number with that real part and imaginary part well i figure out what the magnitude and angle should be
+and the magnitude's the square root of the sum of the squares and the angle's the arctangent and i put those together to make a pair
+right so there's there's martha's idea
+well which is better
+well if you're doing a lot of additions probably george's is better because you're doing a lot of real parts and imaginary parts
+if mostly you're going to be doing multiplications and divisions then maybe martha's idea is better
+or maybe and this is the real point you can't decide
+or maybe uh you just have to let them both hang around for personality reasons
+all right so maybe you just really can't ever decide
+what you would like and again what we would really like is a system that looks like this
+that somehow there's george over here who has built rectangular complex numbers and martha who has polar complex numbers and somehow we have operations that can add and subtract and multiply and divide and it shouldn't matter that there're two incompatible representations of complex numbers floating around this system
+in other words not only like an abstraction barrier here that has things in it like realpart and imaginarypart and magnitude and angle so not only is there an abstraction barrier that hides the actual representation from us but also there's some kind of vertical barrier here that allows both of these representations to exist without interfering with each other
+and the idea is that the things in here realpart imaginarypart magnitude and angle will be generic operators
+if you ask for the realpart it will worry about what representation it's looking at
+ok well how can we do that
+there's a actually a really obvious idea if you're used to thinking about complex numbers uh if you're used to thinking about compound data
+i mean see suppose you could just tell by looking at a complex number whether it was constructed by george or martha
+in other words so so it's not that that what's floating around here are ordinary just complex numbers right they're they're fancy designer complex numbers
+right so you look at a complex number it's not just a it's not just a complex number it's got a label on it it says this one is is by martha right or this is a complex number number by george
+right they're signed
+see and then whenever we looked at a complex number we could just read the label and then we'd know how how you how it's expe how you expect to to operate on that
+in other words what we want is not just ordinary data objects
+we want to introduce the notion of what's called typed data
+all right typed data means again there's some sort of cloud and what it's got in it is the ordinary data object like we've been thinking about sort of pulled out the contents sort of the actual data and but also a thing called a type right it's it's signed by either george or martha
+so we're going to go from regular data to typed data
+how do we build that
+well that's easy
+right
+we know how to build clouds we use can build them out of pairs
+so here's a little representation that supports typed data
+there's a thing called take a ty take a type and attach it to a piece of contents and we just use cons
+and if we have a piece of typed data we can look at the type which is the car
+we can look at the contents which is the cdr
+now along with that the way we use our typed data is we'll test when we're given a piece of data what type it is so we have some type predicates with us
+for example to see whether a complex number is one of george's whether it's rectangular we just check to see if the type of that is the symbol rectangular right the symbol rectangular
+and to check whether a complex number is one of martha's we check to see whether the type is the symbol polar
+right so that's a way to test what kind of number we're looking at
+now let's think about how we can use that to build the system
+so let's suppose that george and martha were off working separately and each of them had designed their their complex number representation packages
+what do they have to do to to become part of this system to exist compatibly
+well it's really pretty easy
+remember george had this package
+here's george's original package or half of it
+and underlined in red are the changes he has to make
+so before when george made a complex number out of an x and a y he just put them together to make a pair
+and the only difference is that n now he signs them
+he attaches a ty the type which is the symbol rectangular to that pair
+everything else george does is the same except that see george and martha both have procedures named realpart and imaginarypart so to allow them both to exist in the same uh lisp environment george should change the names of his procedures
+so he'll he'll say this is george's realpart procedure it's the realpartrectangular procedure the imaginarypartrectangular procedure
+and then here's the rest of george's package
+right he'd had magnitude and angle
+he just renames them magnituderectangular and anglerectangular
+and martha has to do basically the same thing
+martha previously when she made a complex number out of a magnitude and angle she just consed them
+now she attaches the type polar
+and she changes the name so her realpart procedure won't conflict in name with george with george's
+right so realpartpolar and imaginarypartpolar magnitudepolar and anglepolar
+ok
+now we have the system right
+there's a there's george and martha and now we've got to get some kind of manager to look at these types and see how do the actual how do these things actually going to work now that george and martha have supplied us with typed data
+well what we have are a bunch of generic selectors right generic selectors for complex numbers realpart imaginarypart magnitude and angle
+and let's look at them more closely
+what does realpart do
+if i ask for the realpart of a complex number well i look at it i look at its type
+i say is it rectangular
+if so i apply george's realpart procedure to the contents of that complex number
+right this is a number that has a type on it
+i strip off the type using contents and apply george's procedure
+or is this a polar complex number
+if i want the real part i apply martha's realpart procedure to the contents of that number
+so that's how realpart works
+and then similarly there's imaginarypart which is almost the same right it looks at the number and if it's rectangular uses george's imaginarypart procedure if it's polar uses martha's
+and then there's a magnitude and an angle
+right
+so there's a system
+it has three parts
+there's sort of george and martha and the manager
+and that's how you get generic operators implemented
+let's look at just a simple example just to just to pin it down of exactly how this is going to work
+see suppose uh suppose you're going to be looking at the complex number say whose real part is one and whose imaginary part is two
+so that would be 1 plus 2i
+well what would happen is up here up here above where the operations have to happen that number would be represented as a pair of one and two together with typed data that would be the contents and the whole data would be that thing with the symbol rectangular added onto that and that's the way that that complex number would exist in this system
+when you went to take the realpart the manager would look at this and say oh it's one of george's
+he'll strip off the type and hand down to george the pair 1 2 and that's the kind of data that that george developed his system to use
+ok
+so it gets stripped down
+later on if you ask george to construct a complex number george would construct some complex number as a pair and before he passes it back up through the manager would attach the type rectangular
+so you see what happens
+there's no confusion in this system
+it doesn't matter in the least that the pair 1 2 means something completely different in martha's world
+in martha's world this pair means the complex number whose magnitude is one and whose angle is two
+and there's no confusion because by the time any pair like this gets handed back through the manager to the main system it's going to have the type polar attached whereas this one would have the type rectangular attached
+ok let's take a break
+we just looked at a strategy for implementing generic operators
+that strategy has a name
+it's called dispatch called dispatch on type
+right and there's a the idea is is that you break your system into a bunch of pieces
+there's george and martha who are making representations and then there's the manager right looks at the types on the data and then dispatches them to the right person
+well what criticisms can we make of that as a system organization
+well first of all there was this little annoying problem that george and martha had to change the names of their procedures
+right george originally had a realpart procedure and he had to go name it realpartrectangular so it wouldn't interfere with martha's realpart procedure which is now named realpartpolar who wouldn't interfere with the manager's realpart procedure who's now named realpart
+that's kind of an annoying problem
+but i'm not going to talk about that one now
+we'll see later on when we think about the structure of lisp names and environments that there really are ways to package all those so called namespaces separately so they don't interfere with each other
+i'm not going to think about that problem now
+the problem that i actually want to focus on is what happens when you bring somebody new into the system
+what has to happen
+well george and martha don't care right
+george is sitting there in his his rectangular world
+right has his procedures and his types
+martha sits in her polar wor world she doesn't care
+but let's look at the manager
+what does what's the manager have to do
+the manager comes through and had these operations
+there was a test for rectangular and a test for polar
+if harry comes in with some new kind of complex number and harry has a new type harry harry type complex number the manager has to go in and change all those procedures
+so the inflexibility in this system the place where change where work has to happen to accommodate change is in the manager
+that's pretty annoying
+it's even more annoying when you realize the manager's not doing anything
+right the manager is just being a paper pusher
+right let's look at let's look at look again at this at these these programs
+what are they doing
+what does realpart do
+realpart says oh is it the kind of ri complex number that george can handle
+if so send it off to george
+is it the kind of complex number that martha can handle
+if so send it off to martha
+so it's really annoying that the bottleneck in this system the thing that's that's preventing flexibility and change is is completely in the bureaucracy
+it's not in anybody who's doing any of the work
+uh not an uncommon situation unfortunately
+see what's really going on
+abstractly in this system there's a table
+see what's really happening is somewhere there's a table
+there are there are types
+there's polar and rectangular and harry's maybe over here
+and then there are there're operators
+there's an operator like realpart or uh imag imaginarypart or magnitude and angle
+and sitting in this table sitting in this table are the right procedures
+so sitting here for the type polar and realpart is martha's procedure realpartpolar
+and over here in the table is george's procedure realpartrectangular
+and over here would be say martha's procedure magnitudepolar and george's procedure magnituderectangular right and so on
+the rest of this table's filled in
+and that's really what's going on
+so in some sense all the manager is doing is acting as this table
+well how do we fix our system
+well how do you how do you fix bureaucracies a lot of time
+what you do is you get rid of the manager
+right we just take the manager and uh replace him by a computer
+we're going to automate him out of existence
+namely instead of having the manager who basically consults this table we'll have our system use the table directly
+now what do i mean by that
+let's assume again using data abstraction that we have some kind of data structure that's a table and we have ways of sticking things in and ways of getting things out
+and to be be explicit let me assume that there's an operation called put and put is going to take in this case two things i'll call keys key1 and key2 and a value and that stores the value in the table under key1 and key2
+and then we'll assume there's a thing called get such that if later on i say get me what's in the table stored under key1 and key2 it'll retrieve whatever value was stored there
+and let's not worry about how tables are implemented
+that's another right that's yet another data abstraction george's problem
+and uh maybe we'll see later talk about how you might actually build tables in lisp
+ok
+well given this organization what do george and martha have to do
+well when they build their systems they each have the responsibility to set up their appropriate column in the table
+so what george does for example when he defines his procedures all he has to do is go off and put into the table under the type rectangular and the name of the operation is realpart his procedure realpartrectangular
+so notice what's going into this table
+the the two keys here are symbols rectangular and realpart that's the quote and what's going into the table is the actual procedure that he wrote realpartrectangular
+right and then puts imaginarypart into the table filed under the keys rectangular and imaginarypart and uh magnitude under the keys rectangular magnitude angle under rectangular angle
+ok so that's what george has to do to be part of this system
+martha similarly sets up the the column in the table under polar right polar and realpart right is the procedure realpartpolar
+and uh imaginarypart and magnitude and angle
+right so this is what martha has to do to be part of this system
+everyone who makes a representation has the responsibility for for setting up a column in the table
+and what does harry do when harry comes in with his brilliant idea for implementing complex numbers
+well he makes whatever procedure he wants and builds a new column in this table
+ok well what happened to the manager
+the manager has been automated out of existence and is replaced by a procedure called operate and this is the key procedure in in the whole system
+i'll say define operate
+operate is going to take an operation that you want to do the name of an operation and an object that you would like to apply that operation to so for example the realpart of some particular complex number
+what does it do
+well the first thing it does it looks in the table
+it goes into the table and tries to find a procedure that's stored in the table right so it gets from the table using as keys the type of the object and the operator
+that looks in the table and sees what's stored under the type of the object and the operator sees if anything's stored
+let's assume that get is implemented so if nothing is resto is stored there it'll return uh null return the the empty list
+so it says if there's actually something stored there if the procedure here is not null then it'll take the procedure that it found in the table and apply it to the contents of the object
+and otherwise if there was nothing stored there it'll uh well we can decide
+in this case let's have it have put out an error message saying undefined operator or no operator for this type or some appropriate error message
+ok
+and that replaces the manager
+how do we really use it
+well what we say is we'll go off and define our generic selectors using operate
+we'll say that the realpart of something is found by realpart of an object is found by operating on the object with the name of the operation being realpart
+right and then similarly
+imaginarypart is operate using the name imaginarypart and magnitude and angle
+that's our imp that's our implementation
+that plus the ta plus the operate procedure and the table effectively replaces what the manager used to do
+let's just go through that slowly to show you what's going on
+suppose i have uh you know one of martha's complex numbers
+i've got it's got magnitude one and angle two and it's one of martha's so it's labeled here polar
+let's call that z
+suppose that's z
+and suppose with this implementation someone comes up and asks for the realpart of z
+well realpart now is defined in terms of operate
+so that's equivalent to saying operate with the name of the operator being realpart the symbol realpart on z
+and now operate comes it's going to look in the table and it's going to try and find something stored under the operation it's going to apply is by looking in the table under the the type of the object and the type of z is polar so it's going to look and say can i get using polar and the operation name right which was realpart
+it's going to look in there and apply that to the contents of z
+and what's that if everything was set up correctly this thing is the procedure that martha put there this is realpartpolar
+and this is z without its type the thing that martha originally designed those procedures to work on which is one two
+right so operate sort of does uniformly what the manager used to do sort of all over the system
+it finds the right thing looks in the table strips off the type and passes it down into the passes it down into the person who handles it
+uh this is another and you can see more flexible for most purposes way of implementing generic operators and it's called data directed programming
+and the idea of that is in some sense the data objects themselves those little complex numbers that are floating around the system are carrying with them the information about how you should operate on them
+let's break for questions
+yes
+what do you have stored in that data object
+you have the data itself you have its type and you have the operations for that type
+or where are the operations
+ok
+to be found
+ok let me yeah that's that's a good question because it relates raises other possibilities of how you might do it
+and of course there are a lot of possibilities
+in this particular implementation what's sitting in this data object for example is the data itself which in this case is a pair of one and two and also a symbol this is the symbol right the word p o l a r and that's what's sitting in this data object
+ok
+where're the operations themselves
+the operations are sitting in the table
+so in this table the the rows and columns of the table are labeled by symbols
+so the key when i store something in this table the key might be the symbol polar and the symbol uh magnitude
+and i think by writing it this way i've been very confusing because what's really sitting here is when i wrote magnitudepolar what i mean is the procedure magnitudepolar and probably what i really should have written except it's too small for me to write in this little space is something like lambda of z the thing that martha wrote to implement
+and then you can see from that there's another way that i alluded to of solving this name conflict pr problem which is that george and martha never have to name their procedures at all
+they can just stick the lambda the lambda the anonymous things generated by lambda directly into the table
+there's also another thing that your your question raises is the possibility that maybe what i would like somehow is to store in this data object not the symbol p o l a r but maybe actually all the operations themselves
+and that's another way to organize a system called message passing
+so there are a lot of ways you can do it
+yeah
+therefore if martha and george had used the same procedure names it would be ok because it wouldn't be looking
+that's right
+wouldn't be looking at procedure name
+that's right
+that's right see they wouldn't they wouldn't even have to have named their procedures at all
+what george and martha could have written what george could have written instead of saying put in the table under rectangular and realpart the procedure realpartrectangular george could have written put under rectangular realpart lambda of z such and such and such and such
+and the system would work completely the same
+my question is martha could have put could have put key1 key2 realpart
+yes
+and mart and george could have put key1 key2 realpart and as long as they defined them differently they wouldn't have had any conflicts right
+yes that that would all be ok except for the fact that if you imagine george and martha typing at the same console with the same meanings for all their names then it would get confused by realpart
+but there are ways to arrange that too and in principle you're abs you're absolutely right
+if their names didn't conflict it's the objects that go in the table not their names
+ok let's take a break
+all right well we just looked at at data directed programming as a way of implementing a system that does arithmetic on complex numbers
+so it had these operations in it called plusc and minusc and multiply and divide and maybe some others
+and that was that sat on top of and this was the key point sat on top of two different representations right a rectangular package here and a polar package and maybe some more
+and we saw that the whole idea is that maybe some more are now very easy to add
+but that doesn't really really show the power of this this methodology
+it shows you what's going on
+the power of the methodology only becomes apparent when you start embedding this in some more complex system
+so let what i'm going to do now is embed this in some more complex system
+let's assume that what we really have is a general kind of arithmetic system so called generic arithmetic system and at the top level here somebody can say add two things or subtract two things or multiply two things or divide two things and underneath that there's an abstraction barrier and underneath this barrier is say a complex arithmetic package
+and you can say add two complex numbers
+or you might also have remember we did a rational number package you might have that sitting there and there might be a rational thing
+and the rational number package well it has the things we implemented plusrat and uh timesrat and so on
+or you might have ordinary lisp numbers you might say add add three and four
+so we might have ordinary numbers in which case we have the lisp supplied plus and minus and times and slash
+ok so we might imagine this complex number system sitting in a more complicated generic operator structure at the next level up
+well how can we make that
+we already have the idea we're just going to do it again
+uh we've implemented a rational number package
+let's look at at how it has to be changed
+here is in fact at this level it doesn't have to be changed at all
+this is exactly the code that we wrote last time
+to add two rational numbers you remember there was this formula
+you make a rational number whose numerator is this the numeration of the first times the denominator of the second plus the denominator of the first times the numerator of the second and whose denominator is the product of the denominators
+and minusrat and starrat and slashrat right and that's this is exactly this is exactly the rational number package that we made before
+we're ignoring the gcd problem but let's not worry about that
+how do we install as implementers of this rational number package how do we install it in the generic arithmetic system
+well that's easy
+go off there's only one thing we have to do differently
+whereas previously we said that to make a rational number you built a pair of the numerator and denominator here we'll not only build the pair but we'll sign it
+we'll attach the type rational
+that's the only thing we have to do different make it a typed data object
+and now we'll stick our operations in the table right we'll put under the symbol rational and the operation add our procedure plusrad
+and again note this is a symbol right quote and quote but the actual thing we're putting in the table is the procedure
+right and for how to subtract we'll you subtract rationals with minusrat
+and multiply and divide
+and that is exactly and precisely what we have to do to fit inside this generic arithmetic system
+well how does the whole thing work
+see what we want to do is have some generic operators right have have add and sub and mul and div be generic operators so we're going to just define add and say to add x and y that will be operate remember we're going to call it operate2 this is our operator procedure but set up for two arguments using add on x and y
+all right so this is the analog to operate
+let's let's look at the code for a second
+it's almost like operate
+right to operate with some operator on an argument1 and an argument2 well the first thing we're going to do is check and see if those two operators have the if the two arguments have the same type
+so we'll we'll say is the type of the first argument the same as the type of the second argument
+and if they're not right if they're not we'll go off and complain and say that's an error we don't know how to do that
+if they do have the same type we'll do exactly what we did before
+we'll go look and filed under the type of the arguments as arg1 and arg2 have the same type so it doesn't matter right
+so we'll look in the table find a procedure
+if there is a procedure there then we'll apply it to the contents of the arg argument1 and the contents of arg2 and otherwise we'll say error undefined operator
+all right so there's operate2
+and that's all we have to do
+uh how do we we just built the complex number package before
+how do we embed that complex number package in this generic system
+almost the same
+we make a procedure called makecomplex that takes whatever george and martha hand to us and add the type complex
+and then we say to add complex numbers right pluscomplex we use our internal procedure plusc and attach a type make that a complex number
+so our original package had names plusc and minusc that we're using to communicate with george and martha and then to communicate with the outside world we have a thing called pluscomplex and minuscomplex
+and so on and the only difference is that these return values that are typed so they can be looked at up here
+and these are our internal operations
+ok
+let's go look at that slide again
+there's one more thing we do
+after defining pl pluscomplex we put under the type complex and the symbol add that procedure pluscomplex and then similarly for minus for subtracting complex numbers and multiplying them and dividing them
+ok how do we install ordinary numbers
+exactly the same way
+we come off and say well we'll make a thing called makenumber
+makenumber takes a number and attaches a type which is the symbol number
+we build a procedure called plusnumber which is simply add the two things using the ordinary addition 'cause in this case we're talking about ordinary numbers and attach a type to it make that a number
+and then we put into the table under the symbol number and the operation add this procedure plusnumber
+and then same thing for subtracting and multiplying and dividing
+ok
+ok
+let's look at an example just to to make it clear
+suppose for instance i'm going to perform the operation see i sit up here and i going to perform the operation which looks like multiplying two complex numbers so i would multiply say 3 plus 4i and 2 plus 6i
+and that's something that i might want to and i hand that to mul
+i write mul as my generic operator here
+how's that going to work
+well 3 plus 4i say sits in the system at this level as something that looks like this
+let's say it was one of george's
+so it would have a a three and a four and attached to that would be george's type which would say rectangular came from george and attached to that and this this itself would be the data viewed from the next level up which is so that itself would be a typed data object which would say complex
+so that's what this object would look like up here at the very highest level where the gen really super generic operations are looking at it
+now what happens
+mul eventually is going to come along and say oh what's its type
+its type is complex
+go through to operate2 and say oh what i want to do is apply what's in the table which is going to be the procedure uh starcomplex on this thing with the type stripped off
+so it's going to strip off the type take that much and send that down into the complex world
+the complex world looks at its operations and says oh i have to apply starc
+starc might say oh at some point i want to look at the the magnitude of this object that it's hand that it's got
+and it'll say oh it's rectangular it's one of george's
+so it'll then strip off the next version of type
+and hand that down to george to take the magnitude of
+so you see what's going on is that there's this there're these chains of types and the length of the chain is sort of the number of levels that you're going to be going up in this table
+and what a type tells you every time you have a a vertical barrier in this table where there's some ambiguity about where you should go down to the next level the type is telling you where to go
+and then everybody at the bottom as they construct data and filter it up they s they stick their type back on
+right
+so that's the that's the general structure of the system
+ok now that we've got this let's go and make this thing even more complex
+let's talk about adding to this system not only these kinds of numbers but uh it's also meaningful to start talking about adding polynomials say
+might do arithmetic on polynomials like we could have uh x to the fifteenth plus uh 2x to the seventh plus five say
+that might be some polynomial and if we have two such gadgets we can add them or multiply them
+let's not worry about dividing them just add them multiply them uh or subtract them
+uh what do we have to do
+well let's think about how we might represent a polynomial
+it's going to be some typed data object so let's say it's a polynomial to this system might look like a thing that starts with the type polynomial and then maybe it says the next thing is what variable it's in so it might say i'm a polynomial in the variable x and then it'll have some information about what the terms are
+and there're just tons of ways to do this but one way is to say we're going to have a thing called a termlist and a termlist well in our case we'll use something that looks like this
+we'll make it a bunch of pairs which have an order and a coefficient
+so this polynomial would be represented by this termlist and what that means is that this polynomial starts off with a term of order fifteen and coefficient one and the next thing in it is a term of order seven and coefficient two a term of order zero which is constant and coefficient five
+and there're lots and lots of ways and lots and lots of of tradeoffs when you really think about making algebraic manipulation packages about exactly how you should represent these things
+but this is a fairly standard one
+it's useful in a lot of contexts
+ok well how do we implement our polynomial arithmetic
+let's uh let's start out
+what we'll do to make a polyn we'll first have a way to make polynomials
+and we're going to make a polynomial out of a variable like x and termlist and all that does is we'll package them together some way
+we'll put the variable together with the termlist using cons and then attach to that the type polynomial
+ok how do we add two polynomials
+to add a polynomial p1 and p2 and then just for simplicity let's let's say we will only add things in the same variable
+so if they have the same variable and samevariable here is going to be some selector we write whose details we don't care about
+if the two polynomials have the same variable then we'll do something
+if they don't have the same variable we'll give an error polynomials not in the same variable
+and uh if they do have the same variable what we'll do is we'll make a polynomial whose variable is whatever that variable is and whose termlist is something we'll call sumterms plusterms will add the two termlists
+so we'll add the two termlists of the polynomial that'll give us a termlist
+we'll add on we'll say it's a polynomial in the variable with that termlist
+that's pluspoly
+and then we're going to put in our table under the type polynomial add them using pluspoly
+and of course we really haven't done much
+all we've really done is pushed all the work onto this thing plusterms which is supposed to add termlists
+let's uh let's look at that
+here's a here's an overview of how we might how we might add two termlists
+so l1 and l2 are going to be two termlists and a termlist is a bunch of pairs coefficient and order and it's a big case analysis
+and the first the first thing we'll check for and and see if there are any terms
+we're going to recursively work down these termlists so eventually we'll get to a place where either l1 or l2 might be empty and if either one is empty our answer will be the other one
+so if l if l1 is empty we'll return l2 and if l2's empty we'll return l1
+right otherwise there there're sort of three interesting cases
+what we're going to do is grab the first term in each of those lists
+all right
+call it t1 and t2
+and we're going to look at three cases depending on whether the orders of those whether the order of t1 is greater than the order of t2 or less than t2 or the same
+right those are the three cases we're going to look at
+let's look at this case
+if the order of t1 is greater than the order of t2 then what that means is that our answer is going to start with this term of the order of t1 because it won't combine with any lower order terms
+so what we do is add the lower order terms
+we recursively add together all the terms in the rest of the termlist in l1 and l2 that's going to be the lower order terms of the answer and then we're going to adjoin to that the highest order term
+and i'm using here a whole bunch of procedures i haven't defined like adjointerm and restterms and selectors that get order right but you can imagine what those are
+all right so if the first term if the first termlist has a higher order than the second we recursively add all the lower terms and then stick on that that last term
+the other case the same way
+if uh the first term has a smaller order well then we add we add it in we add the first terml we add the first termlist and the rest of the terms in the second one and adjoin on the oth this highest order term right this highest order term
+so so far nothing's much happened
+we've just sort of pushed this thing off into adding lower order terms
+the last case where you actually get two coefficients that you have to add this will be the case where the orders are equal what we do is well again recursively add the lower order terms but now we have to really combine something
+what we do is we make a term whose order is the order of the term we're looking at by now t1 and t2 have the same order that's its order and its coefficient is gotten by adding the coefficient of t1 and the coefficient of t2
+there's this is a big recursive working down of terms but really there's only one interesting symbol in this procedure only one interesting idea
+and the interesting idea is this add
+and the reason that's interesting is because something completely wonderful just happened
+we reduced adding polynomials not to sort of plus but to the generic add
+in other words by implementing it that way see not only do we have our system where we can have rational numbers or complex numbers or ordinary numbers
+we've just added on polynomials but the coefficients of the polynomials can be anything that the system can add
+so these could be polynomials whose coefficients are rational numbers or complex numbers which in turn could be either rectangular or polar or ordinary numbers
+right
+so what i mean precisely is our system right now automatically can handle things like uh you know adding together polynomials that have this form two thirds of x squared plus five seventeenths x plus eleven fourths
+or automatically handle polynomials that look like three plus two i times x to the fifth plus uh four plus seven i or something
+right
+it can automatically handle those things
+why is that
+that's merely because or or profoundly because we reduced adding polynomials to adding their coefficients
+and adding coefficients was done by the generic add operator which said i don't care what your types are as long as i know how to add you
+so automatically for free we get the ability to handle that
+well it's even better than that because remember one of the things we did is we said we put into the table that the way you add polynomials is using pluspoly
+that means that polynomials themselves are things that can be added
+so for instance uh let me write one here
+here is here's a polynomial so this gadget here i'm writing up this is a polynomial in y whose coefficients are polynomials in x
+right
+so you see simply by by saying polynomials are themselves things that can be added we can go off and say well not only can we deal with rationals or complex or ordinary numbers but we can deal with polynomials whose coefficients are rationals or complex or ordinary numbers or polynomials whose coefficients are rationals or complex rectangular polar or ordinary numbers or polynomials whose coefficients are rationals complex or ordinary numbers and so on and so on and so on
+so this is sort of an infinite or maybe a recursive tower of types that we've built up
+and it's all exactly from that one little symbol right add writing add instead of plus in the polynomial thing
+slightly different way to think about it is that polynomials are a constructor for types namely you give it a type like uh integer and it returns for you polynomials in x whose coefficients are integers
+and the important thing about that is that the operations on polynomials reduce to the operations on the coefficients
+and there are a lot of things like that
+so for example let's go back in rational numbers
+we thought about rational numbers as as an integer over an integer but there's the general notion of a rational object like we might think about three x plus seven over uh x squared plus one
+that's a sort of general rational object whose numerator and denominator are polynomials
+and to add two of them we use the same formula numerator times denominator plus denominator times numerator over product of denominators
+how could we install that in our system
+well here's our original rational number arithmetic package and all we have to do in order to make the entire system complete continue working with general rational objects is replace these particular pluses and stars by the generic operators
+so if we simply change that procedure to this one here we've changed plus and star to add and mul those are absolutely the only change then suddenly our entire system can start talking about objects that look like this
+right so for e example here is a uh rational object whose numerator is a polynomial in x whose coefficients are rational numbers right or here is a a rational object whose numerator is polynomials in x whose coefficients are rational objects constructed out of complex numbers
+and then there are a lot of other things like that
+see whenever you have a thing where the operations reduce to operations on the pieces another example would be two by two matrices see i have the idea there might be a matrix here of general things that i don't care about but if i add two of them the answer say over here is gotten by adding this one and that one however they like to add
+so i can add implement that the same way and if i do that then again suddenly my system can start handling things like this
+right so here's a matrix whose elements happen to be well say this element here is a rational object whose numerator and denominators are polynomials
+right
+and all that comes for free
+right
+where's it what's really going on here
+what's really going on is getting rid of this manager who's sitting there poking his nose into what everyb who everybody's business is
+we've built a system that has decentralized control
+so when you come in to add no one's poking around saying gee are you in the official list of of people who can be added
+rather you say well go off and add yourself how your parts like to be added
+and then you see the result of that is you can get this this very very very complex hierarchy that can where a lot of things just get done and routed to the right place automatically
+let's stop for questions
+you say uh you get this for free
+um one thing that strikes me is that now you've lost uh kind of the cleanness of the break between what's on top and what's underneath
+in other words now you're defining some of the lower level procedures in terms of things above their own line
+isn't that uh dangerous
+or if nothing more uh a little less uh structured
+no i the question is whether that's less structured it depends what you mean by structured
+all this is doing is recursion
+see
+see it's saying that it's saying that you know the way you add these guys is to use that
+and that's not less structured it's just a recursive structure
+so i don't think it's any less particularly less clean
+so now when you want to change the multiply or the add operator suddenly you've got tremendous consequences underneath that you're not even sure the extent of
+that's right but it depends what you mean
+see this goes both ways
+uh what'd be a good example
+i ignored greatest common divisor for instance
+i ignored that problem just to keep the example simple
+but if i suddenly decided that sorry that plusrad here should do a gcd computation and installed that then that immediately becomes available to all of these to that guy and that guy and that guy and all the way down
+so it depends what you mean by the coherence of your system
+it's certainly true that you might want to have a special different one that didn't filter down through the coefficients but the nice thing about this particular example is that mostly you do
+isn't that the problem i think that you're getting to tied in with the fact that the the structuring the the recursiveness of that structuring there is actually an exe in execution as opposed to just definition of the actual types themselves
+let's see
+i i think i understand the question
+the point is that these types evolve and get more and more complex as the thing's actually running is that what you're
+yeah as it's running
+what you're saying
+yes the point
+basic definition
+right
+there's the type structure is sort of recursive
+it's not that you can make this finite list of you know the actual th things they might look like before the system runs
+it's something that evolves
+so if you want to specify that system you have to do it in some other way than by this finite list
+you have to do it by a recursive structure
+because the basic structure of the types is is pretty clean and simple there
+right
+right
+yes
+um i've a question i understand once you have your sort of your data structure set up how how it pulls off complex and passes that down and then pulls of rect pass that down
+but if you're just a user and you don't know anything about rect or polar or whatever how do you initially set up that data structure so that it all everything goes to the right spot
+if i just have the the equation over there on the left and i just want to add
+if you're just a user you say mul
+and it figures out that i mean complex numbers
+or how do i how do i tell it that i want
+well you're going to have in your hands complex numbers
+see what you would have at some level as a real user is a constructor for complex numbers
+so that i make complex numbers
+so you have to make them
+what you would probably have as a user is some little thing in in the reader loop which would give you some you know some plausible way to type in a complex number in however whatever format you like
+or it might be that you're never typing them in
+you someone's just handing you a complex number
+and you want to add them
+ok so if i had a complex number that had a polynomial in it i'd have to make my polynomial and then make complex number
+right if you wanted to if you wanted to construct it from scratch
+at some point you construct them from scratch but what you don't have to know about is when you have the object you can just say mul and it'll multiply
+yeah
+i think the question that was being posed here is say if i want to change the my representation of complexes or some operation on complex how much real code i will have to get round with or or change to to change one specific operation
+all right the answer is what you have to change and the point is that you only have to change what you're changing
+see if martha decides that she would rather uh let's do something silly like change the order in the pair like angle and angle and uh magnitude in the other order
+she just makes that change locally and the whole thing will propagate through the system in the right way
+or if suddenly you you said i gee i have another representation for rationals and i'm going to stick it here by adding it by filing those operations in the table then suddenly all of these polynomials whose coefficients or coefficients of coefficients or whatever also can automatically have available that representation
+that's that's the power of this particular one
+i'm not sure if i can even pose an intelligent sounding question but um somehow this whole thing went really nicely to this beautiful finish where all the things seemed to fall into place
+uh sort of seemed a little contrived
+um
+that's all for the sake i'm sure of teaching
+i i doubt that the guys who first did this and i could be wrong figured it all out so that when they just all put it all together you could all of a sudden blam do any kind of uh arithmetic on any kind of object
+it seems like maybe they had to play with it for a while and had to re you know bash it and rework it
+and it seems like that's the kind of problem we're really faced with when we start trying to design a really complex system is having a lots of different kinds of parts and not even knowing what kinds of operations we're going to want to
+right
+do on those parts how to organize the operations in this nice way so that no matter what you do when you start putting them together everything starts falling out for free
+ok well that's that's certainly a very intelligent question
+oh
+uh one part is this is a very good methodology that people have discovered a lot coming from symbolic algebra because there are a lot of complications to allow you you know to implement these things before you decide what you want all the operations to be and all of that
+so in some sense it's a it's an answer that people have discovered by by wading through this stuff
+in another sense it is a very contrived example
+and you can
+it seems like you have to in fact to be to be able to do this you do have to wade through it for a certain amount of time before you can become good at it
+well but let me let me show you how terribly contrived this is
+so you can write all these wonderful things but the the system that i wrote here and if we had another half an hour to give this lecture i would have given this part of it which says notice that it breaks down if i tell it to do something as foolish as uh you know add three plus seven halves
+because what will happen is you'll get to operate2 and operate2 will say oh this is type number and that's type rational
+i don't know how to add them
+so you'd like the system at least to be able to say something like gee before you do that change that to three over one turn it into a rational number hand that to the rational package
+that's the general that's the thing i didn't talk about in this in this lecture it's a little bit in the book which talks about the problem of what's called coercion where you want to see having so carefully set up all of these types as distinct objects a lot of times you want to also put in knowledge about how to view a rational number view an ordinary number as a kind of rational or view an ordinary number as a kind of complex
+that's where the complexity in the system really starts happening where you talk about see where do i put that knowledge
+is is it rationals who know that ordinary numbers might be pieces of kinds of them
+where there're there're terrible terrible examples like uh you know if i might want to add a complex number to uh a rational number
+uh bad example five sevenths
+then somebody's got to know that i have to convert these to another type which is complex numbers whose parts might be rationals
+and who worries about that
+does complex worry about that
+does rational worry about that
+does plus worry about that
+that's where the real complexity comes in and that's where it's pretty well sorted out and a lot of in fact all of this message passing stuff was motivated by problems like this
+and when you really push it people are somehow the algebraic manipulation problem seems to be so complex that the people who are always at the edge of it are exactly in the state you said
+they're wading through this thing mucking around seeing what they use trying to distill stuff
+i just want to come back to this issue of complexity on once more
+um it certainly seems to be true that you have a great deal of flexibl bility in altering the lower level kinds of things but it is true that you are in a sense freezing higher level operations or at least if you change them you don't know where all of the changes are going to show up or how they are
+ok
+ok that's an extremely good question
+see what i have to do is if i decide there's a new general operation called uh equalitytest then all of these people ha have to decide whether or not they would like to have an equalitytest by looking in the table
+there're ways to decentralize it even more and that's what i sort of hinted at last time where i said you could not only have this type as a symbol but you actually might store in each object the operations that it knows about
+so you might have things like uh well like greatestcommondivisor which is a thing here which is defined only for integers and not in general for rational numbers
+so it might be a very very fragmented system and then depending on where you want your flexibility y there's a whole spectrum of places that you can build that in
+but you're pointing at the place where this starts starts being weak that there has to be some agreement on top here about these general operations or at least people have to think about them
+or you might decide you might have a table that's very sparse that only has a few things in it
+but there are a lot of ways to play that game
+ok thank you

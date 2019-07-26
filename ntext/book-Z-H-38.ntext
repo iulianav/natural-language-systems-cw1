@@ -1,0 +1,359 @@
+index
+in names " calculus see lambda calculus
+notation for mathematical function see pi
+sum ( sigma ) notation see theta
+' read and [2] multiply plus minus as negation / < <> equal equal number equal zero ( generic ) for polynomials <> > <> equal > [2] <> in predicate names #f #t ` ( backquote ) see semicolon
+abelson harold abs [2] [3] absolute value abstract data see also data abstraction
+abstract models for data abstract syntax
+in metacircular evaluator in query interpreter abstraction see also means of abstraction data abstraction higher order procedures
+common pattern and metalinguistic procedural in register machine design of search in nondeterministic programming abstraction barriers [2] [3] in complex number system in generic arithmetic system accelerated sequence accumulate [2] same as fold right accumulate n accumulator [2] &aacute ch&aacute rya bh&aacute scara ackermann's function acquire a mutex actions in register machine actual value ada recursive procedures adams norman i. iv add ( generic ) used for polynomial coefficients [2] add action [2] add binding to frame add complex add complex to schemenum add interval add lists add poly add rat add rule or assertion add streams add terms add to agenda [2] add vect addend adder
+full half ripple carry adder additivity [2] [3] [4] address address arithmetic adelman leonard adjoin arg adjoin set binary tree representation ordered list representation unordered list representation for weighted sets adjoin term [2] advance pc after delay [2] agenda see digital circuit simulation
+a'h mose algebra symbolic see symbolic algebra
+algebraic expression differentiating representing simplifying algebraic specification for data algol
+block structure call by name argument passing [2] thunks [2] weakness in handling compound objects algorithm
+optimal probabilistic [2] aliasing all regs ( compiler ) allen john alternative of if always true amb amb evaluator see nondeterministic evaluator
+ambeval an element of an integer starting from analog computer analyze
+metacircular nondeterministic analyze ...
+metacircular [2] nondeterministic analyze amb analyzing evaluator as basis for nondeterministic evaluator let and evaluation of [2] [3] and evaluation of why a special form with no subexpressions and gate and gate angle
+data directed polar representation rectangular representation with tagged data angle polar angle rectangular announce output apl appel andrew w
+append [2] [3] as accumulation append vs
+with arbitrary number of arguments as register machine what is ( rules ) vs
+how to ( procedure ) append as register machine append instruction sequences [2] append to form ( rules ) application applicative order evaluation in lisp normal order vs. [2] [3] apply ( lazy ) apply ( metacircular ) primitive apply vs
+apply apply dispatch modified for compiled code apply generic with coercion [2] with coercion by raising with coercion of multiple arguments with coercion to simplify with message passing with tower of types apply primitive procedure [2] [3] apply rules arbiter arctangent argl register argument passing see call by name argument passing call by need argument passing
+argument ( s ) arbitrary number of [2] delayed aristotle's de caelo arithmetic
+address arithmetic generic see also generic arithmetic operations
+on complex numbers on intervals on polynomials see polynomial arithmetic
+on power series [2] on rational numbers primitive procedures for articles ascii code assemble [2] assembler [2] assert assertion implicit assign simulating storing label in register assign reg name assign value exp assignment see also set
+benefits of bugs associated with [2] costs of assignment operator see also set
+assignment value assignment variable assignment assoc atan atomic operations supported in hardware atomic requirement for test and set attach tag using scheme data types augend automagically automatic search see also search
+history of automatic storage allocation average average damping average damp averager ( constraint )
+b tree backquote backtracking see also nondeterministic computing
+backus john baker henry g. jr
+balanced binary tree see also binary tree
+balanced mobile bank account [2] exchanging balances joint [2] joint modeled with streams joint with concurrent access password protected serialized stream model transferring money barrier synchronization barth john basic
+restrictions on compound data weakness in handling compound objects batali john dean begin implicit in consequent of cond and in procedure body begin actions begin below [2] bertrand's hypothesis beside [2] bignum binary numbers addition of see adder
+binary search binary tree balanced converting a list to a converting to a list for huffman encoding represented with lists sets represented as table structured as bind binding deep binomial coefficients black box block structure [2] in environment model in query language blocked process body of a procedure bolt beranek and newman inc
+borning alan borodin alan bound variable box and pointer notation end of list marker branch simulating branch of a tree branch dest breakpoint broken heart bug capturing a free variable order of assignments side effect with aliasing bureaucracy buridan jean busy waiting
+c
+compiling scheme into error handling [2] recursive procedures restrictions on compound data scheme interpreter written in [2] <ca ... r> cache coherence protocols cadr calculator fixed points with call by name argument passing [2] call by need argument passing [2] memoization and call each cancer of the semicolon canonical form for polynomials capturing a free variable car axiom for implemented with vectors as list operation origin of the name procedural implementation of [2] [3] [4] [5] carmichael numbers [2] case analysis
+data directed programming vs
+general see also cond
+with two cases <cd ... r> cdr axiom for implemented with vectors as list operation origin of the name procedural implementation of [2] [3] [4] [5] cdr down a list cell in serializer implementation celsius fahrenheit converter expression oriented center ces&agrave ro ernesto cesaro stream cesaro test chaitin gregory chandah sutra change and sameness
+meaning of shared data and changing money see counting change
+chaos in the solar system chapman david character strings
+primitive procedures for [2] quotation of character ascii encoding charniak eugene chebyshev pafnutii l'vovich chess eight queens puzzle [2] chip implementation of scheme [2] chronological backtracking chu shih chieh church numerals church alonzo [2] church turing thesis circuit
+digital see digital circuit simulation
+modeled with streams [2] clark keith l
+clause of a cond additional syntax clinger william [2] closed world assumption closure in abstract algebra closure property of cons closure property of picture language operations [2] lack of in many languages coal bituminous code
+ascii fixed length huffman see huffman code
+morse prefix variable length code generator arguments of value of coeff [2] coercion in algebraic manipulation in polynomial arithmetic procedure table colmerauer alain combination combination as operator of compound expression as operator of evaluation of lambda expression as operator of as operator of combination as a tree combination means of see also closure
+comma used with backquote comments in programs common lisp treatment of nil compacting garbage collector compilation see compiler
+compile compile and go [2] compile and run compile application compile assignment compile definition compile if compile lambda compile linkage compile proc appl compile procedure call compile quoted compile self evaluating compile sequence compile time environment [2] [3] open coding and compile variable compiled apply compiled procedure entry compiled procedure env compiled procedure compiler interpreter vs. [2] tail recursion stack allocation and garbage collection compiler for scheme see also code generator compile time environment instruction sequence linkage descriptor target register
+analyzing evaluator vs. [2] assignments code generators see compile ...
+combinations conditionals definitions efficiency example compilation explicit control evaluator vs. [2] [3] expression syntax procedures interfacing to evaluator label generation lambda expressions lexical addressing linkage code machine operation use monitoring performance of compiled code [2] [3] open coding of primitives [2] order of operand evaluation procedure applications quotations register use [2] [3] running compiled code scanning out internal definitions [2] self evaluating expressions sequences of expressions stack usage [2] [3] structure of tail recursive code generated by variables complex package complex numbers
+polar representation rectangular representation rectangular vs
+polar form represented as tagged data complex complex> complex number arithmetic interfaced to generic arithmetic system structure of system composition of functions compound data need for compound expression see also combination special form
+as operator of combination compound procedure see also procedure
+used like primitive procedure compound query processing [2] [3] [4] [5] compound apply compound procedure computability [2] computational process see also process
+computer science [2] mathematics vs. [2] concrete data representation concurrency correctness of concurrent programs deadlock functional programming and mechanisms for controlling cond additional clause syntax clause evaluation of if vs
+implicit begin in consequent cond if> cond actions cond clauses cond else clause cond predicate cond conditional expression
+cond if congruent modulo n conjoin connect [2] connector ( s ) in constraint system operations on representing conniver cons axiom for closure property of implemented with mutators implemented with vectors as list operation meaning of the name procedural implementation of [2] [3] [4] [5] [6] cons up a list cons stream [2] lazy evaluation and why a special form consciousness expansion of consequent
+of cond clause of if const simulating syntax of constant constant specifying in register machine constant exp constant exp value constraint network constraint ( s )
+primitive propagation of construct arglist constructor as abstraction barrier contents using scheme data types continuation
+in nondeterministic evaluator [2] see also failure continuation success continuation
+in register machine simulator continue register in explicit control evaluator recursion and continued fraction e as golden ratio as tangent as control structure controller for register machine controller diagram conventional interface sequence as cormen thomas h
+corner split correctness of a program cos cosine
+fixed point of power series for cosmic radiation count change count leaves [2] as accumulation as register machine count pairs counting change [2] credit card accounts international cressey david cross type operations cryptography cube [2] [3] cube root
+as fixed point by newton's method cube root current time for simulation agenda current time [2] cycle in list detecting
+darlington john data [2] abstract see also data abstraction
+abstract models for algebraic specification for compound concrete representation of hierarchical [2] list structured meaning of mutable see mutable data objects
+numerical procedural representation of as program shared symbolic tagged [2] data abstraction [2] [3] [4] [5] see also metacircular evaluator
+for queue data base
+data directed programming and indexing [2] insatiable enterprises personnel logic programming and microshaft personnel as set of records data paths for register machine data path diagram data types
+in lisp in strongly typed languages data directed programming [2] case analysis vs
+in metacircular evaluator in query interpreter data directed recursion deadlock avoidance recovery debug decimal point in numbers declarative vs
+imperative knowledge [2] logic programming and [2] nondeterministic computing and decode decomposition of program into parts deep binding deep reverse deferred operations define with dotted tail notation environment model of lambda vs
+for procedures [2] syntactic sugar value of why a special form define
+internal see internal definition
+define variable [2] definite integral estimated with monte carlo simulation [2] definition see define internal definition
+definition value definition variable definition dekleer johan [2] delay explicit explicit vs
+automatic implementation using lambda lazy evaluation and memoized [2] why a special form delay in digital circuit delay it delayed argument delayed evaluation [2] assignment and explicit vs
+automatic in lazy evaluator normal order evaluation and printing and streams and delayed object delete queue [2] denom [2] axiom for reducing to lowest terms dense polynomial dependency directed backtracking deposit with external serializer deposit message for bank account depth first search deque deriv ( numerical ) deriv ( symbolic ) data directed derivative of a function derived expressions in evaluator adding to explicit control evaluator design stratified differential equation see also solve
+second order [2] differentiation
+numerical rules for [2] symbolic [2] diffusion simulation of digital signal digital circuit simulation agenda agenda implementation primitive function boxes representing wires sample simulation dijkstra edsger wybe dinesman howard p
+diophantus's arithmetic fermat's copy of disjoin dispatching
+comparing different styles on type see also data directed programming
+display [2] display line display stream distinct div ( generic ) div complex div interval division by zero div poly div rat div series div terms divides divisible division of integers dog perfectly rational behavior of dos / windows dot product dotted tail notation
+for procedure parameters [2] in query pattern [2] in query language rule read and doyle jon draw line driver loop
+in explicit control evaluator in lazy evaluator in metacircular evaluator in nondeterministic evaluator [2] in query interpreter [2] driver loop
+for lazy evaluator for metacircular evaluator for nondeterministic evaluator
+e
+as continued fraction as solution to differential equation ex power series for earth measuring circumference of edge one frame edge two frame efficiency see also order of growth see also order of growth
+of compilation of data base access of evaluation of lisp of query processing of tree recursive process eieio eight queens puzzle [2] electrical circuits modeled with streams [2] element of set binary tree representation ordered list representation unordered list representation else embedded language language design using empty list denoted as recognizing with null empty stream empty agenda [2] empty arglist empty instruction sequence empty queue [2] empty termlist [2] encapsulated name enclosing environment enclosing environment encode end of list marker end segment [2] end with linkage engineering vs
+mathematics entry enumerate interval enumerate tree enumerator env register environment [2] compile time see compile time environment
+as context for evaluation enclosing global see global environment
+lexical scoping and in query interpreter renaming vs
+environment model of evaluation [2] environment structure internal definitions local state message passing metacircular evaluator and procedure application example rules for evaluation tail recursion and eq for arbitrary objects as equality of pointers [2] implementation for symbols numerical equality and equ equal rat equal equality
+in generic arithmetic system of lists of numbers [2] [3] referential transparency and of symbols equation solving see half interval method newton's method solve
+eratosthenes error error handling
+in compiled code in explicit control evaluator [2] escher maurits cornelis estimate integral estimate pi [2] euclid's algorithm [2] see also greatest common divisor
+order of growth for polynomials euclid's elements euclid's proof of infinite number of primes euclidean ring euler leonhard proof of fermat's little theorem series accelerator euler transform ev application ev assignment ev begin ev definition ev if ev lambda ev quoted ev self eval ev sequence
+with tail recursion without tail recursion ev variable eval ( lazy ) eval ( metacircular ) [2] analyzing version data directed primitive eval vs
+eval mit scheme used in query interpreter eval assignment eval definition eval dispatch eval if ( lazy ) eval if ( metacircular ) eval sequence evaluation
+applicative order see applicative order evaluation
+delayed see delayed evaluation
+environment model of see environment model of evaluation
+models of normal order see normal order evaluation
+of a combination of and of cond of if of or of primitive expressions of special forms order of subexpression evaluation see order of evaluation
+substitution model of see substitution model of procedure application
+evaluator see also interpreter
+as abstract machine metacircular as universal machine evaluators see metacircular evaluator analyzing evaluator lazy evaluator nondeterministic evaluator query interpreter explicit control evaluator
+even fibs [2] even evening star see venus
+event driven simulation evlis tail recursion exact integer exchange exclamation point in names execute execute application
+metacircular nondeterministic execution procedure
+in analyzing evaluator in nondeterministic evaluator [2] [3] in register machine simulator [2] exp register expand clauses explicit control evaluator for scheme assignments combinations compound procedures conditionals controller data paths definitions derived expressions driver loop error handling [2] expressions with no subexpressions to evaluate as machine language program machine model modified for compiled code monitoring performance normal order evaluation operand evaluation operations optimizations ( additional ) primitive procedures procedure application registers running sequences of expressions special forms ( additional ) [2] stack usage tail recursion [2] [3] as universal machine expmod [2] [3] exponential growth of tree recursive fibonacci number computation exponentiation modulo n expression see also compound expression primitive expression
+algebraic see algebraic expressions
+self evaluating symbolic see also symbol ( s )
+expression oriented vs
+imperative programming style expt
+linear iterative version linear recursive version register machine for extend environment [2] extend if consistent extend if possible external entry extract labels [2]
+#f factorial see also factorial
+infinite stream with letrec without letrec or define factorial
+as an abstract machine compilation of [2] environment structure in evaluating linear iterative version linear recursive version register machine for ( iterative ) [2] register machine for ( recursive ) [2] stack usage compiled stack usage interpreted [2] stack usage register machine with assignment with higher order procedures failure continuation [2] constructed by amb constructed by assignment constructed by driver loop failure in nondeterministic computation bug vs
+searching and false false false fast expt fast prime feedback loop modeled with streams feeley marc feigenbaum edward fenichel robert fermat pierre de fermat test for primality variant of fermat's little theorem alternate form proof fermat test fetch assertions fetch rules fib
+linear iterative version logarithmic version register machine for ( tree recursive ) [2] stack usage compiled stack usage interpreted tree recursive version [2] with memoization with named let fibonacci numbers see also fib
+euclid's gcd algorithm and infinite stream of see fibs
+fibs implicit definition fifo buffer filter [2] filter filtered accumulate find assertions find divisor first agenda item [2] first class elements in language first exp first frame first operand first segment first term [2] fixed point computing with calculator of cosine cube root as fourth root as golden ratio as as iterative improvement in newton's method nth root as square root as [2] [3] of transformed function unification and fixed length code fixed point as iterative improvement fixed point of transform flag register flatmap flatten stream flip horiz [2] flip vert [2] flipped pairs [2] [3] floyd robert fold left fold right for each [2] for each except forbus kenneth d
+force [2] forcing a thunk vs
+force a thunk force it memoized version forget value [2] formal parameters names of scope of formatting input expressions fortran [2] inventor of restrictions on compound data forwarding address fourth root as fixed point fraction see rational number ( s )
+frame as repository of local state global frame [2] coordinate map frame see also pattern matching unification
+representation frame coord map frame values frame variables framed stack discipline franz lisp free register [2] free list free variable capturing in internal definition friedman daniel p. [2] fringe as a tree enumeration front ptr front queue [2] full adder full adder function ( mathematical )
+notation for ackermann's composition of derivative of fixed point of procedure vs
+rational repeated application of smoothing of function box in digital circuit functional programming [2] concurrency and functional programming languages time and
+gabriel richard p
+garbage collection memoization and mutation and tail recursion and garbage collector
+compacting mark sweep stop and copy gcd see greatest common divisor
+gcd register machine for [2] gcd terms general purpose computer as universal machine generate huffman tree generating sentences generic arithmetic operations structure of system generic operation generic procedure [2] generic selector [2] genesis get [2] get contents get global environment get register get register contents [2] get signal [2] get value [2] glitch global environment [2] in metacircular evaluator global frame goguen joseph golden ratio as continued fraction as fixed point gordon michael goto label as destination simulating goto dest grammar graphics see picture language
+gray jim greatest common divisor see also gcd
+generic of polynomials used to estimate used in rational number arithmetic green cordell griss martin lewis guttag john vogel
+half adder half adder simulation of half interval method half interval method newton's method vs
+halting problem halting theorem hamming richard wesley [2] hanson christopher p. [2] hardy godfrey harold [2] has value [2] hassle havender j
+haynes christopher t
+headed list [2] hearn anthony c
+henderson peter [2] [3] henderson diagram heraclitus heron of alexandria hewitt carl eddie [2] [3] [4] hiding principle hierarchical data structures [2] hierarchy of types in symbolic algebra inadequacy of high level language machine language vs
+higher order procedures in metacircular evaluator procedure as argument procedure as general method procedure as returned value strong typing and hilfinger paul hoare charles antony richard hodges andrew hofstadter douglas r
+horner w
+g
+horner's rule how to vs
+what is description see imperative vs
+declarative knowledge
+huffman code optimality of order of growth of encoding huffman david hughes r
+j
+m
+ibm seven hundred and four identity if cond vs
+evaluation of normal order evaluation of one armed predicate consequent and alternative of why a special form if alternative if consequent if predicate if imag part
+data directed polar representation rectangular representation with tagged data imag part polar imag part rectangular imperative programming imperative vs
+declarative knowledge [2] logic programming and [2] nondeterministic computing and imperative vs
+expression oriented programming style implementation dependencies see also unspecified values
+numbers order of subexpression evaluation inc incremental development of programs indeterminate of a polynomial indexing a data base [2] inference method of infinite series infinite stream ( s ) merging [2] [3] [4] merging as a relation of factorials of fibonacci numbers see fibs
+of integers see integers
+of pairs of prime numbers see primes
+of random numbers representing power series to model signals to sum a series infix notation prefix notation vs
+inform about no value inform about value information retrieval see data base
+ingerman peter initialize stack operation in register machine [2] insert
+in one dimensional table in two dimensional table insert queue [2] install complex package install polar package install polynomial package install rational package install rectangular package install scheme number package instantiate instantiate a pattern instruction counting instruction execution procedure instruction sequence [2] instruction tracing instruction execution proc instruction text integer ( s ) dividing exact integerizing factor integers implicit definition lazy list version integers starting from integral see also definite integral monte carlo integration
+of a power series integral [2] [3] with delayed argument with lambda lazy list version need for delayed evaluation integrate series integrated circuit implementation of scheme [2] integrator for signals interleave interleave delayed interlisp internal definition in environment model free variable in let vs
+in nondeterministic evaluator position of restrictions on scanning out scope of name internet worm interning symbols interpreter see also evaluator
+compiler vs. [2] read eval print loop intersection set binary tree representation ordered list representation unordered list representation interval arithmetic invariant quantity of an iterative process inverter inverter iteration contructs see looping constructs
+iterative improvement iterative process as a stream process design of algorithm implemented by procedure call [2] [3] see also tail recursion
+linear [2] recursive process vs. [2] [3] [4] register machine for
+jayaraman sundaresan
+kaldewaij anne karr alphonse kepler johannes key key of a record
+in a data base in a table testing equality of khayyam omar knuth donald e. [2] [3] [4] [5] [6] [7] kohlbecker eugene edmund jr
+kolmogorov a
+n
+konopasek milos kowalski robert krc [2]
+label simulating label exp label exp label lagrange interpolation formula calculus lambda define vs
+with dotted tail notation lambda expression
+as operator of combination value of lambda body lambda parameters lambda lambert j.h
+lam&eacute gabriel lam&eacute 's theorem lamport leslie lampson butler landin peter [2] language see natural language programming language
+lapalme guy last exp last operand last pair [2] rules lazy evaluation lazy evaluator lazy list lazy pair lazy tree leaf least commitment principle of lecture something to do during left branch [2] leibniz baron gottfried wilhelm von
+proof of fermat's little theorem series for [2] leiserson charles e. [2] length as accumulation iterative version recursive version let evaluation model internal definition vs
+named scope of variables as syntactic sugar [2] let* letrec lexical addressing lexical address lexical scoping environment structure and lexical address lookup [2] lexical address set [2] lieberman henry lifo buffer see stack
+line segment
+represented as pair of points represented as pair of vectors linear growth [2] linear iterative process order of growth linear recursive process order of growth linkage descriptor liskov barbara huberman lisp
+acronym for list processing applicative order evaluation in on dec pdp one efficiency of [2] first class procedures in fortran vs
+history of internal type system original implementation on ibm seven hundred and four pascal vs
+suitability for writing evaluators unique features of lisp dialects
+common lisp franz lisp interlisp maclisp mdl portable standard lisp scheme zetalisp lisp value lisp value [2] evaluation of [2] [3] list list structure list vs
+mutable represented using vectors list ( s ) backquote with cdr ing down combining with append cons ing up converting a binary tree to a converting to a binary tree empty see empty list
+equality of headed [2] last pair of lazy length of list structure vs
+manipulation with car cdr and cons mapping over nth element of operations on printed representation of quotation of reversing techniques for manipulating list tree> list difference list of arg values list of delayed args list of values list ref [2] list structured memory list union lives near ( rule ) [2] local evolution of a process local name [2] local state maintained in frames local state variable local variable location locke john log logarithm approximating ln two logarithmic growth [2] [3] logic programming see also query language query interpreter
+computers for history of [2] in japan logic programming languages mathematical logic vs
+logic puzzles logical and logical or logical not lookup
+in one dimensional table in set of records in two dimensional table lookup label lookup prim lookup variable value [2] for scanned out definitions looping constructs [2] implementing in metacircular evaluator lower bound
+machine language high level language vs
+macintosh maclisp macro see also reader macro character
+magician see numerical analyst
+magnitude
+data directed polar representation rectangular representation with tagged data magnitude polar magnitude rectangular make account in environment model with serialization [2] [3] make account and serializer make accumulator make agenda [2] make assign make begin make branch make center percent make center width make code tree make compiled procedure make complex from mag ang make complex from real imag make connector make cycle make decrementer make execution procedure make frame [2] [3] make from mag ang [2] message passing polar representation rectangular representation make from mag ang polar make from mag ang rectangular make from real imag [2] message passing polar representation rectangular representation make from real imag polar make from real imag rectangular make goto make if make instruction make instruction sequence make interval [2] make joint make label make label entry make lambda make leaf make leaf set make machine [2] make monitored make mutex make new machine make operation exp make perform make point make poly make polynomial make primitive exp make procedure make product [2] make queue [2] make rat [2] [3] axiom for reducing to lowest terms make rational make register make restore make save make scheme number make segment [2] make serializer make simplified withdraw [2] make stack with monitored stack make sum [2] make table
+message passing implementation one dimensional table make tableau make term [2] make test make time segment make tree make vect make wire [2] [3] make withdraw in environment model using let making change see counting change
+map [2] as accumulation with multiple arguments map over symbols map successive pairs mapping
+over lists nested [2] as a transducer over trees mark sweep garbage collector mathematical function see function ( mathematical )
+mathematics
+computer science vs. [2] engineering vs
+matrix represented as sequence matrix * matrix matrix * vector max mcallester david allen [2] mccarthy john [2] [3] [4] mcdermott drew mdl means of abstraction define means of combination see also closure
+measure in a euclidean ring member memo fib memo proc memoization [2] call by need and by delay garbage collection and of thunks memoize memory
+in 1964 list structured memq merge merge weighted merging infinite streams see infinite stream ( s )
+message passing [2] environment model and in bank account in digital circuit simulation tail recursion and metacircular evaluator metacircular evaluator for scheme analyzing version combinations compilation of [2] data abstraction in [2] [3] [4] data directed eval derived expressions driver loop efficiency of environment model of evaluation in environment operations eval and apply eval minus apply cycle [2] expression representation [2] global environment higher order procedures in implemented language vs
+implementation language job of order of operand evaluation primitive procedures representation of environments representation of procedures representation of true and false running special forms ( additional ) [2] [3] [4] [5] [6] special forms as derived expressions symbolic differentiation and syntax of evaluated language [2] [3] tail recursiveness unspecified in true and false metalinguistic abstraction microplanner microshaft midpoint segment miller gary l
+miller james s
+miller rabin test for primality milner robin min minsky marvin lee [2] miranda mit artificial intelligence laboratory early history of project mac research laboratory of electronics [2] mit scheme
+the empty stream eval internal definitions numbers random user initial environment without interrupts ml mobile modeling
+as a design strategy in science and engineering models of evaluation modified registers see instruction sequence
+modifies register modularity [2] along object boundaries functional programs vs
+objects hiding principle streams and through dispatching on type through infinite streams through modeling with objects modulo n modus ponens money changing see counting change
+monitored procedure monte carlo integration stream formulation monte carlo simulation stream formulation monte carlo infinite stream moon david a. [2] morning star see evening star
+morris j
+h
+morse code mouse minnie and mickey mul ( generic ) used for polynomial coefficients mul complex mul interval more efficient version mul poly mul rat mul series mul streams mul terms multics time sharing system multiple dwelling multiplicand multiplication by russian peasant method multiplier
+primitive constraint selector munro ian mutable data objects see also queue table
+implemented with assignment list structure pairs procedural representation of shared data mutator mutex mutual exclusion mystery
+name see also local name variable local variable
+encapsulated of a formal parameter of a procedure named let naming
+of computational objects of procedures naming conventions
+for assignment and mutation <> for predicates native language of machine natural language
+parsing see parsing natural language
+quotation in needed registers see instruction sequence
+needs register negate nested applications of car and cdr nested combinations nested definitions see internal definition
+nested mappings see mapping
+new register new cars register new cdrs register new withdraw newline [2] newton's method
+for cube roots for differentiable functions half interval method vs
+for square roots [2] [3] newton transform newtons method next next to ( rules ) nil
+dispensing with as empty list as end of list marker as ordinary variable in scheme no more exps no operands node of a tree non computable non strict nondeterminism in behavior of concurrent programs [2] nondeterministic choice point nondeterministic computing nondeterministic evaluator order of operand evaluation nondeterministic programming vs
+scheme programming [2] [3] [4] nondeterministic programs
+logic puzzles pairs with prime sums parsing natural language pythagorean triples [2] [3] normal order evaluation applicative order vs. [2] [3] delayed evaluation and in explicit control evaluator of if normal order evaluator see lazy evaluator
+not not [2] evaluation of [2] [3] notation in this book
+italic symbols in expression syntax slanted characters for interpreter response nouns nth root as fixed point null implemented with typed pointers number theory number ( s )
+comparison of decimal point in equality of [2] [3] in generic arithmetic system implementation dependencies integer vs
+real number integer exact in lisp rational number number data types and implemented with typed pointers numer [2] axiom for reducing to lowest terms numerical analysis numerical analyst numerical data
+obarray object program object ( s ) benefits of modeling with with time varying state object oriented programming languages old register oldcr register ones lazy list version op simulating open coding of primitives [2] operands operands of a combination operation
+cross type generic in register machine operation and type table assignment needed for implementing operation exp operation exp op operation exp operands operator operator of a combination combination as compound expression as lambda expression as optimality
+of horner's rule of huffman code or evaluation of [2] or evaluation of why a special form with no subexpressions or gate or gate [2] order [2] order notation order of evaluation
+assignment and implementation dependent in compiler in explicit control evaluator in metacircular evaluator in scheme order of events
+decoupling apparent from actual indeterminacy in concurrent systems order of growth linear iterative process linear recursive process logarithmic tree recursive process order of subexpression evaluation see order of evaluation
+ordered list representation of sets ordinary numbers origin frame ostrowski a
+m
+outranked by ( rule ) [2]
+p operation on semaphore package complex number polar representation polynomial rational number rectangular representation scheme number painter ( s ) higher order operations operations represented as procedures transforming and combining pair ( s ) axiomatic definition of box and pointer notation for infinite stream of lazy mutable procedural representation of [2] [3] represented using vectors used to represent sequence used to represent tree pair implemented with typed pointers pairs pan v
+y
+parallel execute parallel instruction sequences parallelism see concurrency
+parameter see formal parameters
+parameter passing see call by name argument passing call by need argument passing
+parentheses
+delimiting combination delimiting cond clauses in procedure definition parse parse ... parsing natural language real language understanding vs
+toy parser partial sums pascal lack of higher order procedures recursive procedures restrictions on compound data weakness in handling compound objects pascal blaise pascal's triangle password protected bank account pattern pattern matching implementation unification vs. [2] pattern variable representation of [2] pattern match pc register perform simulating perform action perlis alan j. [2] quips [2] permutations of a set permutations phillips hubert ( pi )
+approximation with half interval method approximation with monte carlo integration [2] ces&agrave ro estimate for [2] leibniz's series for [2] stream of approximations wallis's formula for pi stream pi sum with higher order procedures with lambda picture language pingala &aacute ch&aacute rya pipelining pitman kent m
+planner point represented as a pair pointer
+in box and pointer notation typed polar package polar poly polynomial package polynomial arithmetic addition division euclid's algorithm greatest common divisor [2] interfaced to generic arithmetic system multiplication probabilistic algorithm for gcd rational functions subtraction polynomial ( s ) canonical form dense evaluating with horner's rule hierarchy of types indeterminate of sparse univariate pop portable standard lisp porting a language power series as stream adding dividing integrating multiplying powerpc predicate of cond clause of if naming convention for prefix code prefix notation infix notation vs
+prepositions preserving [2] [3] [4] pretty printing prime number ( s ) cryptography and eratosthenes's sieve for fermat test for infinite stream of see primes
+miller rabin test for testing for prime sum pair prime sum pairs infinite stream prime [2] primes implicit definition primitive constraints primitive expression evaluation of name of primitive procedure name of variable number primitive procedures
+multiply plus minus [2] / < <> equal <> > apply atan car cdr cons cos display eq error ( ns ) eval ( ns ) list log max min newline not null number pair quotient random ( ns ) [2] read remainder round runtime ( ns ) set car set cdr sin symbol vector ref vector set primitive query see simple query
+primitive apply primitive implementation primitive procedure names primitive procedure objects primitive procedure [2] principle of least commitment print operation in register machine print point print queue print rat print result monitored stack version print stack statistics operation in register machine printing primitives for probabilistic algorithm [2] [3] probe
+in constraint system in digital circuit simulator proc register procedural abstraction procedural representation of data mutable data procedure [2] anonymous arbitrary number of arguments [2] as argument as black box body of compound creating with define creating with lambda [2] [3] as data definition of first class in lisp formal parameters of as general method generic [2] higher order see higher order procedure
+implicit begin in body of mathematical function vs
+memoized monitored name of naming as pattern for local evolution of a process as returned value returning multiple values scope of formal parameters special form vs. [2] procedure application
+combination denoting environment model of substitution model of see substitution model of procedure application
+procedure body procedure environment procedure parameters process iterative linear iterative linear recursive local evolution of order of growth of recursive resources required by shape of tree recursive product as accumulation product program as abstract machine comments in as data incremental development of structure of [2] [3] see also abstraction barriers
+structured with subroutines program counter programming
+data directed see data directed programming
+demand driven elements of functional see functional programming
+imperative odious style programming language design of functional logic object oriented strongly typed very high level prolog [2] prompt for input prompts explicit control evaluator lazy evaluator metacircular evaluator nondeterministic evaluator query interpreter propagate propagation of constraints proving programs correct pseudo random sequence pseudodivision of polynomials pseudoremainder of polynomials push put [2] puzzles
+eight queens puzzle [2] logic puzzles pythagorean triples
+with nondeterministic programs [2] [3] with streams
+qeval [2] quantum mechanics quasiquote queens query see also simple query compound query
+query interpreter adding rule or assertion compound query see compound query
+data base driver loop [2] environment structure in frame [2] improvements to [2] [3] infinite loops [2] instantiation lisp interpreter vs. [2] [3] overview pattern matching [2] pattern variable representation [2] problems with not and lisp value [2] query evaluator [2] rule see rule
+simple query see simple query
+stream operations streams of frames [2] syntax of query language unification [2] query language [2] abstraction in compound query see compound query
+data base equality testing in extensions to [2] logical deductions mathematical logic vs
+rule see rule
+simple query see simple query
+query driver loop question mark in predicate names queue double ended front of operations on procedural implementation of rear of in simulation agenda quotation of character strings of lisp data objects in natural language quotation mark single vs
+double quote read and [2] quoted quotient
+rabin michael o
+radicand ramanujan numbers ramanujan srinivasa rand with reset random assignment needed for mit scheme random in range random number generator [2] in monte carlo simulation in primality testing with reset with reset stream version random numbers raphael bertram rational package rational function reducing to lowest terms rational number ( s )
+arithmetic operations on in mit scheme printing reducing to lowest terms [2] represented as pairs rational number arithmetic interfaced to generic arithmetic system need for compound data raymond eric [2] rc circuit read dotted tail notation handling by macro characters read operation in register machine read eval print loop see also driver loop
+read eval print loop reader macro character real number real part
+data directed polar representation rectangular representation with tagged data real part polar real part rectangular rear ptr receive procedure record in a data base rectangle representing rectangular package rectangular recursion data directed expressing complicated process in rules in working with trees recursion equations recursion theory recursive procedure
+recursive procedure definition recursive process vs
+specifying without define recursive process iterative process vs. [2] [3] [4] linear [2] recursive procedure vs
+register machine for tree [2] red black tree reducing to lowest terms [2] [3] rees jonathan a. [2] referential transparency reg simulating register machine actions controller controller diagram data paths data path diagram design of language for describing monitoring performance simulator stack subroutine test operation register table in simulator register ( s ) representing tracing register exp register exp reg register machine language
+assign [2] branch [2] const [2] [3] entry point goto [2] instructions [2] label label [2] op [2] perform [2] reg [2] restore [2] save [2] test [2] register machine simulator registers modified registers needed relations computing in terms of [2] relatively prime relativity theory of release a mutex remainder remainder modulo n remainder terms remove remove first agenda item [2] require as a special form reserved words [2] resistance
+formula for parallel resistors [2] tolerance of resistors resolution principle resolution horn clause rest exps rest operands rest segments rest terms [2] restore [2] implementing simulating return returning multiple values reuter andreas reverse as folding rules rhind papyrus right branch [2] right split ripple carry adder rivest ronald l. [2] rlc circuit robinson j
+a
+robustness rock songs 1950s rogers william barton root register roots of equation see half interval method newton's method
+rotate90 round roundoff error [2] rozas guillermo juan rsa algorithm rule applying [2] [3] without body [2] [3] runkle john daniel runtime russian peasant method of multiplication
+same ( rule ) same variable [2] sameness and change
+meaning of shared data and satisfy a compound query satisfy a pattern save [2] implementing simulating scale list [2] [3] scale stream scale tree [2] scale vect scan register scan out defines scanning out internal definitions in compiler [2] scheme history of scheme chip [2] scheme number package scheme number complex> scheme number scheme number> schmidt eric scope of a variable see also lexical scoping
+internal define in let procedure's formal parameters search
+of binary tree depth first systematic search secretary importance of segment queue segment time segments segments painter> selector as abstraction barrier generic [2] self evaluating expression self evaluating semaphore of size n semicolon comment introduced by separator code sequence accelerator sequence of expressions
+in consequent of cond in procedure body sequence ( s ) as conventional interface as source of modularity operations on represented by pairs sequence exp> serialized exchange with deadlock avoidance serializer implementing with multiple shared resources series summation of accelerating sequence of approximations with streams set <set
+> see also assignment
+data base as operations on permutations of represented as binary tree represented as ordered list represented as unordered list subsets of set environment model of value of set car implemented with vectors procedural implementation of value of set cdr implemented with vectors procedural implementation of value of set contents set current time set front ptr set instruction execution proc set rear ptr set register contents [2] set segments set signal [2] set value [2] set variable value [2] setup environment shadow a binding shamir adi shape of a process shared data shared resources shared state shrink to upper right shrobe howard e
+side effect bug sieve of eratosthenes sieve sum ( sigma ) notation signal processing
+smoothing a function smoothing a signal [2] stream model of zero crossings of a signal [2] [3] signal digital signal error signal flow diagram [2] signal processing view of computation simple query processing [2] [3] [4] simple query simplification of algebraic expressions simpson's rule for numerical integration simulation
+of digital circuit see digital circuit simulation
+event driven as machine design tool for monitoring performance of register machine monte carlo see monte carlo simulation
+of register machine see register machine simulator
+sin sine
+approximation for small angle power series for singleton stream sketchpad smallest divisor more efficient version smalltalk smoothing a function smoothing a signal [2] snarf solar system's chaotic dynamics solomonoff ray solve differential equation [2] lazy list version with scanned out definitions solving equation see half interval method newton's method solve
+source language source program spafford eugene h
+sparse polynomial special form as derived expression in evaluator need for procedure vs. [2] special forms
+and begin cond cons stream ( ns ) define [2] delay ( ns ) if lambda let let* letrec named let or quote set split sqrt block structured in environment model as fixed point [2] [3] [4] as iterative improvement with newton's method [2] register machine for as stream limit sqrt stream square in environment model square root see also sqrt
+stream of approximations square limit [2] square of four squarer ( constraint ) [2] squash inwards stack framed for recursion in register machine representing [2] stack allocation and tail recursion stack inst reg name stallman richard m. [2] start register machine [2] start eceval start segment [2] state
+local see local state
+shared vanishes in stream formulation state variable [2] local statements see instruction sequence
+statements steele guy lewis jr. [2] [3] [4] [5] [6] stop and copy garbage collector stoy joseph e. [2] [3] strachey christopher stratified design stream ( s ) [2] delayed evaluation and empty implemented as delayed lists implemented as lazy lists implicit definition infinite see infinite streams
+used in query interpreter [2] stream append stream append delayed stream car [2] stream cdr [2] stream enumerate interval stream filter stream flatmap [2] stream for each stream limit stream map with multiple arguments stream null in mit scheme stream ref stream withdraw strict string see character string
+strongly typed language sub ( generic ) sub complex sub interval sub rat sub vect subroutine in register machine subsets of a set substitution model of procedure application [2] inadequacy of shape of process subtype multiple success continuation [2] successive squaring sum as accumulation iterative version sum cubes with higher order procedures sum integers with higher order procedures sum odd squares [2] sum of squares in environment model sum primes [2] sum summation of a series with streams supertype multiple sussman gerald jay [2] [3] [4] [5] [6] [7] sussman julie esther mazel nieces of sutherland ivan symbol ( s ) equality of interning quotation of representation of uniqueness of symbol leaf symbol data types and implemented with typed pointers symbolic algebra symbolic differentiation [2] symbolic expression see also symbol ( s )
+symbols sync synchronization see concurrency
+syntactic analysis separated from execution
+in metacircular evaluator in register machine simulator [2] syntactic sugar define let as looping constructs as procedure vs
+data as syntax see also special forms
+abstract see abstract syntax
+of expressions describing of a programming language syntax interface systematic search
+#t table backbone of for coercion for data directed programming local n dimensional one dimensional operation and type see operation and type table
+represented as binary tree vs
+unordered list testing equality of keys two dimensional used in simulation agenda used to store computed values tableau tabulation [2] tack on instruction sequence tagged architecture tagged data [2] tagged list tail recursion compiler and environment model of evaluation and explicit control evaluator and [2] [3] garbage collection and metacircular evaluator and in scheme tail recursive evaluator tangent
+as continued fraction power series for target register technological university of eindhoven teitelman warren term list of polynomial representing term list terminal node of a tree test simulating test operation in register machine test and set [2] test condition text of quotation thatcher james w
+the multiprogramming system the cars
+register [2] vector the cdrs
+register [2] vector the empty stream in mit scheme the empty termlist [2] the global environment [2] theorem proving ( automatic )
+thunk call by name call by need forcing implementation of origin of name time
+assignment and communication and in concurrent systems functional programming and in nondeterministic computing [2] purpose of time segment in agenda time slicing timed prime test timing diagram tk solver tower of types tracing
+instruction execution register assignment transform painter transparency referential transpose a matrix tree
+b tree binary see also binary tree
+combination viewed as counting leaves of enumerating leaves of fringe of huffman lazy mapping over red black represented as pairs reversing at all levels tree accumulation tree list...> tree map tree recursive process order of growth trigonometric relations true true true truncation error truth maintenance try again turing machine turing alan m. [2] turner david [2] [3] type field type tag [2] two level type ( s )
+cross type operations dispatching on hierarchy in symbolic algebra hierarchy of lowering [2] multiple subtype and supertype raising [2] subtype supertype tower of type inferencing mechanism type tag using scheme data types typed pointer typing input expressions
+unbound variable unev register unification discovery of algorithm implementation pattern matching vs. [2] unify match union set binary tree representation ordered list representation unordered list representation unique unique pairs unit square univariate polynomial universal machine explicit control evaluator as general purpose computer as university of california at berkeley university of edinburgh university of marseille unix [2] unknown expression type unknown procedure type unordered list representation of sets unspecified values
+define display if without alternative newline set set car set cdr up split update insts upper bound upward compatibility user initial environment user print modified for compiled code
+v operation on semaphore val register value
+of a combination of an expression see also unspecified values
+value proc variable see also local variable
+bound free scope of see also scope of a variable
+unbound value of [2] variable variable length code variable [2] vector vector ( mathematical )
+operations on [2] in picture language frame represented as pair represented as sequence vector ref vector set venus verbs very high level language
+wadler philip wadsworth christopher wagner eric g
+walker francis amasa wallis john wand mitchell [2] waters richard c
+weight weight leaf weyl hermann what is vs
+how to description see declarative vs
+imperative knowledge
+wheel ( rule ) [2] width width of an interval wilde oscar wiles andrew winograd terry winston patrick henry [2] wire in digital circuit wisdom jack wise david s
+wishful thinking [2] withdraw problems in concurrent system without interrupts world line of a particle [2] wright e
+m
+wright jesse b
+xcor vect xerox palo alto research center [2]
+y operator ycor vect yochelson jerome c
+zabih ramin zero crossings of a signal [2] [3] zero test ( generic ) for polynomials zetalisp zilles stephen n
+zippel richard e

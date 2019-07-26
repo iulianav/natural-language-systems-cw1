@@ -1,0 +1,551 @@
+well yesterday was easy
+uh you learned all of the rules of programming in lisp
+almost all of them
+and so at this point you're now certified programmers
+however i suppose what we did is uh we sort of we sort of got you a little bit of into an easy state
+here you believe you still believe it's possible you know that you might be programming in basic or pascal with just a funny syntax
+today that illusion or you can no longer support that belief
+what we're going to do today is going to completely smash that
+so let's start out uh by writing a few programs on the blackboard that have a lot in common with each other
+and what we're going to is try to make some abstractions that are not ones that uh are easy to make in most languages
+to start with some very simple ones that you can make in most languages
+supposing i want to write the mathematical expression which adds up uh a bunch of integers
+so if i wanted to write down uh i'd say the sum from i equals a to b on i
+now you know that that's an easy thing to compute a closed form for and i'm not interested in that but i'm going to write a program that adds up those integers
+ok
+well that's rather easy to do
+to say i will define the sum of the integers from a to b to be well there's only two possibilities
+if a is greater than b well then there's nothing to be done and the answer is zero
+and this is how you're going to have to think recursively and you say if i have an easy case that i know the answer to just write it down
+otherwise i'm going to try to reduce this problem to a simpler problem and maybe in this case i'm going to make a sub problem with a simpler problem and then do something to the result
+so the anyway the easiest way to do this is say that i'm going to add it add the index which in this case is a to the result of adding up the integers from a plus 1 to b
+now at this point you should have no trouble looking at such a definition
+and indeed coming up with such a thing might be a little hard the synthesis
+but being able to read it at this point should be easy
+what it says to you is well here is the sub problem i'm going to solve i'm going to try to add up the integers one fewer integer then i add i add it up for the whole problem
+i'm adding up the one fewer one and that sub problem once i've solved it i'm going to add a to that ok and that will be the answer to this problem
+and in the simplest case i don't have to do any work
+now i'm also going to write down another simple simple one just like this which is the mathematical expression the sum of the squares from i equals a to b
+and again very simple program and indeed it starts the same way
+if a is greater than b then the answer is zero
+and of course we're beginning to see that there is something wrong with me writing this down again
+ok
+it's the same program
+it's the sum of the square of a and the sum of the squares of the increments and b
+now if you look at these things these programs are almost identical
+right
+there's not there's not much to distinguish them
+they have the same first clause of the conditional and the same predicate and the same consequent and the alternatives are very similar too
+they only differ by the fact that where here i have a here i have the square of a
+the only other difference but this one's sort of unessential is that the name of this procedure is sumint whereas the name of this procedure is sumsquare
+so the things that vary between these two are very small
+now whenever you see yourself writing the same thing down more than once there is something wrong and you shouldn't be doing it
+and the reason is not because it's a waste of time to write something down more than once
+it's because there's some idea here a very simple idea which has to do with the sigma notation
+right it's this much
+not depending upon what it is i'm adding up
+and i would like to be able to always whenever trying to make complicated systems and understand them it's crucial to divide the things up into as many pieces as i can each of which i understand separately
+i would like to understand the way of adding things up independently of what it is i'm adding up
+so then i can use that having debugged it once and understood it once and having been able to share that among many different many different uses of it
+here we have another example ok
+if i want this is le leibniz's leibniz's formula for finding pi over 8
+it's a a funny ugly mess
+what is it
+it's something like um 1 over 1 times 3 plus 1 over 5 times 7 plus 1 over 9 times 11 plus and for some reason things like this tend to tend to have interesting values like pi over 8
+but what do we see here
+it's the same program
+or almost the same program
+it's a sum
+ok
+so we're seeing the sigma notation although over here we're dealing with uh with incrementing by four so it's a slightly different problem which means that over here i have to change a by four as you see right over here
+it's not by one
+ok
+the other thing of course is that the thing that's represented by square in the previous sum of squares or a when adding up the integers well here i have a different thing on a i have a different term which is one over a one over one over a times a plus 2
+but the rest of this program is identical
+well any time we have a bunch of things like this that are identical we're going to have to come up with some sort of abstraction to cover them
+you think about this what you've learned so far is the rules of some language some primitive some means of combination almost all of them the means of abstraction almost all of them
+but what you haven't learned is common patterns of usage
+now most of the time you learn idioms when learning a language there's the common patterns that mean things that are useful to know in a flash
+and if you build up a great number of them if you're a fortran programmer of course everybody knows how to uh what do you do
+for example to to get an integer which is the biggest integer in something
+ok
+so that's a classic thing
+every fortran programmer knows how to do that
+and if you don't know that you're in real hot water because it takes a long time to think it out
+however one of the things you can do in this language that we're showing you is not only could you know something like that but you gi give the knowledge of that a name
+and so that's what we're going to be going after right now
+ok well let's see what these things have in common
+ok right over here we have what appears to be a general pattern
+a general pattern which covers all of the cases we've seen so far
+there is a sum ex ca procedure which is being defined
+uh it has two arguments which are a lower bound and an upper bound
+the lower bound uh is tested to be greater than the upper bound and it and if it is greater than the result is zero
+otherwise we're going to do something to the lower bound which is the index of the computation and add that result to the result of following the procedure recursively on the on the lower bound incremented by some next operation with the same upper bound as i had before
+so this is a this is a general pattern and what i'd like to do is be able to name this general pattern a bit
+well that's sort of easy
+because one of those things i'm going to do right now is there's nothing very special about numbers
+numbers are just one kind of data
+and it seems to me perfectly reasonable to give all sorts of names to to all kinds of data
+for example procedures
+and now many languages allow you to have procedural arguments and right now we're going to talk about procedural arguments they're very easy to deal with and shortly we'll do some remarkable things that are not like procedural arguments
+so here we'll define our sigma notation
+this is called sum and it takes a term ok and a a nectar and b as arguments
+so it takes four arguments and there is nothing particularly special about me writing this in lower case i hope that it doesn't confuse you so i'll write in upper case right now
+the machine doesn't care
+but these two arguments are different
+these are not numbers
+there are going to be procedures for computing something given a number
+term will be a procedure which when take given an index will prod produce the value of the term for that index
+next which will will be given an index will produce the next index
+this will be used for counting
+and it's just very simple
+ooh
+it's the exactly what you say
+if a is greater than b then the result is zero
+otherwise it's the sum of term applied to a and the sum of term the next index i'm going to write it this way now i'd like you to see some bur thing first of all
+i was writing here and i ran out of space
+what i did is i started indenting according to the pretty printing rule which says that i align all of the arguments of the procedure so that i can see which of which ones go together
+ok and this is just something i do automatically and i want you to learn how to do that too so your programs can be read and understood
+uh however what do we have here
+we have four arguments
+the procedure the lower index lower bound index the way to get the next index and the upper bound
+now what is passed along on the recursive call is indeed the same procedure because i'm going to need it again ok the next index which is using the next procedure to compute it the procedure for computing next which i also have to have separately and that's different the procedure for computing next is different from the next index which is the result of using next on the last index
+and i also have to pass pass along the upper bound
+so this captures both of these and the other and the other nice uh nice program that we were playing with
+so using this we can write down the original program as instances of sum very simply
+of a and b well i'm going to need an identity proce procedure here because uh the sum of the integers requires me to in this case co compute a term for every integer but the term procedure doesn't want to do anything to that integer
+so the identity procedure on a is a or x or whatever and i want to say the sum of using identity as the term procedure and using a as the initial index and the incrementer being being the way to get the next index and b being the writ the the high the high bound the upper bound
+this procedure does exactly the same as the sum of the integers over here computes the same answer
+now one thing you should see of course is that there is nothing very special over here about what i use as the formal parameter
+i could have for example written it as x
+and it doesn't matter
+i just wanted you to see that this this name does not con conflict with this one at all
+it's an internal name
+for the second procedure here the sum of the squares it's even a little bit easier
+and what do we have to do
+nothing more than add up the squares and this is the procedure that each index will be given will be given each ind ye yes
+each index will have this done to it to get the term ok
+that's the thing that maps against term over here
+then i have a as a lower bound the incrementer as the next term method and b as the upper bound
+and finally just for the thing we did about pi sums pi sums are sort of well we're it's even easier to think about them this way because i don't have to think
+what i'm doing is separating the thing i'm adding up from the method of doing the addition
+and so we have here for example pisum a b
+well it's a sum of things i'm going to write the term procedure here explicitly without giving it a name
+ok this is anonymously i don't have necessarily have to give a name to something if i just want to use it once
+and of course i can write sort of a expression that re that produces a procedure
+i'm going to write lambda uh the greek lambda letter here instead of l a m b d a in general to avoid taking up a lot of space on blackboards
+but unfortunately we don't have lambda keys on our keyboards maybe we can convince our friends in the computer industry that this is important lambda of i which is the quotient of 1 and then the product of i and the sum of i 2
+uh starting at a with the way of in of the way of incrementing being that procedure of an index i which adds i to 4 and b being the upper bound
+so you can see that this notation the invention of the procedure that takes a procedural argument allows us to compress a lot of these procedures into one thing
+this this procedure sum covers a whole bunch of ideas
+now just why is this important
+i tried to say before that it helps to divide a prob a problem into two pieces
+and indeed it does
+for example if someone came up with a different way of implementing this which of course one might
+here is for example an iterative implementation of sum
+ok
+iterative implementation for some reasons might be better than the recursive implementation ok
+but the important thing is it's different
+now supposing i had written my program this way and you see on the blackboard on the left
+it's correct the left
+well then if i want to change the method of addition right
+then i would have to change each of these
+whereas if i write them like this as you see here then the method by which i did the addition is encapsulated in the procedure sum
+this decomposition allows me to independently change one part of the program and improve it perhaps without without changing the other part that was written for some other other cases
+thank you
+are there any questions
+yes sir
+yes it's the same problem
+i'm sure you're going to this is going to you're going to have work on this
+this is hard
+and the first time you've ever seen something like this
+what i have here is a procedures can be named by variables
+ok
+procedures are not special
+actually sumsquare is a variable which has gotten a value which is a procedure
+this is define sumsquare to be lambda of a and b something
+all right
+so the procedures can be named
+therefore they can be passed from one from one one to another one procedure to another as as arguments
+what we're doing here is we're passing the procedure term as an argument to sum
+just so that we get it around in the next in the next recursion
+ok
+here we're passing next as a the procedure next as as an argument also
+however here we're using the procedure next that's what the parentheses mean we're applying next to a to get the next value of a
+if you look at what next is mapped against you see remember that the way you think about this is that you substitute the arguments for the formal parameters in the body
+that's the way if you're ever confused think about that think of it that that way
+well over here we have the sum of the integers
+i substitute identity for a term ok and 1 plus the incrementer for next in the body
+well the identity procedure on a is what i get here
+the identity is being passed along
+ok
+and here i have increment 1 plus being applied to a
+and 1 plus is being passed along
+does that clarify the situation
+well you could also define uh explicitly those two functions
+oh yes
+and then pass them
+sure
+we could pass what we could do is we could have given names to them just like i did here
+in fact i gave you various ways that you could see it a variety
+i mean here i defined a thing which i passed the name of
+i i i referenced it by its name
+ok
+but the thing was in fact that procedure of one argument x which is x ok
+the identity procedure is just lambda of x x
+all right
+and that's that's what you're seeing here
+that here i happened to just write it write write its its canonical name there for you to see
+ok
+should we take our five minute break
+as i said uh computers to make people happy not people to make computers happy and for the most part the reason why we introduced all this abstraction stuff is to make it so that programs can be more easily written and more easily read
+um
+let's try to understand what's the most complicated program we've seen so far using a little bit of of this abstraction stuff
+if you look at the the slide this the huron of alexandria's uh method of computing square roots that we saw um that we saw yesterday and uh let's see
+well in any case this program is a little complicated
+at the current state of of your thinking you just can't look at that and say oh this obviously means something very very clear
+ok
+it's not obvious from lee looking at the program what it's computing
+there's there's some loop here and so i try and the loop does something about trying the improvement of y there is uh something called improve which does some averaging and quotienting and things like that but what's the real idea
+can we make it clear what the idea is
+well i think we can
+i think we can use abstraction that we have learned about so far to to clarify what's going on
+now what we have mathematically is a procedure for improving a guess for square roots
+and if y is a guess for a square root then what we want to get we'll call a function f this is the means of improvement i want to get y plus x over y over 2 so the average of y and x divided by y as the improved value for the square root of y
+mm hmm
+such that one thing you can notice about this function f is that f of the square root of x this is is in fact the square root of x
+that is if i take the square root of x as substituted for y here i see the square root of x plus x divided by the square root of x which is the square root of x that's 2 times the square root of x divided by 2 is the square root of x
+so in fact what we're really looking for is we're looking for a fixed point
+a fixed point of the function f
+a fixed point is a place which has the property that if you put it into the function you get the same value out
+now i suppose if i were giving some nice boring lecture and you happened to have in front of you an hp35 desk calculator like i used to have when i went to boring lectures and you if the thing is really boring you put it into you put it into radians mode and you hit cosine
+and you hit cosine
+and you hit cosine
+and eventually you end up with point seven three four or something like that point seven four three i don't remember what exactly and it gets closer and closer to that
+some functions have the property that you can find their fixed point by iterating the function
+and that's essentially what's happening in the square root program by huron's method
+so let's see if we can write that down that idea
+now i'm not going to say how i compute fixed points yet
+there might be more than one way
+but the first thing to do is i'm going to just tell say say what i just said i'm going to say it in in spe specifically for square root
+the square root of x is the fixed point of that procedure which takes an argument y and averages uh x divided by y with y
+and when it starts up with an initial guess for the fixed point of 1
+it doesn't matter where it starts
+a theorem having to do with square roots
+ok
+so what you're seeing here is i'm just trying to write out by wishful thinking i don't know how i'm going to make fixedpoint happen
+we'll worry about that alter
+but if somehow i had a way of finding the fixed point of the function computed by this procedure then i would have that would be the square root that i'm looking for
+ok well now let's see how we're going to write how we're going to come up with fixed points
+well it's very simple actually
+i'm going to write a an abbreviated version here just so we understand it
+i'm going to find the fixed point of a function f actually the fixed point of the function computed by the procedure whose name will be f in this procedure how's that
+a long sentence
+starting with a particular starting value
+ok
+well i'm going to have a little loop inside here which is going to push the button on the calculator repeatedly hoping that it will eventually converge
+and we will say here internal loops are written by defining internal procedures
+well one thing i'm going to have to do is i'm going to have to say whether i'm done
+and the way i'm going to decide when i'm done is when the old value and the new value are close enough so i can't distinguish them any more
+that's the standard thing you do on the calculator unless you look at more precision and eventually you run out of precision
+so the old value and the new value and i'm going to say here if i can't distinguish them if they're close enough and we'll have to worry about what that is soon the old value and the new value are close enough to each other then let's pick the new value as the answer
+otherwise i'm going to iterate around again with the next value of old being the current value of new and the next value of new being the result of calling f on new
+mm hmm
+and this is my iteration loop that pushes the button on the calculator
+i basically think of it as having two registers in the calculator old and new
+and each step new becomes old and new becomes gets f of new
+so this is the thing where i'm getting the next value
+and now i'm going to start this thing up by giving two values
+now i wrote that on the blackboard to be slow so you could see this
+this is the first time you've seen something quite this complicated i think mm hmm
+however we might want to see the whole thing over here um in this uh in this transparency or slide or whatever uh what we have is a is all of the details that are required to make this thing work
+i have a way of giving a tolerance for a closeenough procedure which we see here the closeenough procedure it tests whether u and v close enough by seeing if the absolute value of the difference in u and v is less than the given tolerance ok
+and here is the iteration loop that i just wrote on the blackboard and the initialization for it which is right there
+hm
+it's very simple
+but let's see i haven't told you enough
+it's actually easier than this
+there's more structure to this problem than i've already told you
+like why should this work
+why should it converge
+well there's a hairy theorem of mathematics in tied up in what i've written here
+why is it that i should assume that by iterating averaging the quotient of x and y and y that i should get the right answer
+it isn't so obvious
+right
+i mean surely there are other thing other things other procedures which compute functions whose fixed points would also be the square root
+for example the obvious one the obvious one will be a new function g which maps y to x over y
+that's even simpler
+the fixed point of g is surely the square root also
+and it's a simpler procedure
+why am i not using it
+well i suppose we know
+supposing x is 2 and i start out with 1 and if i divide 1 into 2 i get 2
+then if i divide 2 into 2 i get 1
+if i get divide 1 into 2 i get 2
+and 2 into 2 i get 1
+and i never get any closer to the square root
+this oscillates
+ok
+now so what we have is a signal processing system
+an electrical circuit which is oscillating and i want to damp out these oscillations
+well i can do that
+see what i'm really doing here when i'm taking my average the average is averaging the last two values of something which oscillates
+getting something in between
+a classic way of damping out oscillations in a signal processing system
+so why don't we write down the a strategy that i just said in a more in a more clear way
+well that's easy enough
+i'm going to define the square root of x to be a fixed point of the procedure resulting from average damping
+ok
+so i'm going to have a procedure resulting from averagedamp of the procedure that procedure of y which divides x by y starting out at 1
+ah but average damp is a special procedure that's going to take a procedure as its argument and return a procedure as its value
+it's a generalization that says given a procedure it's the thing which produces a procedure which averages the last the last value and the the value before and after running the procedure
+you can use it for anything if you want to damp out oscillations
+so let's write that down it's very easy
+and stylistically here i'm going to use lambda notation because it's much easier to to think when you're dealing with procedures that manipulate procedures to understand that the procedures are the objects i'm dealing with
+so i'm going to use lambda notation here not always i don't always use it but very specifically here to expand on that idea to make it to elucidate it
+well averagedamp is a procedure which takes a procedure as its argument which we will call f
+and what does it produce
+it produces as its value the body of this procedure is a thing which produces a procedure the constructor for procedures right here of one argument x which averages f of x with x
+ok
+this is a very special thing
+i think for the first time you're seeing a procedure which produces a procedure as its value
+hm
+this procedure takes a procedure f and does something to is to produce a new procedure of one argument x which averages f this f applied to x and x itself
+using the context here i'm i apply average damping to the procedure which is just divides x by y it's a division ok
+and i'm finding the fixed point of that
+and that's a clearer way of writing down what i write wrote down over here uh wherever it was
+here
+because it tells why i'm writing this down
+i suppose this to some extent really clarifies what huron of alexandria was up to
+i suppose i'll stop now
+are there any questions
+so when you define averagedamp don't you need to to have a variable
+ah
+as a argument
+well question was and here we're having again you've got to learn about the syntax the question was when defining averagedamp don't you have to have a variable defined with f
+what you're asking about is the formal parameter of f
+yes
+ok
+the formal parameter of f is here ok
+the formal parameter of f
+the formal parameter of averagedamp
+f is being used uh applied to an argument
+right
+that's indeed true that f must have a formal parameter
+let's find out what f's formal parameter is
+the formal parameter of averagedamp
+oh
+f is the parameter of averagedamp
+i'm sorry
+you're just confusing a syntactic thing
+i could have written this the other way
+i'm sorry i didn't understand your question
+ok
+of course i could have written it this other way
+those are identical notations
+this is a different way of writing this
+you're going to have to get used to lambda notation because i'm going to use it
+ok
+what it says here i'm defining the name averagedamp to name the procedure whose of one argument f
+that's the formal parameter of the procedure averagedamp
+what this is define does is it says give this give the name this name a value
+here is the value for it
+that there happens to be a funny syntax to make that easier in some cases is purely convenience
+but the reason why i wrote it this way here is to emphasize that i'm dealing with a procedure that takes a procedure as its argument and produces a procedure as its value
+i don't understand why you use lambda twice
+can you just use one lambda take two arguments f and x
+no
+you cannot
+no
+that would be a different thing
+if i were to write the procedure lambda of f and x the average of f of x and x that would not be something which would be allowed to take a procedure as an argument and produce a procedure as its value
+that would be at thing that takes a procedure as its argument and a number as its argument and produces a new number
+but what i'm producing here is a procedure to fit in the procedure slot over here which is going to be used over here
+so the number has to come from here
+this is the thing that's going to eventually end up in the x
+and if you're confused you should do some substitution and see it for yourself
+yes
+once again would you please show the definition for averagedamp without using lambda notation in both cases
+oh
+i i can't make a very simple one like that
+let me do it for you though
+ok
+i can get rid of this lambda easily
+i don't want to be ok
+actually i'm lying to you i don't want to do i don't want to do what you want
+'kay
+because i think it's more confusing than you think
+um i'm not going to write what you want
+foo you'll have to give it a name
+foo of x to be of f of x and x and return as a value foo
+this is equivalent but i had to make an arbitrary name up this is equivalent to this without any lambdas
+ok
+since lambdas are very convenient for you for naming for naming anonymous procedures it's the anonymous name of something
+now if you really want to know a cute way of doing this we'll talk about it later where you don't have to define the anonymous procedure
+any other questions
+i suppose we go for our break again
+so now we've seen how to use high order procedures they're called that's procedures that take procedural arguments and produce procedural values to help us clarify and abstract some otherwise complicated processes
+i suppose what i'd like to do now is have a bit of fun with that and uh uh sort of a little practice as well
+so let's play with this square root thing even more let's elaborate it and understand what's going on and make use of this kind of of programming style
+well one thing that's you might know is that there is a general method called newton's method for the the purpose of which is to find the roots uh that's the the zeroes of functions
+so for example to find a y a y such that f of y equals zero we start with some guess this is newton's method and the guess we start with we'll call y zero and then we will iterate the following the followings expression
+y n plus 1 this is sort of a difference equation is y n minus f of y n over the derivative with respect to y of f evaluated at y equal y n
+very strange notation
+uh i must say ugh
+ok
+the derivative of f with respect to y is a function
+and i'm having a little bit of unhappiness with that
+but that's all right
+it turns out the programming language world notation is much clearer
+now what is this
+this we'll call newton's method
+it's a method for finding the roots of the of the function f
+and it of course sometimes converges and when it does it does so very fast
+and sometimes it doesn't converge and oh well we have to do something else
+but let's see talk about square root by newton's method
+well that's rather interesting
+let's do exactly the same thing we did last time a bit of wishful thinking
+we will apply newton's method assuming we knew how to do it
+but we don't know how to do it yet
+well let's go
+what do i have here
+the square root of x
+it's newton's method applied to a procedure which will represent that function of y which computes that function of y
+well that procedure is that procedure of y which is the difference between x and the square of y
+indeed if i had a value of y for which this was zero then y would be the square root of x
+see that
+ok
+now i'm going to start this out searching at one again completely arbitrary property of the square roots that i can do that
+now how am i going to compute newton's method
+well newton's method i have it right here
+in fact what i'm doing is looking for a fixed point of some pro of some of some procedure
+this procedure involves some complicated expressions in terms of other complicated things but i'm trying to find the fixed point of this i want to find the values of y for which if i put y in here i get the same value out here up to some degree of accuracy
+well i already have a fixed point process around to do that
+ok and so let's just define newton's method over here
+and i proce uh a procedure which computes a function and a guess initial guess
+now i'm going to have to do something here
+i'm going to need the derivative of the function i'm going to need a procedure which computes the derivative of the function computed by the given func procedure f
+i'm trying to be very careful about what i say
+i don't want to mix up the word procedure and function
+function is a mathematical word it says a mapping from from val from values to other values a set of ordered pairs ok
+but but sometimes i will accidentally mix those up
+they're procedures compute functions
+so i'm going to define the derivative of f to be by wishful thinking again i don't know how i'm going to do it let's worry about that later of f
+so if f is a procedure which happens to be this one over here for a square root ok
+then df will be the derivative of it which is it also well the derivative of the function computed by that procedure
+df will be a procedure that is computes the derivative of the co function computed by the procedure f
+and then given that i will just go for looking for a fixed point
+and what is the per fixed point i'm looking for
+it's the one for that procedure of one argument x which i compute by subtracting x that's the old that's the y n here ok
+the quotient of f of x and df of x
+starting out with the original guess
+that's all very simple
+now i have one part left that i haven't written
+and i want you to see the process by which i write these things because this is really true
+i start out with some mathematical idea perhaps
+ok
+by wishful thinking i put i assume that by some magic i can do something that i have a name for
+i'm not going to worry about how i do it yet
+then i go walking down here and say well by some magic i'm somehow going to figure out how to do that
+but i'm going to write my program anyway
+wishful thinking essential to good engineering
+and certainly essential to good computer science
+ok so anyway how many of you wish that your computer ran faster
+yes
+well the derivative isn't so bad either
+sort of like average damping
+derivative is a procedure that takes a procedure that computes a function as its argument
+and it produces a procedure that computes a function which needs one argument x but we all know this definition it's f of x plus delta x minus f of x over delta x right
+for some small delta x
+so that's the quotient of the difference of f of the sum of x and dx minus f applied to x divided by dx
+i think the thing was lighting up correctly when i bounced the parentheses
+ok
+now i want you to look at this
+just look
+i suppose i haven't told you what dx is
+somewhere in the world i'm going to have to write down or something like that
+i'm not interested
+this is a procedure which takes a procedure and produces an approximation prod a procedure that computes an approximation to the derivative of the function computed by the procedure given
+by the standard methods that you all know and love
+now it may not be the case that doing this operation is such a good way of approximating a derivative
+the numerical analysists here analysts here should jump on me and say don't do that
+computing derivatives produces noisy answers
+which is true ok
+however this again is for the sake of understanding
+look what we've got
+we've started out with what is apparently a mathematically complex thing
+and in a few blackboards full we've managed to decompose the problem of computing square roots by the way you were taught in your college calculus class newton's method so that it can be understood
+it's clear
+let's look at the structure of what it is we've got
+let's look at this slide
+ok
+this is a diagram of the machine described by the program on the blackboard
+there's a machine described here
+and what have i got
+over here is the newton's method newton's method function f that we have on the leftmost blackboard
+ok
+it's a thing that takes an argument called y and puts out and puts out the difference between x and the square of y
+ok
+where x is some sort of free variable that comes in from the outside by some magic
+ok
+so the square root routine picks up an x picks up an x and builds this procedure which has the x rolled up in it by substitution
+now this procedure in the cloud is fed in as the f ok
+into the newton's method which is here this box
+ok
+the f is is fanned out part of it goes into something else and the other part of it goes through a derivative process into something else to produce a procedure which computes the function which is the iteration function of newton's method when we use a fixed point method
+so this this procedure which cai contains in it by substitution remember newton's method over here newton's method builds this procedure and newton's method has in it defined f and df so those are captured over here f and df
+starting with this procedure i can now feed this to the fixed point process with an initial guess coming out from the outside from square root to produce the square root of x
+so what we've built is a very powerful engine which allows us to make nice things like this
+now i want to i want to end this with basically an idea of chris strachey one of the grandfathers of computer science
+he's a logician who lived in the uh uh i suppose oh about 10 years ago or 15 years ago he died i don't remember exactly when
+he was one of the inventors of something called denotational semantics
+he was a great advocate of making making procedures or functions first class citizens in a programming language
+ok so here is the rights and privileges of first class citizens in a programming language
+it allows you to make any abstraction you like if you have these if you have functions as first class citizens
+they must be the first class citizens must be able to be named by variables
+and you're seeing me doing that all the time
+and here's a nice variable which names a procedure which computes something
+ok
+there is a they have to be passed as arguments to procedures
+well you've certainly seen that
+we have to be able to return them as values from procedures
+and i suppose we've seen that
+and we haven't yet seen anything about data structures
+we will soon
+but it's also the case that in order to have a first class citizen in a programming language the object has to be allowed to be part of a data structure
+we're going to see that soon
+so i just want to close with this and say this having things like procedures as first class data structures first class data allows one to make powerful abstractions which encode general methods like newton's method in a very clear way
+and are there any questions
+yes
+could you put deriv instead of df directly in fixed point
+oh sure yes
+i could have put deriv of f right here no question
+mm hmm
+any time you see something defined you can put the thing that that the definition is there
+and you should get the same result
+in fact that what that would look like it's interesting
+lambda
+hm
+you could put the lambda expression in there
+i could also put the i could also put deriv of f here
+ok
+it would look interesting because it would be open paren open paren deriv of f close paren on x
+now that would have the bad property of computing the derivative many times because every time i would run this procedure i would computer the derivative again
+right
+however the two open parens here both would be meaningful
+i want to you to understand syntactically that that's a sensible thing
+whereas if i were to rewrite this program and i should do it right here just so you see because that's a good question of f and guess to be fixed point of that procedure of one argument x which subtracts from x the quotient of f applied to x and the deriv of f applied to x
+oh shit
+um this guess
+ok
+this is a perfectly legitimate program because what i have here remember the evaluation rule
+the evaluation rule is evaluate all the parts of the computation the operator and the operands
+this is the operator of this combination
+evaluating this operator will of course produce the derivative of f
+could put the lambda expression there couldn't you
+oh of course
+right
+any time i take something which is defined i can put the the the thing it's defined to be in the place where the thing defined is
+i can't remember which is defi definians and which is the definiendum
+uh i when i'm trying to figure out how to give a lecture about this in a freshman class i use such words and and tell everybody it's fun to tell their friends
+ok i think that's it

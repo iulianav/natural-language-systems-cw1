@@ -1,0 +1,328 @@
+a powerful programming language is more than just a means for instructing a computer to perform tasks
+the language also serves as a framework within which we organize our ideas about processes
+thus when we describe a language we should pay particular attention to the means that the language provides for combining simple ideas to form more complex ideas
+every powerful language has three mechanisms for accomplishing this
+primitive expressions which represent the simplest entities the language is concerned with
+means of combination by which compound elements are built from simpler ones and
+means of abstraction by which compound elements can be named and manipulated as units
+in programming we deal with two kinds of elements procedures and data
+informally data is stuff that we want to manipulate and procedures are descriptions of the rules for manipulating the data
+thus any powerful programming language should be able to describe primitive data and primitive procedures and should have methods for combining and abstracting procedures and data
+in this chapter we will deal only with simple numerical data so that we can focus on the rules for building procedures
+in later chapters we will see that these same rules allow us to build procedures to manipulate compound data as well
+one easy way to get started at programming is to examine some typical interactions with an interpreter for the scheme dialect of lisp
+imagine that you are sitting at a computer terminal
+you type an expression and the interpreter responds by displaying the result of its evaluating that expression
+one kind of primitive expression you might type is a number
+if you present lisp with a number
+four hundred eighty six
+the interpreter will respond by printing
+four hundred eighty six
+expressions representing numbers may be combined with an expression representing a primitive procedure to form a compound expression that represents the application of the procedure to those numbers
+for example
+expressions such as these formed by delimiting a list of expressions within parentheses in order to denote procedure application are called combinations
+the leftmost element in the list is called the operator and the other elements are called operands
+the value of a combination is obtained by applying the procedure specified by the operator to the arguments that are the values of the operands
+the convention of placing the operator to the left of the operands is known as prefix notation and it may be somewhat confusing at first because it departs significantly from the customary mathematical convention
+prefix notation has several advantages however
+one of them is that it can accommodate procedures that may take an arbitrary number of arguments as in the following examples
+no ambiguity can arise because the operator is always the leftmost element and the entire combination is delimited by the parentheses
+a second advantage of prefix notation is that it extends in a straightforward way to allow combinations to be nested that is to have combinations whose elements are themselves combinations
+there is no limit to the depth of such nesting and to the overall complexity of the expressions that the lisp interpreter can evaluate
+it is we humans who get confused by still relatively simple expressions such as
+which the interpreter would readily evaluate to be fifty seven
+we can help ourselves by writing such an expression in the form
+following a formatting convention known as pretty printing in which each long combination is written so that the operands are aligned vertically
+the resulting indentations display clearly the structure of the expression
+even with complex expressions the interpreter always operates in the same basic cycle it reads an expression from the terminal evaluates the expression and prints the result
+this mode of operation is often expressed by saying that the interpreter runs in a read eval print loop
+observe in particular that it is not necessary to explicitly instruct the interpreter to print the value of the expression
+a critical aspect of a programming language is the means it provides for using names to refer to computational objects
+we say that the name identifies a variable whose value is the object
+in the scheme dialect of lisp we name things with define
+typing
+causes the interpreter to associate the value two with the name size
+once the name size has been associated with the number two we can refer to the value two by name
+here are further examples of the use of define
+define is our language's simplest means of abstraction for it allows us to use simple names to refer to the results of compound operations such as the circumference computed above
+in general computational objects may have very complex structures and it would be extremely inconvenient to have to remember and repeat their details each time we want to use them
+indeed complex programs are constructed by building step by step computational objects of increasing complexity
+the interpreter makes this step by step program construction particularly convenient because name object associations can be created incrementally in successive interactions
+this feature encourages the incremental development and testing of programs and is largely responsible for the fact that a lisp program usually consists of a large number of relatively simple procedures
+it should be clear that the possibility of associating values with symbols and later retrieving them means that the interpreter must maintain some sort of memory that keeps track of the name object pairs
+this memory is called the environment
+one of our goals in this chapter is to isolate issues about thinking procedurally
+as a case in point let us consider that in evaluating combinations the interpreter is itself following a procedure
+to evaluate a combination do the following
+one
+evaluate the subexpressions of the combination
+two
+apply the procedure that is the value of the leftmost subexpression to the arguments that are the values of the other subexpressions
+even this simple rule illustrates some important points about processes in general
+first observe that the first step dictates that in order to accomplish the evaluation process for a combination we must first perform the evaluation process on each element of the combination
+thus the evaluation rule is recursive in nature that is it includes as one of its steps the need to invoke the rule itself
+notice how succinctly the idea of recursion can be used to express what in the case of a deeply nested combination would otherwise be viewed as a rather complicated process
+for example evaluating
+requires that the evaluation rule be applied to four different combinations
+we can obtain a picture of this process by representing the combination in the form of a tree as shown in figure one point one
+each combination is represented by a node with branches corresponding to the operator and the operands of the combination stemming from it
+the terminal nodes represent either operators or numbers
+viewing evaluation in terms of the tree we can imagine that the values of the operands percolate upward starting from the terminal nodes and then combining at higher and higher levels
+in general we shall see that recursion is a very powerful technique for dealing with hierarchical treelike objects
+in fact the percolate values upward form of the evaluation rule is an example of a general kind of process known as tree accumulation
+next observe that the repeated application of the first step brings us to the point where we need to evaluate not combinations but primitive expressions such as numerals built in operators or other names
+we take care of the primitive cases by stipulating that
+the values of numerals are the numbers that they name
+the values of built in operators are the machine instruction sequences that carry out the corresponding operations and
+the values of other names are the objects associated with those names in the environment
+we may regard the second rule as a special case of the third one by stipulating that symbols such as plus and multiply are also included in the global environment and are associated with the sequences of machine instructions that are their values . the key point to notice is the role of the environment in determining the meaning of the symbols in expressions
+in an interactive language such as lisp it is meaningless to speak of the value of an expression such as without specifying any information about the environment that would provide a meaning for the symbol x
+as we shall see in chapter three the general notion of the environment as providing a context in which evaluation takes place will play an important role in our understanding of program execution
+notice that the evaluation rule given above does not handle definitions
+for instance evaluating does not apply define to two arguments one of which is the value of the symbol x and the other of which is three since the purpose of the define is precisely to associate x with a value
+such exceptions to the general evaluation rule are called special forms
+define is the only example of a special form that we have seen so far but we will meet others shortly
+each special form has its own evaluation rule
+the various kinds of expressions constitute the syntax of the programming language
+in comparison with most other programming languages lisp has a very simple syntax that is the evaluation rule for expressions can be described by a simple general rule together with specialized rules for a small number of special forms
+we have identified in lisp some of the elements that must appear in any powerful programming language
+numbers and arithmetic operations are primitive data and procedures
+nesting of combinations provides a means of combining operations
+definitions that associate names with values provide a limited means of abstraction
+now we will learn about procedure definitions a much more powerful abstraction technique by which a compound operation can be given a name and then referred to as a unit
+we begin by examining how to express the idea of squaring . we might say to square something multiply it by itself . this is expressed in our language as
+we can understand this in the following way
+we have here a compound procedure which has been given the name square
+the procedure represents the operation of multiplying something by itself
+the thing to be multiplied is given a local name x which plays the same role that a pronoun plays in natural language
+evaluating the definition creates this compound procedure and associates it with the name square
+the general form of a procedure definition is
+the name is a symbol to be associated with the procedure definition in the environment
+the formal parameters are the names used within the body of the procedure to refer to the corresponding arguments of the procedure
+the body is an expression that will yield the value of the procedure application when the formal parameters are replaced by the actual arguments to which the procedure is applied
+the name and the formal parameters are grouped within parentheses just as they would be in an actual call to the procedure being defined
+having defined square we can now use it
+we can also use square as a building block in defining other procedures
+for example x two plus y two can be expressed as
+we can easily define a procedure sum of squares that given any two numbers as arguments produces the sum of their squares
+now we can use sum of squares as a building block in constructing further procedures
+compound procedures are used in exactly the same way as primitive procedures
+indeed one could not tell by looking at the definition of sum of squares given above whether square was built into the interpreter like plus and multiply or defined as a compound procedure
+to evaluate a combination whose operator names a compound procedure the interpreter follows much the same process as for combinations whose operators name primitive procedures which we described in section one point one point three
+that is the interpreter evaluates the elements of the combination and applies the procedure to the arguments
+we can assume that the mechanism for applying primitive procedures to arguments is built into the interpreter
+for compound procedures the application process is as follows
+to apply a compound procedure to arguments evaluate the body of the procedure with each formal parameter replaced by the corresponding argument
+to illustrate this process let's evaluate the combination
+where f is the procedure defined in section one point one point four
+we begin by retrieving the body of f
+then we replace the formal parameter a by the argument five
+thus the problem reduces to the evaluation of a combination with two operands and an operator sum of squares
+evaluating this combination involves three subproblems
+we must evaluate the operator to get the procedure to be applied and we must evaluate the operands to get the arguments
+now produces six and produces ten so we must apply the sum of squares procedure to six and ten
+these values are substituted for the formal parameters x and y in the body of sum of squares reducing the expression to
+if we use the definition of square this reduces to
+which reduces by multiplication to
+and finally to
+one hundred thirty six
+the process we have just described is called the substitution model for procedure application
+it can be taken as a model that determines the meaning of procedure application insofar as the procedures in this chapter are concerned
+however there are two points that should be stressed
+the purpose of the substitution is to help us think about procedure application not to provide a description of how the interpreter really works
+typical interpreters do not evaluate procedure applications by manipulating the text of a procedure to substitute values for the formal parameters
+in practice the substitution is accomplished by using a local environment for the formal parameters
+we will discuss this more fully in chapters three and four when we examine the implementation of an interpreter in detail
+over the course of this book we will present a sequence of increasingly elaborate models of how interpreters work culminating with a complete implementation of an interpreter and compiler in chapter five
+the substitution model is only the first of these models a way to get started thinking formally about the evaluation process
+in general when modeling phenomena in science and engineering we begin with simplified incomplete models
+as we examine things in greater detail these simple models become inadequate and must be replaced by more refined models
+the substitution model is no exception
+in particular when we address in chapter three the use of procedures with mutable data we will see that the substitution model breaks down and must be replaced by a more complicated model of procedure application
+according to the description of evaluation given in section one point one point three the interpreter first evaluates the operator and operands and then applies the resulting procedure to the resulting arguments
+this is not the only way to perform evaluation
+an alternative evaluation model would not evaluate the operands until their values were needed
+instead it would first substitute operand expressions for parameters until it obtained an expression involving only primitive operators and would then perform the evaluation
+if we used this method the evaluation of
+would proceed according to the sequence of expansions
+followed by the reductions
+this gives the same answer as our previous evaluation model but the process is different
+in particular the evaluations of and are each performed twice here corresponding to the reduction of the expression
+with x replaced respectively by and
+this alternative fully expand and then reduce evaluation method is known as normal order evaluation in contrast to the evaluate the arguments and then apply method that the interpreter actually uses which is called applicative order evaluation
+it can be shown that for procedure applications that can be modeled using substitution and that yield legitimate values normal order and applicative order evaluation produce the same value
+lisp uses applicative order evaluation partly because of the additional efficiency obtained from avoiding multiple evaluations of expressions such as those illustrated with and above and more significantly because normal order evaluation becomes much more complicated to deal with when we leave the realm of procedures that can be modeled by substitution
+on the other hand normal order evaluation can be an extremely valuable tool and we will investigate some of its implications in chapters three and four
+the expressive power of the class of procedures that we can define at this point is very limited because we have no way to make tests and to perform different operations depending on the result of a test
+for instance we cannot define a procedure that computes the absolute value of a number by testing whether the number is positive negative or zero and taking different actions in the different cases according to the rule
+this construct is called a case analysis and there is a special form in lisp for notating such a case analysis
+it is called cond and it is used as follows
+the general form of a conditional expression is
+consisting of the symbol cond followed by parenthesized pairs of expressions called clauses
+the first expression in each pair is a predicate that is an expression whose value is interpreted as either true or false
+conditional expressions are evaluated as follows
+the predicate p one is evaluated first
+if its value is false then p two is evaluated
+if p 2's value is also false then p three is evaluated
+this process continues until a predicate is found whose value is true in which case the interpreter returns the value of the corresponding consequent expression e of the clause as the value of the conditional expression
+if none of the p's is found to be true the value of the cond is undefined
+the word predicate is used for procedures that return true or false as well as for expressions that evaluate to true or false
+the absolute value procedure abs makes use of the primitive predicates <> > < <> and equal
+these take two numbers as arguments and test whether the first number is respectively greater than less than or equal to the second number returning true or false accordingly
+another way to write the absolute value procedure is
+which could be expressed in english as if x is less than zero return minus x otherwise return x . else is a special symbol that can be used in place of the p in the final clause of a cond
+this causes the cond to return as its value the value of the corresponding e whenever all previous clauses have been bypassed
+in fact any expression that always evaluates to a true value could be used as the p here
+here is yet another way to write the absolute value procedure
+this uses the special form if a restricted type of conditional that can be used when there are precisely two cases in the case analysis
+the general form of an if expression is
+to evaluate an if expression the interpreter starts by evaluating the predicate part of the expression
+if the predicate evaluates to a true value the interpreter then evaluates the consequent and returns its value
+otherwise it evaluates the alternative and returns its value
+in addition to primitive predicates such as < <> equal and <> > there are logical composition operations which enable us to construct compound predicates
+the three most frequently used are these
+the interpreter evaluates the expressions e one at a time in left to right order
+if any e evaluates to false the value of the and expression is false and the rest of the e's are not evaluated
+if all e's evaluate to true values the value of the and expression is the value of the last one
+the interpreter evaluates the expressions e one at a time in left to right order
+if any e evaluates to a true value that value is returned as the value of the or expression and the rest of the e's are not evaluated
+if all e's evaluate to false the value of the or expression is false
+the value of a not expression is true when the expression e evaluates to false and false otherwise
+notice that and and or are special forms not procedures because the subexpressions are not necessarily all evaluated
+not is an ordinary procedure
+as an example of how these are used the condition that a number x be in the range five < x < ten may be expressed as
+as another example we can define a predicate to test whether one number is greater than or equal to another as
+or alternatively as
+below is a sequence of expressions
+what is the result printed by the interpreter in response to each expression
+assume that the sequence is to be evaluated in the order in which it is presented
+translate the following expression into prefix form
+define a procedure that takes three numbers as arguments and returns the sum of the squares of the two larger numbers
+observe that our model of evaluation allows for combinations whose operators are compound expressions
+use this observation to describe the behavior of the following procedure
+ben bitdiddle has invented a test to determine whether the interpreter he is faced with is using applicative order evaluation or normal order evaluation
+he defines the following two procedures
+then he evaluates the expression
+what behavior will ben observe with an interpreter that uses applicative order evaluation
+what behavior will he observe with an interpreter that uses normal order evaluation
+explain your answer
+procedures as introduced above are much like ordinary mathematical functions
+they specify a value that is determined by one or more parameters
+but there is an important difference between mathematical functions and computer procedures
+procedures must be effective
+as a case in point consider the problem of computing square roots
+we can define the square root function as
+this describes a perfectly legitimate mathematical function
+we could use it to recognize whether one number is the square root of another or to derive facts about square roots in general
+on the other hand the definition does not describe a procedure
+indeed it tells us almost nothing about how to actually find the square root of a given number
+it will not help matters to rephrase this definition in pseudo lisp
+this only begs the question
+the contrast between function and procedure is a reflection of the general distinction between describing properties of things and describing how to do things or as it is sometimes referred to the distinction between declarative knowledge and imperative knowledge
+in mathematics we are usually concerned with declarative descriptions whereas in computer science we are usually concerned with imperative descriptions
+how does one compute square roots
+the most common way is to use newton's method of successive approximations which says that whenever we have a guess y for the value of the square root of a number x we can perform a simple manipulation to get a better guess by averaging y with x / y
+for example we can compute the square root of two as follows
+suppose our initial guess is one
+guess quotient average
+one ( two / one ) equal two equal 1.5
+1.5 ( two / 1.5 ) equal 1.3333 equal 1.4167
+1.4167 ( two / 1.4167 ) equal 1.4118 equal 1.4142
+1.4142 ... ...
+continuing this process we obtain better and better approximations to the square root
+now let's formalize the process in terms of procedures
+we start with a value for the radicand and a value for the guess
+if the guess is good enough for our purposes we are done if not we must repeat the process with an improved guess
+we write this basic strategy as a procedure
+a guess is improved by averaging it with the quotient of the radicand and the old guess
+where
+we also have to say what we mean by good enough . the following will do for illustration but it is not really a very good test
+the idea is to improve the answer until it is close enough so that its square differs from the radicand by less than a predetermined tolerance
+finally we need a way to get started
+for instance we can always guess that the square root of any number is one
+if we type these definitions to the interpreter we can use sqrt just as we can use any procedure
+the sqrt program also illustrates that the simple procedural language we have introduced so far is sufficient for writing any purely numerical program that one could write in say c or pascal
+this might seem surprising since we have not included in our language any iterative ( looping ) constructs that direct the computer to do something over and over again
+sqrt iter on the other hand demonstrates how iteration can be accomplished using no special construct other than the ordinary ability to call a procedure
+alyssa p
+hacker does n't see why if needs to be provided as a special form
+why can't i just define it as an ordinary procedure in terms of cond she asks
+alyssa's friend eva lu ator claims this can indeed be done and she defines a new version of if
+eva demonstrates the program for alyssa
+delighted alyssa uses new if to rewrite the square root program
+what happens when alyssa attempts to use this to compute square roots
+explain
+the good enough test used in computing square roots will not be very effective for finding the square roots of very small numbers
+also in real computers arithmetic operations are almost always performed with limited precision
+this makes our test inadequate for very large numbers
+explain these statements with examples showing how the test fails for small and large numbers
+an alternative strategy for implementing good enough is to watch how guess changes from one iteration to the next and to stop when the change is a very small fraction of the guess
+design a square root procedure that uses this kind of end test
+does this work better for small and large numbers
+newton's method for cube roots is based on the fact that if y is an approximation to the cube root of x then a better approximation is given by the value
+use this formula to implement a cube root procedure analogous to the square root procedure
+sqrt is our first example of a process defined by a set of mutually defined procedures
+notice that the definition of sqrt iter is recursive that is the procedure is defined in terms of itself
+the idea of being able to define a procedure in terms of itself may be disturbing it may seem unclear how such a circular definition could make sense at all much less specify a well defined process to be carried out by a computer
+this will be addressed more carefully in section one point two
+but first let's consider some other important points illustrated by the sqrt example
+observe that the problem of computing square roots breaks up naturally into a number of subproblems how to tell whether a guess is good enough how to improve a guess and so on
+each of these tasks is accomplished by a separate procedure
+the entire sqrt program can be viewed as a cluster of procedures that mirrors the decomposition of the problem into subproblems
+the importance of this decomposition strategy is not simply that one is dividing the program into parts
+after all we could take any large program and divide it into parts the first ten lines the next ten lines the next ten lines and so on
+rather it is crucial that each procedure accomplishes an identifiable task that can be used as a module in defining other procedures
+for example when we define the good enough procedure in terms of square we are able to regard the square procedure as a black box . we are not at that moment concerned with how the procedure computes its result only with the fact that it computes the square
+the details of how the square is computed can be suppressed to be considered at a later time
+indeed as far as the good enough procedure is concerned square is not quite a procedure but rather an abstraction of a procedure a so called procedural abstraction
+at this level of abstraction any procedure that computes the square is equally good
+thus considering only the values they return the following two procedures for squaring a number should be indistinguishable
+each takes a numerical argument and produces the square of that number as the value
+so a procedure definition should be able to suppress detail
+the users of the procedure may not have written the procedure themselves but may have obtained it from another programmer as a black box
+a user should not need to know how the procedure is implemented in order to use it
+one detail of a procedure's implementation that should not matter to the user of the procedure is the implementer's choice of names for the procedure's formal parameters
+thus the following procedures should not be distinguishable
+this principle that the meaning of a procedure should be independent of the parameter names used by its author seems on the surface to be self evident but its consequences are profound
+the simplest consequence is that the parameter names of a procedure must be local to the body of the procedure
+for example we used square in the definition of good enough in our square root procedure
+the intention of the author of good enough is to determine if the square of the first argument is within a given tolerance of the second argument
+we see that the author of good enough used the name guess to refer to the first argument and x to refer to the second argument
+the argument of square is guess
+if the author of square used x to refer to that argument we see that the x in good enough must be a different x than the one in square
+running the procedure square must not affect the value of x that is used by good enough because that value of x may be needed by good enough after square is done computing
+if the parameters were not local to the bodies of their respective procedures then the parameter x in square could be confused with the parameter x in good enough and the behavior of good enough would depend upon which version of square we used
+thus square would not be the black box we desired
+a formal parameter of a procedure has a very special role in the procedure definition in that it does n't matter what name the formal parameter has
+such a name is called a bound variable and we say that the procedure definition binds its formal parameters
+the meaning of a procedure definition is unchanged if a bound variable is consistently renamed throughout the definition
+if a variable is not bound we say that it is free
+the set of expressions for which a binding defines a name is called the scope of that name
+in a procedure definition the bound variables declared as the formal parameters of the procedure have the body of the procedure as their scope
+in the definition of good enough above guess and x are bound variables but < <> minus abs and square are free
+the meaning of good enough should be independent of the names we choose for guess and x so long as they are distinct and different from < <> minus abs and square
+the meaning of good enough is not independent of the names of its free variables however
+it surely depends upon the fact that the symbol abs names a procedure for computing the absolute value of a number
+good enough will compute a different function if we substitute cos for abs in its definition
+we have one kind of name isolation available to us so far the formal parameters of a procedure are local to the body of the procedure
+the square root program illustrates another way in which we would like to control the use of names
+the existing program consists of separate procedures
+the problem with this program is that the only procedure that is important to users of sqrt is sqrt
+the other procedures only clutter up their minds
+they may not define any other procedure called good enough as part of another program to work together with the square root program because sqrt needs it
+the problem is especially severe in the construction of large systems by many separate programmers
+for example in the construction of a large library of numerical procedures many numerical functions are computed as successive approximations and thus might have procedures named good enough and improve as auxiliary procedures
+we would like to localize the subprocedures hiding them inside sqrt so that sqrt could coexist with other successive approximations each having its own private good enough procedure
+to make this possible we allow a procedure to have internal definitions that are local to that procedure
+for example in the square root problem we can write
+such nesting of definitions called block structure is basically the right solution to the simplest name packaging problem
+but there is a better idea lurking here
+in addition to internalizing the definitions of the auxiliary procedures we can simplify them
+since x is bound in the definition of sqrt the procedures good enough improve and sqrt iter which are defined internally to sqrt are in the scope of x
+thus it is not necessary to pass x explicitly to each of these procedures
+instead we allow x to be a free variable in the internal definitions as shown below
+then x gets its value from the argument with which the enclosing procedure sqrt is called
+this discipline is called lexical scoping
+we will use block structure extensively to help us break up large programs into tractable pieces
+the idea of block structure originated with the programming language algol sixty
+it appears in most advanced programming languages and is an important tool for helping to organize the construction of large programs

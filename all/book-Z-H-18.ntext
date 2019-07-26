@@ -1,0 +1,354 @@
+in the previous section we saw how to design systems in which data objects can be represented in more than one way
+the key idea is to link the code that specifies the data operations to the several representations by means of generic interface procedures
+now we will see how to use this same idea not only to define operations that are generic over different representations but also to define operations that are generic over different kinds of arguments
+we have already seen several different packages of arithmetic operations the primitive arithmetic built into our language the rational number arithmetic of section two point one point one and the complex number arithmetic that we implemented in section two point four point three
+we will now use data directed techniques to construct a package of arithmetic operations that incorporates all the arithmetic packages we have already constructed
+figure two point twenty three shows the structure of the system we shall build
+notice the abstraction barriers
+from the perspective of someone using numbers there is a single procedure add that operates on whatever numbers are supplied
+add is part of a generic interface that allows the separate ordinary arithmetic rational arithmetic and complex arithmetic packages to be accessed uniformly by programs that use numbers
+any individual arithmetic package may itself be accessed through generic procedures that combine packages designed for different representations
+moreover the structure of the system is additive so that one can design the individual arithmetic packages separately and combine them to produce a generic arithmetic system
+the task of designing generic arithmetic operations is analogous to that of designing the generic complex number operations
+we would like for instance to have a generic addition procedure add that acts like ordinary primitive addition plus on ordinary numbers like add rat on rational numbers and like add complex on complex numbers
+we can implement add and the other generic arithmetic operations by following the same strategy we used in section two point four point three to implement the generic selectors for complex numbers
+we will attach a type tag to each kind of number and cause the generic procedure to dispatch to an appropriate package according to the data type of its arguments
+the generic arithmetic procedures are defined as follows
+we begin by installing a package for handling ordinary numbers that is the primitive numbers of our language
+we will tag these with the symbol scheme number
+the arithmetic operations in this package are the primitive arithmetic procedures
+since these operations each take two arguments they are installed in the table keyed by the list
+users of the scheme number package will create ( tagged ) ordinary numbers by means of the procedure
+now that the framework of the generic arithmetic system is in place we can readily include new kinds of numbers
+here is a package that performs rational arithmetic
+notice that as a benefit of additivity we can use without modification the rational number code from section two point one point one as the internal procedures in the package
+we can install a similar package to handle complex numbers using the tag complex
+in creating the package we extract from the table the operations make from real imag and make from mag ang that were defined by the rectangular and polar packages
+additivity permits us to use as the internal operations the same add complex sub complex mul complex and div complex procedures from section two point four point one
+programs outside the complex number package can construct complex numbers either from real and imaginary parts or from magnitudes and angles
+notice how the underlying procedures originally defined in the rectangular and polar packages are exported to the complex package and exported from there to the outside world
+what we have here is a two level tag system
+a typical complex number such as three plus 4i in rectangular form would be represented as shown in figure two point twenty four
+the outer tag is used to direct the number to the complex package
+once within the complex package the next tag is used to direct the number to the rectangular package
+in a large and complicated system there might be many levels each interfaced with the next by means of generic operations
+as a data object is passed downward the outer tag that is used to direct it to the appropriate package is stripped off and the next level of tag becomes visible to be used for further dispatching
+in the above packages we used add rat add complex and the other arithmetic procedures exactly as originally written
+once these definitions are internal to different installation procedures however they no longer need names that are distinct from each other we could simply name them add sub mul and div in both packages
+louis reasoner tries to evaluate the expression where z is the object shown in figure two point twenty four
+to his surprise instead of the answer five he gets an error message from apply generic saying there is no method for the operation magnitude on the types
+he shows this interaction to alyssa p
+hacker who says the problem is that the complex number selectors were never defined for complex numbers just for polar and rectangular numbers
+all you have to do to make this work is add the following to the complex package
+describe in detail why this works
+as an example trace through all the procedures called in evaluating the expression where z is the object shown in figure two point twenty four
+in particular how many times is apply generic invoked
+what procedure is dispatched to in each case
+the internal procedures in the scheme number package are essentially nothing more than calls to the primitive procedures plus minus etc
+it was not possible to use the primitives of the language directly because our type tag system requires that each data object have a type attached to it
+in fact however all lisp implementations do have a type system which they use internally
+primitive predicates such as symbol and number determine whether data objects have particular types
+modify the definitions of type tag contents and attach tag from section two point four point two so that our generic system takes advantage of scheme's internal type system
+that is to say the system should work as before except that ordinary numbers should be represented simply as scheme numbers rather than as pairs whose car is the symbol scheme number
+define a generic equality predicate equ that tests the equality of two numbers and install it in the generic arithmetic package
+this operation should work for ordinary numbers rational numbers and complex numbers
+define a generic predicate equal zero that tests if its argument is zero and install it in the generic arithmetic package
+this operation should work for ordinary numbers rational numbers and complex numbers
+we have seen how to define a unified arithmetic system that encompasses ordinary numbers complex numbers rational numbers and any other type of number we might decide to invent but we have ignored an important issue
+the operations we have defined so far treat the different data types as being completely independent
+thus there are separate packages for adding say two ordinary numbers or two complex numbers
+what we have not yet considered is the fact that it is meaningful to define operations that cross the type boundaries such as the addition of a complex number to an ordinary number
+we have gone to great pains to introduce barriers between parts of our programs so that they can be developed and understood separately
+we would like to introduce the cross type operations in some carefully controlled way so that we can support them without seriously violating our module boundaries
+one way to handle cross type operations is to design a different procedure for each possible combination of types for which the operation is valid
+for example we could extend the complex number package so that it provides a procedure for adding complex numbers to ordinary numbers and installs this in the table using the tag
+this technique works but it is cumbersome
+with such a system the cost of introducing a new type is not just the construction of the package of procedures for that type but also the construction and installation of the procedures that implement the cross type operations
+this can easily be much more code than is needed to define the operations on the type itself
+the method also undermines our ability to combine separate packages additively or least to limit the extent to which the implementors of the individual packages need to take account of other packages
+for instance in the example above it seems reasonable that handling mixed operations on complex numbers and ordinary numbers should be the responsibility of the complex number package
+combining rational numbers and complex numbers however might be done by the complex package by the rational package or by some third package that uses operations extracted from these two packages
+formulating coherent policies on the division of responsibility among packages can be an overwhelming task in designing systems with many packages and many cross type operations
+in the general situation of completely unrelated operations acting on completely unrelated types implementing explicit cross type operations cumbersome though it may be is the best that one can hope for
+fortunately we can usually do better by taking advantage of additional structure that may be latent in our type system
+often the different data types are not completely independent and there may be ways by which objects of one type may be viewed as being of another type
+this process is called coercion
+for example if we are asked to arithmetically combine an ordinary number with a complex number we can view the ordinary number as a complex number whose imaginary part is zero
+this transforms the problem to that of combining two complex numbers which can be handled in the ordinary way by the complex arithmetic package
+in general we can implement this idea by designing coercion procedures that transform an object of one type into an equivalent object of another type
+here is a typical coercion procedure which transforms a given ordinary number to a complex number with that real part and zero imaginary part
+we install these coercion procedures in a special coercion table indexed under the names of the two types
+generally some of the slots in the table will be empty because it is not generally possible to coerce an arbitrary data object of each type into all other types
+for example there is no way to coerce an arbitrary complex number to an ordinary number so there will be no general complex scheme number> procedure included in the table
+once the coercion table has been set up we can handle coercion in a uniform manner by modifying the apply generic procedure of section two point four point three
+when asked to apply an operation we first check whether the operation is defined for the arguments' types just as before
+if so we dispatch to the procedure found in the operation and type table
+otherwise we try coercion
+for simplicity we consider only the case where there are two arguments
+we check the coercion table to see if objects of the first type can be coerced to the second type
+if so we coerce the first argument and try the operation again
+if objects of the first type cannot in general be coerced to the second type we try the coercion the other way around to see if there is a way to coerce the second argument to the type of the first argument
+finally if there is no known way to coerce either type to the other type we give up
+here is the procedure
+this coercion scheme has many advantages over the method of defining explicit cross type operations as outlined above
+although we still need to write coercion procedures to relate the types we need to write only one procedure for each pair of types rather than a different procedure for each collection of types and each generic operation
+what we are counting on here is the fact that the appropriate transformation between types depends only on the types themselves not on the operation to be applied
+on the other hand there may be applications for which our coercion scheme is not general enough
+even when neither of the objects to be combined can be converted to the type of the other it may still be possible to perform the operation by converting both objects to a third type
+in order to deal with such complexity and still preserve modularity in our programs it is usually necessary to build systems that take advantage of still further structure in the relations among types as we discuss next
+the coercion scheme presented above relied on the existence of natural relations between pairs of types
+often there is more global structure in how the different types relate to each other
+for instance suppose we are building a generic arithmetic system to handle integers rational numbers real numbers and complex numbers
+in such a system it is quite natural to regard an integer as a special kind of rational number which is in turn a special kind of real number which is in turn a special kind of complex number
+what we actually have is a so called hierarchy of types in which for example integers are a subtype of rational numbers
+conversely we say that rational numbers form a supertype of integers
+the particular hierarchy we have here is of a very simple kind in which each type has at most one supertype and at most one subtype
+such a structure called a tower is illustrated in figure two point twenty five
+if we have a tower structure then we can greatly simplify the problem of adding a new type to the hierarchy for we need only specify how the new type is embedded in the next supertype above it and how it is the supertype of the type below it
+for example if we want to add an integer to a complex number we need not explicitly define a special coercion procedure integer complex>
+instead we define how an integer can be transformed into a rational number how a rational number is transformed into a real number and how a real number is transformed into a complex number
+we then allow the system to transform the integer into a complex number through these steps and then add the two complex numbers
+we can redesign our apply generic procedure in the following way for each type we need to supply a raise procedure which raises objects of that type one level in the tower
+then when the system is required to operate on objects of different types it can successively raise the lower types until all the objects are at the same level in the tower
+another advantage of a tower is that we can easily implement the notion that every type inherits all operations defined on a supertype
+for instance if we do not supply a special procedure for finding the real part of an integer we should nevertheless expect that real part will be defined for integers by virtue of the fact that integers are a subtype of complex numbers
+in a tower we can arrange for this to happen in a uniform way by modifying apply generic
+if the required operation is not directly defined for the type of the object given we raise the object to its supertype and try again
+we thus crawl up the tower transforming our argument as we go until we either find a level at which the desired operation can be performed or hit the top
+yet another advantage of a tower over a more general hierarchy is that it gives us a simple way to lower a data object to the simplest representation
+for example if we add two plus 3i to four minus 3i it would be nice to obtain the answer as the integer six rather than as the complex number six plus 0i
+exercise two point eighty five discusses a way to implement such a lowering operation
+if the data types in our system can be naturally arranged in a tower this greatly simplifies the problems of dealing with generic operations on different types as we have seen
+unfortunately this is usually not the case
+figure two point twenty six illustrates a more complex arrangement of mixed types this one showing relations among different types of geometric figures
+we see that in general a type may have more than one subtype
+triangles and quadrilaterals for instance are both subtypes of polygons
+in addition a type may have more than one supertype
+for example an isosceles right triangle may be regarded either as an isosceles triangle or as a right triangle
+this multiple supertypes issue is particularly thorny since it means that there is no unique way to raise a type in the hierarchy
+finding the correct supertype in which to apply an operation to an object may involve considerable searching through the entire type network on the part of a procedure such as apply generic
+since there generally are multiple subtypes for a type there is a similar problem in coercing a value down the type hierarchy
+dealing with large numbers of interrelated types while still preserving modularity in the design of large systems is very difficult and is an area of much current research
+louis reasoner has noticed that apply generic may try to coerce the arguments to each other's type even if they already have the same type
+therefore he reasons we need to put procedures in the coercion table to "coerce" arguments of each type to their own type
+for example in addition to the scheme number complex> coercion shown above he would do
+a
+with louis's coercion procedures installed what happens if apply generic is called with two arguments of type scheme number or two arguments of type complex for an operation that is not found in the table for those types
+for example assume that we've defined a generic exponentiation operation
+and have put a procedure for exponentiation in the scheme number package but not in any other package
+what happens if we call exp with two complex numbers as arguments
+b
+is louis correct that something had to be done about coercion with arguments of the same type or does apply generic work correctly as is
+c
+modify apply generic so that it does n't try coercion if the two arguments have the same type
+show how to generalize apply generic to handle coercion in the general case of multiple arguments
+one strategy is to attempt to coerce all the arguments to the type of the first argument then to the type of the second argument and so on
+give an example of a situation where this strategy is not sufficiently general
+suppose you are designing a generic arithmetic system for dealing with the tower of types shown in figure two point twenty five integer rational real complex
+for each type design a procedure that raises objects of that type one level in the tower
+show how to install a generic raise operation that will work for each type
+using the raise operation of exercise two point eighty three modify the apply generic procedure so that it coerces its arguments to have the same type by the method of successive raising as discussed in this section
+you will need to devise a way to test which of two types is higher in the tower
+do this in a manner that is compatible with the rest of the system and will not lead to problems in adding new levels to the tower
+this section mentioned a method for simplifying a data object by lowering it in the tower of types as far as possible
+design a procedure drop that accomplishes this for the tower described in exercise two point eighty three
+the key is to decide in some general way whether an object can be lowered
+for example the complex number 1.5 plus 0i can be lowered as far as real the complex number one plus 0i can be lowered as far as integer and the complex number two plus 3i cannot be lowered at all
+here is a plan for determining whether an object can be lowered begin by defining a generic operation project that pushes an object down in the tower
+for example projecting a complex number would involve throwing away the imaginary part
+then a number can be dropped if when we project it and raise the result back to the type we started with we end up with something equal to what we started with
+show how to implement this idea in detail by writing a drop procedure that drops an object as far as possible
+you will need to design the various projection operations and install project as a generic operation in the system
+you will also need to make use of a generic equality predicate such as described in exercise two point seventy nine
+finally use drop to rewrite apply generic from exercise two point eighty four so that it simplifies its answers
+suppose we want to handle complex numbers whose real parts imaginary parts magnitudes and angles can be either ordinary numbers rational numbers or other numbers we might wish to add to the system
+describe and implement the changes to the system needed to accommodate this
+you will have to define operations such as sine and cosine that are generic over ordinary numbers and rational numbers
+the manipulation of symbolic algebraic expressions is a complex process that illustrates many of the hardest problems that occur in the design of large scale systems
+an algebraic expression in general can be viewed as a hierarchical structure a tree of operators applied to operands
+we can construct algebraic expressions by starting with a set of primitive objects such as constants and variables and combining these by means of algebraic operators such as addition and multiplication
+as in other languages we form abstractions that enable us to refer to compound objects in simple terms
+typical abstractions in symbolic algebra are ideas such as linear combination polynomial rational function or trigonometric function
+we can regard these as compound types which are often useful for directing the processing of expressions
+for example we could describe the expression
+as a polynomial in x with coefficients that are trigonometric functions of polynomials in y whose coefficients are integers
+we will not attempt to develop a complete algebraic manipulation system here
+such systems are exceedingly complex programs embodying deep algebraic knowledge and elegant algorithms
+what we will do is look at a simple but important part of algebraic manipulation the arithmetic of polynomials
+we will illustrate the kinds of decisions the designer of such a system faces and how to apply the ideas of abstract data and generic operations to help organize this effort
+our first task in designing a system for performing arithmetic on polynomials is to decide just what a polynomial is
+polynomials are normally defined relative to certain variables
+for simplicity we will restrict ourselves to polynomials having just one indeterminate
+we will define a polynomial to be a sum of terms each of which is either a coefficient a power of the indeterminate or a product of a coefficient and a power of the indeterminate
+a coefficient is defined as an algebraic expression that is not dependent upon the indeterminate of the polynomial
+for example
+is a simple polynomial in x and
+is a polynomial in x whose coefficients are polynomials in y
+already we are skirting some thorny issues
+is the first of these polynomials the same as the polynomial 5y2 plus 3y plus seven or not
+a reasonable answer might be yes if we are considering a polynomial purely as a mathematical function but no if we are considering a polynomial to be a syntactic form . the second polynomial is algebraically equivalent to a polynomial in y whose coefficients are polynomials in x
+should our system recognize this or not
+furthermore there are other ways to represent a polynomial for example as a product of factors or as the set of roots or as a listing of the values of the polynomial at a specified set of points
+we can finesse these questions by deciding that in our algebraic manipulation system a polynomial will be a particular syntactic form not its underlying mathematical meaning
+now we must consider how to go about doing arithmetic on polynomials
+in this simple system we will consider only addition and multiplication
+moreover we will insist that two polynomials to be combined must have the same indeterminate
+we will approach the design of our system by following the familiar discipline of data abstraction
+we will represent polynomials using a data structure called a poly which consists of a variable and a collection of terms
+we assume that we have selectors variable and term list that extract those parts from a poly and a constructor make poly that assembles a poly from a given variable and a term list
+a variable will be just a symbol so we can use the same variable procedure of section two point three point two to compare variables
+the following procedures define addition and multiplication of polys
+to incorporate polynomials into our generic arithmetic system we need to supply them with type tags
+we'll use the tag polynomial and install appropriate operations on tagged polynomials in the operation table
+we'll embed all our code in an installation procedure for the polynomial package similar to the ones in section two point five point one
+polynomial addition is performed termwise
+terms of the same order must be combined
+this is done by forming a new term of the same order whose coefficient is the sum of the coefficients of the addends
+terms in one addend for which there are no terms of the same order in the other addend are simply accumulated into the sum polynomial being constructed
+in order to manipulate term lists we will assume that we have a constructor the empty termlist that returns an empty term list and a constructor adjoin term that adjoins a new term to a term list
+we will also assume that we have a predicate empty termlist that tells if a given term list is empty a selector first term that extracts the highest order term from a term list and a selector rest terms that returns all but the highest order term
+to manipulate terms we will suppose that we have a constructor make term that constructs a term with given order and coefficient and selectors order and coeff that return respectively the order and the coefficient of the term
+these operations allow us to consider both terms and term lists as data abstractions whose concrete representations we can worry about separately
+here is the procedure that constructs the term list for the sum of two polynomials
+the most important point to note here is that we used the generic addition procedure add to add together the coefficients of the terms being combined
+this has powerful consequences as we will see below
+in order to multiply two term lists we multiply each term of the first list by all the terms of the other list repeatedly using mul term by all terms which multiplies a given term by all terms in a given term list
+the resulting term lists are accumulated into a sum
+multiplying two terms forms a term whose order is the sum of the orders of the factors and whose coefficient is the product of the coefficients of the factors
+this is really all there is to polynomial addition and multiplication
+notice that since we operate on terms using the generic procedures add and mul our polynomial package is automatically able to handle any type of coefficient that is known about by the generic arithmetic package
+if we include a coercion mechanism such as one of those discussed in section two point five point two then we also are automatically able to handle operations on polynomials of different coefficient types such as
+because we installed the polynomial addition and multiplication procedures add poly and mul poly in the generic arithmetic system as the add and mul operations for type polynomial our system is also automatically able to handle polynomial operations such as
+the reason is that when the system tries to combine coefficients it will dispatch through add and mul
+since the coefficients are themselves polynomials these will be combined using add poly and mul poly
+the result is a kind of data directed recursion in which for example a call to mul poly will result in recursive calls to mul poly in order to multiply the coefficients
+if the coefficients of the coefficients were themselves polynomials the data direction would ensure that the system would follow through another level of recursive calls and so on through as many levels as the structure of the data dictates
+finally we must confront the job of implementing a good representation for term lists
+a term list is in effect a set of coefficients keyed by the order of the term
+hence any of the methods for representing sets as discussed in section two point three point three can be applied to this task
+on the other hand our procedures add terms and mul terms always access term lists sequentially from highest to lowest order
+thus we will use some kind of ordered list representation
+how should we structure the list that represents a term list
+one consideration is the density of the polynomials we intend to manipulate
+a polynomial is said to be dense if it has nonzero coefficients in terms of most orders
+if it has many zero terms it is said to be sparse
+for example
+is a dense polynomial whereas
+is sparse
+the term lists of dense polynomials are most efficiently represented as lists of the coefficients
+for example a above would be nicely represented as
+the order of a term in this representation is the length of the sublist beginning with that term's coefficient decremented by one
+this would be a terrible representation for a sparse polynomial such as b there would be a giant list of zeros punctuated by a few lonely nonzero terms
+a more reasonable representation of the term list of a sparse polynomial is as a list of the nonzero terms where each term is a list containing the order of the term and the coefficient for that order
+in such a scheme polynomial b is efficiently represented as
+as most polynomial manipulations are performed on sparse polynomials we will use this method
+we will assume that term lists are represented as lists of terms arranged from highest order to lowest order term
+once we have made this decision implementing the selectors and constructors for terms and term lists is straightforward
+where equal zero is as defined in exercise two point eighty
+users of the polynomial package will create ( tagged ) polynomials by means of the procedure
+install equal zero for polynomials in the generic arithmetic package
+this will allow adjoin term to work for polynomials with coefficients that are themselves polynomials
+extend the polynomial system to include subtraction of polynomials
+define procedures that implement the term list representation described above as appropriate for dense polynomials
+suppose we want to have a polynomial system that is efficient for both sparse and dense polynomials
+one way to do this is to allow both kinds of term list representations in our system
+the situation is analogous to the complex number example of section two point four where we allowed both rectangular and polar representations
+to do this we must distinguish different types of term lists and make the operations on term lists generic
+redesign the polynomial system to implement this generalization
+this is a major effort not a local change
+a univariate polynomial can be divided by another one to produce a polynomial quotient and a polynomial remainder
+for example
+division can be performed via long division
+that is divide the highest order term of the dividend by the highest order term of the divisor
+the result is the first term of the quotient
+next multiply the result by the divisor subtract that from the dividend and produce the rest of the answer by recursively dividing the difference by the divisor
+stop when the order of the divisor exceeds the order of the dividend and declare the dividend to be the remainder
+also if the dividend ever becomes zero return zero as both quotient and remainder
+we can design a div poly procedure on the model of add poly and mul poly
+the procedure checks to see if the two polys have the same variable
+if so div poly strips off the variable and passes the problem to div terms which performs the division operation on term lists
+div poly finally reattaches the variable to the result supplied by div terms
+it is convenient to design div terms to compute both the quotient and the remainder of a division
+div terms can take two term lists as arguments and return a list of the quotient term list and the remainder term list
+complete the following definition of div terms by filling in the missing expressions
+use this to implement div poly which takes two polys as arguments and returns a list of the quotient and remainder polys
+our polynomial system illustrates how objects of one type ( polynomials ) may in fact be complex objects that have objects of many different types as parts
+this poses no real difficulty in defining generic operations
+we need only install appropriate generic operations for performing the necessary manipulations of the parts of the compound types
+in fact we saw that polynomials form a kind of recursive data abstraction in that parts of a polynomial may themselves be polynomials
+our generic operations and our data directed programming style can handle this complication without much trouble
+on the other hand polynomial algebra is a system for which the data types cannot be naturally arranged in a tower
+for instance it is possible to have polynomials in x whose coefficients are polynomials in y
+it is also possible to have polynomials in y whose coefficients are polynomials in x
+neither of these types is above the other in any natural way yet it is often necessary to add together elements from each set
+there are several ways to do this
+one possibility is to convert one polynomial to the type of the other by expanding and rearranging terms so that both polynomials have the same principal variable
+one can impose a towerlike structure on this by ordering the variables and thus always converting any polynomial to a canonical form with the highest priority variable dominant and the lower priority variables buried in the coefficients
+this strategy works fairly well except that the conversion may expand a polynomial unnecessarily making it hard to read and perhaps less efficient to work with
+the tower strategy is certainly not natural for this domain or for any domain where the user can invent new types dynamically using old types in various combining forms such as trigonometric functions power series and integrals
+it should not be surprising that controlling coercion is a serious problem in the design of large scale algebraic manipulation systems
+much of the complexity of such systems is concerned with relationships among diverse types
+indeed it is fair to say that we do not yet completely understand coercion
+in fact we do not yet completely understand the concept of a data type
+nevertheless what we know provides us with powerful structuring and modularity principles to support the design of large systems
+by imposing an ordering on variables extend the polynomial package so that addition and multiplication of polynomials works for polynomials in different variables
+we can extend our generic arithmetic system to include rational functions
+these are fractions whose numerator and denominator are polynomials such as
+the system should be able to add subtract multiply and divide rational functions and to perform such computations as
+if we modify our rational arithmetic package so that it uses generic operations then it will do what we want except for the problem of reducing fractions to lowest terms
+modify the rational arithmetic package to use generic operations but change make rat so that it does not attempt to reduce fractions to lowest terms
+test your system by calling make rational on two polynomials to produce a rational function
+now add rf to itself using add
+you will observe that this addition procedure does not reduce fractions to lowest terms
+we can reduce polynomial fractions to lowest terms using the same idea we used with integers modifying make rat to divide both the numerator and the denominator by their greatest common divisor
+the notion of greatest common divisor makes sense for polynomials
+in fact we can compute the gcd of two polynomials using essentially the same euclid's algorithm that works for integers
+the integer version is
+using this we could make the obvious modification to define a gcd operation that works on term lists
+where remainder terms picks out the remainder component of the list returned by the term list division operation div terms that was implemented in exercise two point ninety one
+using div terms implement the procedure remainder terms and use this to define gcd terms as above
+now write a procedure gcd poly that computes the polynomial gcd of two polys
+install in the system a generic operation greatest common divisor that reduces to gcd poly for polynomials and to ordinary gcd for ordinary numbers
+as a test try
+and check your result by hand
+define p one p two and p three to be the polynomials
+now define q one to be the product of p one and p two and q two to be the product of p one and p three and use greatest common divisor to compute the gcd of q one and q two
+note that the answer is not the same as p one
+this example introduces noninteger operations into the computation causing difficulties with the gcd algorithm
+to understand what is happening try tracing gcd terms while computing the gcd or try performing the division by hand
+we can solve the problem exhibited in exercise two point ninety five if we use the following modification of the gcd algorithm
+before performing any polynomial division in the gcd computation we multiply the dividend by an integer constant factor chosen to guarantee that no fractions will arise during the division process
+our answer will thus differ from the actual gcd by an integer constant factor but this does not matter in the case of reducing rational functions to lowest terms the gcd will be used to divide both the numerator and denominator so the integer constant factor will cancel out
+more precisely if p and q are polynomials let o one be the order of p and let o two be the order of q
+let c be the leading coefficient of q
+then it can be shown that if we multiply p by the integerizing factor c 1+o one o two the resulting polynomial can be divided by q by using the div terms algorithm without introducing any fractions
+the operation of multiplying the dividend by this constant and then dividing is sometimes called the pseudodivision of p by q
+the remainder of the division is called the pseudoremainder
+a
+implement the procedure pseudoremainder terms which is just like remainder terms except that it multiplies the dividend by the integerizing factor described above before calling div terms
+modify gcd terms to use pseudoremainder terms and verify that greatest common divisor now produces an answer with integer coefficients on the example in exercise two point ninety five
+b
+the gcd now has integer coefficients but they are larger than those of p one
+modify gcd terms so that it removes common factors from the coefficients of the answer by dividing all the coefficients by their ( integer ) greatest common divisor
+thus here is how to reduce a rational function to lowest terms
+compute the gcd of the numerator and denominator using the version of gcd terms from exercise two point ninety six
+when you obtain the gcd multiply both numerator and denominator by the same integerizing factor before dividing through by the gcd so that division by the gcd will not introduce any noninteger coefficients
+as the factor you can use the leading coefficient of the gcd raised to the power one plus o one minus o two where o two is the order of the gcd and o one is the maximum of the orders of the numerator and denominator
+this will ensure that dividing the numerator and denominator by the gcd will not introduce any fractions
+the result of this operation will be a numerator and denominator with integer coefficients
+the coefficients will normally be very large because of all of the integerizing factors so the last step is to remove the redundant factors by computing the ( integer ) greatest common divisor of all the coefficients of the numerator and the denominator and dividing through by this factor
+a
+implement this algorithm as a procedure reduce terms that takes two term lists n and d as arguments and returns a list nn dd which are n and d reduced to lowest terms via the algorithm given above
+also write a procedure reduce poly analogous to add poly that checks to see if the two polys have the same variable
+if so reduce poly strips off the variable and passes the problem to reduce terms then reattaches the variable to the two term lists supplied by reduce terms
+b
+define a procedure analogous to reduce terms that does what the original make rat did for integers
+and define reduce as a generic operation that calls apply generic to dispatch to either reduce poly or reduce integers
+you can now easily make the rational arithmetic package reduce fractions to lowest terms by having make rat call reduce before combining the given numerator and denominator to form a rational number
+the system now handles rational expressions in either integers or polynomials
+to test your program try the example at the beginning of this extended exercise
+see if you get the correct answer correctly reduced to lowest terms
+the gcd computation is at the heart of any system that does operations on rational functions
+the algorithm used above although mathematically straightforward is extremely slow
+the slowness is due partly to the large number of division operations and partly to the enormous size of the intermediate coefficients generated by the pseudodivisions
+one of the active areas in the development of algebraic manipulation systems is the design of better algorithms for computing polynomial gcds

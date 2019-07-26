@@ -1,0 +1,536 @@
+well there's one bit of mystery left which i'd like to get rid of right now and that's that we've been blithely doing things like conses assuming there's always another one
+that we've can that we've been a doing these things like car ing and cdr ing and assuming that we had some idea how this could be done
+now indeed we said that that's equivalent to having procedures okay
+but that doesn't really solve the problem because the procedures need all sorts of complicated mechanism like environment structures and things like that to work and those were ultimately made out of conses in the ex in the model that we had so that really doesn't solve the problem
+okay now the problem here is is the glue that data structure is made out of
+what kind of possible thing could it be
+and we've been showing you things like uh a machine a computer that has uh a se a controller and some registers and maybe a stack and uh we haven't said anything about for example its larger memory and i think that's what we have to worry about right now
+but just for a just to make it perfectly clear that this is an inessential purely implent implementational thing i like to show you for example how you could do it all with numbers
+that's a an easy one
+a famous fellow by the name of goedel okay a logician again of the nineteen thirties uh invented a very clever way of encoding the complicated expressions as numbers
+for example i'm not making i'm not saying exactly what goedel's scheme is because he didn't use words like cons
+he had other kinds of uh ways of combining to make expressions
+but he said i'm going to assign number to every algebraic expression and the way i'm going to manufacture these numbers is by combining the numbers of the parts
+so for example if we what we were doing in our world we could say that if if objects are represented by numbers
+numbers then cons of x and y could be represented by could be represented by two to the x times three to the y ok
+because then we could extract the parts
+we could say for example that then car of say x is the is the number of factors of two in x okay
+and of cdr is the same thing
+it's the number of factors of three in x
+now this is a perfectly reasonable scheme except for the fact that the numbers rapidly get to be much larger in number of digits than the number of protons in the universe
+so there's no easy way to use this scheme other than the theoretical one
+on the other hand there are other ways of representing these things
+we have been thinking in terms of little blocks in boxes right
+we've been making we've been thinking about or cons structures as looking sort of like this okay
+they're little pigeon holes with things in them
+and of course we arrange them in little trees
+i i wish that the semi conductor manufacturers would supply me with something appropriate for this but actually what they do supply me with is a linear memory
+memory is sort of a big pile of pigeon holes pigeon holes like this each of which can hold a certain sized object a thick sized object
+so for example a complicated list with twenty five elements won't fit in one of these however each of these is indexed by an address
+so that the address might be zero here one here two here three here and so on
+that we write these down as numbers is unimportant
+what matters is that they're distinct and there's a way to get to the next alright
+and in inside of each of these we can stuff something in each of these pigeon holes
+so that's what memory is like for those of you who haven't built a computer
+now now the problem is how are we going to impose on this type of structure this nice tree structure
+well it's not very hard and there have been numerous schemes involved in this
+the most important one is to say well assuming that the semi conductor manufacturer allows me to ran ra range my memory so that one of these pigeon holes is big enough to hold the address of another okay i've have i have it made
+now it actually has to be a little bit bigger because i have to also install or store some some information as to a tag which describes the kind of thing that's there and we'll see that in a second
+and of course if the semi conductor da manufacturer doesn't arrange it so i can do that then of course i can with some cleverness arrange combinations of these to fit together in that way
+so we're going to have to we're going to have to imagine imposing this complicated tree structure on our nice linear memory
+if we look at the first still store we see the a classic scheme for doing that okay
+it's a standard way of representing list structures in in a linear memory
+what we do is we divide this memory into into two parts
+an array called the cars and an array called the cdrs
+now whether those happen to be sequential addresses or whatever it's not important
+that's somebody's implementation details
+but there are two eh there are two eh arrays here
+linear arrays indexed by sequential indices like this hm
+what is stored in each of these pigeon holes is a typed object
+and what we have here are types which are begin with letters like p standing for a pair or n standing for a number or e standing for an empty list the end of the list
+and so if we which to represent an object like this the list beginning with one two and then having a three and a four as its second and third elements
+a list containing a list as its first part and then two numbers as the second and third parts
+then of course we draw it sort of like this these days in box and pointer notation
+and you see these are the three the three cells that have it as their car pointer the object which is either one two or three or four
+and then of course the one two the car of this entire structure is itself a sub structure which contains a sub list like that
+what i'm about to do is put down places which are i'm going to assign indices like this one over here represents the eh the the index of this cell
+but that pointer that we see here is a reference to the pigeon the pair of pigeon holes and the cars and the cdrs that are labeled by one in my linear memory down here
+so if i wish to impose this structure on my linear memory what i do is i say oh yes
+why don't we drop this why don't we drop this into cell one
+why as i pick one there's one okay
+and that says that its car i'm going to assign it to be a pair it's a pair which which is an index five
+and the cdr which is this one over here is a pair which i'm going to stick into place two p two okay
+and take a look at p two oh yes
+well p2 is a thing whose car is the number three
+so that's you see an n three and whose cdr over here is a pair which it lives in place four
+so that's what this p four is
+p four is a number whose value is four in its car and whose cdr is an empty list right there and that ends it
+so this is this is the traditional way of representing this kind of binary tree in a in a linear memory
+now now next question of course that we might want to worry about is just a little bit of implementation
+that means that when i write the procedures of the form assign assigned a not procedures lines of register machine code
+out of the form assigned a the car of fetch of b what i really mean is some is is addressing these addressing these elements
+and so whether going to think of that as a abbreviation for it
+now of course in order to write that down i'm going to introduce some sort of uh structure called a vector okay
+and we're going to have something which'll reference a vector just so we can write it down which takes the name of the vector or the that's not i don't think the name is the right word
+which takes the vector and the and the index and i have to have a way of setting one of those with something called a vector set
+i don't really care
+but let's look for example at then that kind of implementation of car and cdr okay
+so for example if i happen to have a a register b which contains the index the typed index of a pair okay therefore it is the pointer to a pair
+then i could take the car of that and i invi i write this down
+i might put that in register a
+what that really is is a representation of the the assign to a the value of vector ref ing or array indexing if you will or something the cars the cars object whatever that is with the index b
+and similarly for cdr
+and we could do the same thing for assignment to data structures if we need to do that sort of thing at all
+it's not too hard to build that
+well now the next question is how are we going to do allocation
+i mean every so often i say i want a cons
+now conses don't grow on trees or maybe they should but i have to have some way of i have to have some way of getting next one
+i have to have some idea of is there memory that is unused that i might want to allocate from
+and there are many schemes for doing this
+and the particular thing i'm showing you right now is not essential however it's convenient and has been done many times
+there's a one scheme's called the free list allocation scheme
+and what that means is that all of the free memory that there is in the world is linked together in a linked list just like all the other stuff and whenever you need a free cell to make a new cons
+you grab the first one make the free list be the cdr of it and then allocate that
+and so what that looks like is something like this
+here we have the free list here we have the free list starting in effs in in in in six okay
+and what that is is a pointer off to say um eight
+so what it says is this one is free and the next one is an eight
+this one is free and the next one is in is in three the next one that's free
+that one's free and the next one is in zero
+that one's free and the next one's in fifteen
+something like that
+and we can imagine having such a structure
+given that we have something like that then it's possible to just get one when you need it
+and so a program a program for doing cons this is what cons might turn into to assign to a register a the result of cons ing the a b onto a c
+the value of this contains b on and the value contains c
+what we have to do is get the current tie ahead of the free list make the free list be its cdr then we have to change the cars to be the uh of the of it the thing we're making up to be in a to be the b the thing in b
+and we have to make change the cdrs of the thing that's in a to be c
+so and then what we have in a is the right new frob whatever it is the object that we want
+now one there's a little bit of a a cheat here that i haven't told you about which is somewhere around here i haven't set the type of the thing that i've the the the type of the the thing that i'm cons ing up to be a pair and i ought to
+so there should be uh uh some sort of bits here are being set and i just haven't written that down
+we could've arranged it of course for the free list to be made out of pairs alright
+so then there's no problem with that
+but that's sort of again and inessential detail of the way a way some particular programmer or architect or whatever might manufacture his machine or or lisp system
+so for example just looking at this to allocate to allocate given that i had already the structure that i that you saw before supposing i wanted to allocate a new a new cell which is going to the uh
+representation of the list one one two where already one two is the car of the ori the list we were playing with before
+well that's not so hard
+i stored that one in one so uh p p one is the representation of this
+this is p five
+that's going to be the cdr of this
+now we're going to pull something off the free list but remember the free list started at six
+and the new free list after this allocation is eight is a a a a free list beginning in eight
+and of course in six now we have a number one which is what we wanted with its cdr being the the pair starting in location five
+and that's no big deal
+so the only the only problem really at r remaining here is well i don't have infinitely large memory
+i mean if i do this for a little while say for example supposing it takes me a microsecond to do a cons and if i have a million cons memory then i'm only going to run out in a second and that's pretty bad
+so what we do about to prevent that disaster that ecological disaster talk about right after questions
+are there any questions
+yes
+in the environment diagrams that we were drawing you know we would um use the body of procedures and you would eventually wind up with things that were no longer useful in that structure
+yes ma'am
+how does how is that represented in this
+oh well there's two problems here okay
+one you were asking is that material becomes unimportant uh useless
+we'll talk about that in a second
+that has to do with how to prevent ecological disasters right
+if i make a lot of garbage i have to some how be able to clean up after myself
+a and we'll talk about that in a second
+the other question you're asking is how you represent the environments
+i think
+'kay uh the environment structures can be represented in arbitrary ways
+there are lots of them
+i mean here i'm just telling you about list cells
+of course every real system has vectors of arbitrary length as well as the vectors of length too which represent list cells and uh the environment structures that one uses in a in a professionally written lisp system tend to be
+r r vectors which contain a number of elements approximately equal to the number of arguments but a little bit more because because you need certain glue okay
+and that the so you you remember the environments are made out of frames
+the frames are constructed by applying a procedure
+in doing so an allocation is made of a a place which can is the number of arguments long plus some glue that gets linked into a chain okay
+just it's just like algol at that level
+there any other questions
+okay thank you na and let's take a suh short break
+well as i just said computer memories supplied by the semiconductor manufacturers are finite and that's quite a pity
+ah
+it might not always be that way
+just for a quick calculation you can see that it's possible that if memory prices keep going at the rate they're going that if you it took still took a microsecond to do a cons
+then first of all everybody should know that there's about pie times ten to the seventh seconds in a year and so that would be uh ten to the seventh plus ten to the sixth is ten to the thirteenth
+so there's maybe ten to the fourteenth conses in the life of a machine
+if there was ten to the fourteenth words of memory on your machine you'd never run out
+okay so that would be and that's not completely unreasonable
+ten to the fourteenth is not a very large number okay
+i mean even for i don't think it is
+but then again i like to play with astronomy so is at least ten to the eighteenth centimeters between us and the nearest star but the
+the thing that i'm i'm about to worry about is at least in the current economic state of affairs ten to the fourteenth pieces of memory is expensive and so i suppose that we have to is make do with much smaller memories
+now in general we want to have an illusion of infinity
+all we need to do is arrange it so that whenever you look the thing is there
+and that's that's really a a an important idea uh
+a person or a computer lives only a finite amount of time
+i can only take a finite number of looks at something
+and so you really only need a finite amount of stuff but you have to arrange it so no matter how much there is that you remember how much you really claim there is there's always enough stuff so that when you make a look it's there
+and so you only need a finite amount
+but let's let's see
+one problem is as was brought up that there are possible ways that that there's lots of stuff that we make that we don't need
+and we could recycle the material out of which it's made
+an example for is for ex is the fact that when we're building environment structures and we do so every time we call a procedure we in build an environment frame
+that environment frame doesn't necessarily have a very long life time
+its lifetime meaning its usefulness may exist only over the the invocation of the procedure
+or if the procedure exports another procedure by returning it as a value and that procedure was defined inside of it well then the lifetime of the frame of the outer procedure still is only the life time of the air pesseur of the procedure which was exported
+and so ultimately a lot of that is garbage okay
+there are other ways of producing garbage as well
+uh users produce garbage
+an example of of user garbage is something like this
+if we write a a program to for example append two lists together
+well one way to do it is to reverse the first list onto the empty list and reverse that onto the second list
+now that's not a terribly bad way of doing it okay
+and however the intermediate result which is the reversal of the first list okay as done by this program is never going to be accessed ever again after it's copied back onto the second
+it's an intermediate result
+it's going to be hard to ever see how anybody would ever be able to access it
+in fact it will go away
+now if we make a garbage like that and we should be allowed to then there's got to be some way to reclaim that garbage
+well what i'd like to tell you about now is a very clever technique whereby a lisp system can prove a small theorem every so often of the form the following piece of junk will never be accessed again
+it can have no affect on the future of a computation
+it's actually based on a very simple idea
+and we've designed our computers to look sort of like this
+there's some data path which contains some registers you know when everything's like x and n and val and so on
+and there's one here called the stack some sort which points off to a structure somewhere which is the stack and we'll worry about in a second
+there's some finite mach controller finite state machine controller and there's some control signals that go this way and predicate results to come this way not the interesting part
+this is all there's some sort of structured memory which i just told you how to make which may contain a stack
+i didn't tell you how to make things of arbitrary shape only pairs
+but in fact with what i've told you you could simulate a stack by a big list
+i don't plan to do that
+it's not a nice way to do it but we could we might have something like that
+we have all sorts of little data structures in here you know that are hooked together in funny ways okay
+and are connect to other things and so on and ultimately things up there are pointers to these
+the things that are in the registers are pointers off to the data structures that live in this list structure memory
+now the truth of the matter is that the con entire consciousness of this machine is in these registers okay
+there is no possible way that the machine if done correctly if built correctly can access anything in this list structure memory unless the thing in that list structure memory is is connected by a sequence of data structures to to the registers
+if it's accessible by legitimate data structure selectors from the pointers that are stored in these registers
+things like array references perhaps or cons cell references cars and cdrs
+but i can't just talk about a random place in this memory because i can't get to it
+these are being arbitrary names
+i'm not allowed to count okay
+at least as i'm evaluating expressions
+if that's the case ok then there's a very simple theorem to be proved which is if i start with all lead pointers that are in all these registers and recursively chase out marking all the places i can get to be selectors
+then eventually i mark everything that can be gotten to
+anything which is not so marked is garbage and can be recycled
+very simple
+it cannot affect the future of the computation
+so let me show you that in a particular in a particular example
+now that means i'm going to have to append to my description of the list structure a mark
+and so here for example is a list structured memory and in this list structured memory is some list structure beginning at a place i'm going to call um this is the root
+now it doesn't really have to have a root
+it could be a bunch of them like all the registers
+but i can cleverly arrange it so all the registers all the things that are in all the registers are also at the right moment put into this into this root structure and then we got one pointer to it
+i don't really care
+so the p the idea is we're going to cons up stuff until the our free list is empty
+we run out of things
+now we're going to do this process of proving the theorem that a certain percentage of the memory is got crap in it
+and then we're re recycle that to grow new trees
+a standard use of of such garbage
+so in any case what do we have here
+well we have some data structure which starts out over here in p five and d well sorry starts out in one
+and in fact it uh it has a car in p in five and its cdr is in two and all the marks start out at zero
+now let's start marking just to play this game okay
+so for example s s since i can acce access one from the route i will mark that
+let me mark it
+bang
+okay so that's marked
+okay now since i can since i have a a five here i can go to five and see well i'll mark that
+bang
+that's useful stuff
+but five references has a number in its car i'm not interested in marking numbers but its cdr is seven so i can mark that
+bang okay
+seven is the empty list
+on the only thing it references uh and it's got a number in its car not interesting okay
+well now let's go back here
+i forgot about something
+two
+see in other words if i'm l looking at cell one cell one contains a contains a two right over here reference to two
+that means i should go mark mark two
+bang
+two contains a reference to four
+it's got a number in its car
+i'm not interested in that so i'm going to go mark that
+uh four al refers to seven through its car and is the e it's emptying its cdr but i've already marked that one so i don't have to mark it again
+this is all the accessible structure from that place simple recursive mark algorithm
+now there are some unhappinesses about that algorithm and we can worry about that in a second but basically you'll see that all of the things that have not been marked are are places that are free and i could recycle
+so the next stage after that is going to be to scan through all of my memory looking for looking for things that not marked
+every time i come across a marked thing i unmark it and every time i come across an unmarked thing i'm going to link it together into my free list
+classic very simple algorithm
+so let's see
+is that very simple
+yes it is
+i'm not going to go through the code in any detail but i just want to show you about how long it is
+let's look at the mark phase
+here's the first here's the first part of the mark phase
+we pick up the root we're going to have to do some uh we're gonna we're gonna use that as a recursive procedure call
+uh we're going to uh sweep from there after when we're done with marking and then we're going to do a little couple of instructions that do this checking out of the marks and changing the marks and things like that according to the algorithm i've just shown you
+okay it comes out here's you have to mark the cars of things and you also have to be able to mark the cdrs of things
+that's the entire mark phase
+i could always tell you a little story about this
+the old deck pdp six computer this was late that the mark sweep garbage collectors it was was written
+the program was so small that with the data that rem that it needed with the registers it needed to manipulate the memory it fit into the fast registers of the machine which was sixteen the whole program and you could execute instructions in the fast registers
+so this is an extremely small program and it can run very fast
+now unfortunately of course this program because of the fact that it's recursive in the way that in the in the way that you know do something first and then you do something after that you have to work on the cars and then the cdrs
+it requires auxiliary memory
+so lis lisp systems you don't know requires a stack for marking
+lisp systems that are built this way have a limit to the depth of recursion you can have in data structures in either the car of the cdr and that doesn't work very nicely
+on the other hand you never notice it if it's big enough okay
+and that's certainly been that's certainly been uh the case for most maclisp for example which ran maxima where you could deal with expression of thousands of elements long these are algebraic expressions with thousands of terms
+there's no problem with that
+such the garbage collector does work
+on the other hand there's a very clever modification to this algorithm which i will not describe by peter deutsch and uh schorr and waite
+herb schorr from ibm and waite who i don't know uh where that algorithm allows you to build you do can do this without auxiliary memory by remember as you walk the data structures where you came from by reversing the pointers as you go down and crawling up the reverse pointers as you go up
+it's a rather tricky algorithm
+the first time you write it or in fact the three first three times you write it has a terrible bug in it
+uh and it's also about uh it's quite rather slow because it's complicated
+it takes about six times as many reb memory references to do the sorts of things that we're talking about
+well now once i've done this marking phase and i get into a position where things look like this less like yes
+here we have some here we have the mark done just as i did it
+now we have to perform the sweep phase and i described to you what the sweep is like
+i'm going to walk down from one end of memory or the other i don't care where scanning every cell that's in the memory
+and as i scan these cells i'm going to link them together if they are free into the free list and if they are not free i'm going to unmark them so the marks become zero hm
+and in fact what i get well the program is not very complicated
+it looks sort of like this
+it's a little longer
+here's the first piece of it
+this one's coming down from the top of memory
+i don't want you to try to understand this at this point
+it's rather simple
+it's a very simple algorithm but there's pieces of it that just sort of look like this
+they're all o sort of obvious
+and then a after we've done the sweep we get an answer that looks like that
+now there are some disadvantages with marked sweep algorithms of this sort serious ones
+one ad one important disadvantage is that your memories get larger and larger okay as you say adver spaces get larger and larger and you're willing to represent more and more stuff then it gets very costly to scan all of memory okay
+what you'd really like to do is only scan useful stuff
+it would even be better if you realized that some stuff was was known to be good and useful and you don't have to look at it more than once or twice or very rarely
+whereas other stuff that is not you're not so sure about you can look at in more detail every time you want to do this you want to garbage collect
+well there there are algorithms that are organized in this way
+let me tell you about a a famous old algorithm which allows you to only look at the part of memory which is known to be useful hm
+and which happens to be the fastest known garbage collector algorithm
+this is the minsky fendeshel yokelson garbage collector algorithm
+it was in invented by by minsky in nineteen sixty one or sixty or something for the rle pdp one list which has four thousand ninety six words of of of list memory okay
+and a drum
+and the whole idea was to garbage collect this terrible memory
+what what minsky realized was the easiest way to do this is to scan the memory in the same sense walking the the the good structure
+copying it out into the drum compacted and then when it was d you were done copying it all out then you swapped that back into your memory
+now whether you not you use a drum or another piece of memory or something like that isn't important
+in fact i don't think people use drums anymore for anything but uh this algorithm basically uh depends upon having about twice as much address space as you're actually using okay
+and so what you have is some initially some mixture of of useful data and garbage
+so this is your call from space
+and this is a mixture of crud
+some of it's important and some of it isn't okay
+now there's a another place which is hopefully big enough which we will call to space which is where we're copying to
+and what happens is and i'm not going to go through this in detail it's in it's in our book quite explicitly
+there's a uh uh a root pointer you start from and the idea is that you try fa start with the root you copy the first thing that you see
+the first thing that the root points at to the beginning of to space
+the first thing is a pair of some or something like that a data structure okay
+you then you then also leave behind a broken heart saying i moved this object from here to here giving the place where it moved to
+this is called a broken heart because a friend of mine who implemented one of these in nineteen sixty six i was a very romantic character and called it a broken heart
+but in any case the the next thing you do is now you have a new free pointer which is here and you start scanning
+you scan this you scan this data structure that you just copied
+and every time you encounter a pointer in it you treat it as if it was the root pointer here
+oh i'm sorry
+the la the other thing you do is you now move the root pointer to there okay
+so you now you scan this and everything you see you treat as if it were the root pointer
+the so you see if you see something well it ee points up into there somewhere
+is it pointing at a thing which you've not copied yet
+is there a broken heart there
+if there's a broken heart there and it's something you have copied you just replace this pointer with the thing the broken heart points at
+if this is not if this thing has not been copied you copy it to the next place over here move your free pointer over here okay and then and then uh leave a broken heart behind and scan
+and if eventually when the scan pointer hits the free pointer everything in memory has been copied and then there's a whole bunch of empty space up here which you could either make into a free list if that's what you want to do but generally you don't in this kind of system
+in this system you sequentially allocate your memory
+now this is a very very nice algorithm and sort of the one we use in the the scheme that you've been using
+and s it's known to be a est expected
+i believe it's no one has found a faster algorithm than that
+there are very simple modifications to this algorithm invented by henry baker uh which allow one to run this algorithm in real time
+meaning you don't have to stop to garbage collect but you can interleave the cons ing that me the machine does when it's running with steps of the garbage collection process so that the thing the the garbage collection is distributed and the machine doesn't have to stop and garbage collection start
+of course in the case of of machines with virtual memory where where a lot of it is in inaccessible places this becomes a very expensive process and uh there have been numerous attempts to make this much better
+there is a uh a nice paper for those of you who are interested by moon and other people which describes a modification to the incremental minsky fendeshel yokelson algorithm and a modification to the baker algorithm which uh
+which is more efficient for virtual memory systems
+well i think now the mystery to this is sort of gone
+i'd like to see are there any questions
+yes
+i saw one of you run the garbage collector on the systems upstairs and it seemed to me to run extremely fast
+yes
+did the whole thing take does it sweep through all of memory and and
+no it sweeps it swept through exactly what was needed to copy the useful structure
+it's a copying collector
+okay
+and it's rather and it is very fast
+uh on the whole i suppose to copy in a bobcat to copy uh i think a couple of uh uh a three or three megabyte thing or something is less than a second real time
+i mean really these are very small program
+one thing you should realize is that is that um garbage collectors have to be small
+not because they have to be fast but because no one could debug a complicated garbage collector
+a garbage collector if it doesn't work will trash your memory in such a way that you cannot figure out what the hell happened
+you need an audit trail because it just like rearranges everything and how do you know what happened there
+so this is the only kind of program that it really a seriously matters if you stare at it long enough so that you believe that it works
+and that means in it m so prove it to yourself
+and that that see there's no way to debug it and that takes that takes it being small enough so you could hold it in your head hm
+so garbage collectors are special in this way
+so every reasonable garbage collector has gotten small and generally small programs are fast
+yes
+can you repeat the name of this technique once again
+that's the minsky fendeshel yokelson garbage collector
+you got that
+minsky invented it in sixty one for the rla pdp one
+a version of it was was developed and ba elaborated to be used in multix ma uh maclisp by fendeshel and yokelson
+okay in uh somewhere around nineteen sixty eight or sixty nine
+okay let's take a break
+well we've come to the end of this subject and uh we've already shown you a universal machine which is down to the le uh valuator down to the level of detail that you could imagine you could make one
+uh this is a particular limitation of lisp built on one of those scheme chips that was talked about yesterday sitting over here
+this is mostly interface to somebody's memory uh with a little bit of timing and other such stuff but this fellow actually ran lisp at a a fairly reasonable rate as interpretive
+it ran uh lisp as fast as a dec pdp ten back in nineteen seventy nine
+and so it gotten pretty hardware pretty concrete
+we've also dazzled you a bit with the thing that you can compute but is it the case that there are things we can't compute
+and so i'd like to end this with showing you something that you'd like to be able to compute that you can't
+the answer is yes
+there are things you can't compute
+for example something you'd really like is in your if your writing a compiler you'd like a program that would check that a think you were going to do will work
+wouldn't that be nice
+you'd like something that would catch infinite loops for example in programs that were written by users but in general you can't write such a program that'll read any program and determine whether or not it's an infinite loop
+let me show you that
+it's a little bit of of minor mathematics
+let's imagine that we just had a mathematical function before we start and there is one called s
+which takes a procedure and it's argument a
+and what s does is it determines whether or not it's safe to run p on a
+and what i mean by that is this
+it's true if p applied to a will converge
+to a value without an error
+and it's false if p of a
+loops forever or makes an error
+now that's truly a function
+there are some for every procedure and for every argument you could give it that is either true or false that it converges with it mount making an error and you could make a giant table of them okay
+but the question is could you write a procedure that computes the values of this function
+well let's assume that we can
+suppose that we have a procedure
+procedure called safe
+that computes the value of s okay
+now i'm going to show you by several methods that you can't that you can't do this
+the easiest one or the first one let's k defined a procedure called diag one
+give that we have safe we can define diag one
+diag one to be the procedure of one argument p which has the following properties
+if safe if it's safe to apply p to itself hm
+then i wish to have an infinite loop otherwise i'm going to return three
+maybe it was forty two
+what's the answer to the big question
+where of course we know what an infinite loop is
+an infinite loop to be a procedure of no arguments which is that nice lambda calculus loop lambda of x x of x applied to lambda of x x of x
+so there's nothing left to the imagination here okay
+well let's see what the story is
+i'm supposing it's the case that we we i worry about the procedure called diag one applied to diag one
+well what could it possibly be
+well i don't know
+we're going to substitute diag one for p in the body here
+well is it safe to compute diag one to diag one
+i don't know
+there are two possibilities
+if it's safe to compute diag one of diag one that means it shouldn't loop
+well that means i go to hear but then i produce an infinite loop so it can't be safe
+but if it's not safe to compute diag one of diag one then the answer to this is three but that's diag one of diag one so it had to be safe
+so therefore you therefore by contradiction you cannot produce safe
+for those of you who are boggled by that one i'm going to say it again a different way
+listen to it one more alternative
+let's define diag two
+these named diag because because of cantor's diagonal argument
+this is these are instances of a famous argument which was readily used by cantor in the uh late part of the last century to prove that they real numbers were not countable
+that there are too many real numbers to be courted by integers that there are more points on a line for example than there are counting numbers
+that may or may not be obvious and i don't want to get into that now okay
+but diag two is again a procedure of one argument p and it's almost the same as the previous one which is if sa it's safe
+to compute p on p then i'm going to produce oops if then i want to compute some other thing other than
+p of p otherwise i'm going to put out false
+where other than it says whatever p of p is i'm going to put out something else
+i can give you an example of a a definition of other than which i think works
+let's see
+yes where other than be a procedure of one argument x which says if its eq x to say quote a
+then the answer is quote b otherwise it's quote a
+that always produces something which is not what its argument is and that's all it is
+that's all i wanted
+well now let's consider this one diag two of diag two
+well look
+this only does something dangerous like calling p of p if it's safe to do so
+so if safe is defined at all
+if you can define such a procedure safe then this procedure is always defined and there fore safe on any inputs okay
+so diag two of diag two must reduce to other than diag two of diag two
+and that doesn't make sense
+so we've got contradiction and therefore we can't define safe
+i just wanted to do that twice slightly differently so that you wouldn't feel you wouldn't feel that the first one was a trick okay
+they may be both tricks but they're at least slightly different
+so i suppose that pretty much wraps it up
+i've just proved what we call the halting theorem okay
+and i suppose with that we're going to halt
+i hope you have a good time
+are there any questions
+yes
+what is the value of s of diag one
+of what
+s of diag one
+if you said s is a function and we can
+oh i don't know
+i don't know
+it's a function but i don't know how to compute it
+i'm i i can't do it
+i'm just a machine too right
+and i mean there's no machine that in principle it might be that in that particular case you just asked with some thinking i could figure it out
+but in general i can't compute the value of s any better than any other machine can
+there is such a function
+it's just that no machine can be built to compute it
+now there's a way of of saying that that should not be surprising
+going through this i mean i i don't have time to do this here but the number of functions is very large okay if there is a certain number of answers possible and a certain number of inputs possible then it's the number of answers raised to the number of inputs is the number of possible functions
+okay on one variable
+now now that's always bigger then the then then then the thing you're raising to the exponent
+the uh the number of functions is larger than the number of number of programs that one can write by an infinity counting argument
+so there must be and it's much larger
+so there must be a lot of a lot of functions that can't be computed by programs
+yeah
+a few moments ago you were talking about specifications and automatic generation of solution
+do you see any steps between specifications and solution
+steps between
+you mean you're saying how you go about constructing constructing devices given that you have specification for the device sure
+uh there's a lot of of software engineering that goes from specifications through many layers of design and then implementation
+yes
+i was curious if you think that's realistic
+well i think that some of it's realistic and some of it isn't
+i mean surely if i wanted to build an electrical filter okay and i have a uh uh a ra ra rather interesting possibility right
+supposing i have i want to build a thing that matches that matches some power output tube of a radio transmitter right to a uh to some uh to some antenna
+okay and i'm really out of this power epre this output tube out here
+and the problem is that they have different uh impedances
+i want them to match the impedances
+i also want to make a filter in there which is going to get rid of some harmonic radiation
+well one one old fashioned technique for doing this is called image impedances or something like that and what you do is you say you have a basic module called uh an l section looks like this okay
+and this uh if i happen to connect this to some resistance r and if i make this impedance x xl and if it happens to be q times r then this trans this produces a a uh a low pass filter with a q square plus one impedance match okay
+just what i need
+because now i can take two of these hook them together like this okay
+okay and i can take another one okay and then i'll hood them together like that and i have two l sections hooked together and this'll step the impedance down to one that i know and this'll step it up to one i know
+each of these is a low pass filter getting rid of some harmonics
+yeah it's a good filter okay
+it's called a pie section filter great okay
+accept for the fact that in doing what i just did i've made a terrible i've made a terrible uh inefficiency in the system
+i've made two coils where i should've made one and the problem with most software engineering art is that there's no ma there's no mechanism other than people optimization and compilers for getting rid of the redundant parts that are constructed when doing top down design okay
+it's even worse there are lots of very important structures that you can't construct at all this way
+a aw uh so i think that i think that the standard top down design is a rather shallow business uh it doesn't really capture what people want to do in design
+i'll give you another electrical example
+electrical examples are so much clearer than computational examples because computational examples require a certain degree of complexity to explain them
+but uh one of my favorite examples in the electrical world and how would i ever come up with the output stage of a does this inter stage connection be in an i f amplifier
+got some little transistor here and uh let's see
+well i'm going to have a tank and i'm going to hook this up to say
+i'm going to link couple that to the input of the next stage okay
+here's a perfectly plausible plan well accept for the fact that since i put that going up i should make that going that way okay
+here's a perfectly plausible plan for a uh no i shouldn't
+i'm dumb
+excuse me
+it doesn't matter
+the point is here's a perfectly plausible plan for coupling two stages together okay
+now what the problem is is what's this hierarchically
+it's not one thing okay
+hierarchically it doesn't make any sense at all
+it's the it's the inductance of a tune circuit
+it's the it's the primary of a transformer and it's also the dc path by which bias commissions get to the the collector of that transistor
+and there's no simple top down design that's going to produce a structure like that with so many overlapping from an eh overlapping uses for a particular thing
+playing playing uh scrabble where you have to do triple word scores or whatever is not so easy in top down design of a str top down design strategy yet most of real engineering is based on on getting the most umph for
+for effort and uh that's what you're seeing here
+yeah
+is is this the last question
+apparently so thank you okay
+hm
+mm
+mmm hmm
